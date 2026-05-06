@@ -1,0 +1,9 @@
+# Git Ignore
+node_modules/
+dist/
+.DS_Store
+
+# User requested to ignore:
+context/
+.vscode/
+mockups/

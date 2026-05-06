@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* WebViewer Optimization: Remove scrollbars but allow scrolling */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    /* Prevent pull-to-refresh on body, handle via custom component */
+    overscroll-behavior-y: none; 
+    min-height: max(884px, 100dvh);
+  }
+}
