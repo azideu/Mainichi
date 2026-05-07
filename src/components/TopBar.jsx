@@ -16,7 +16,7 @@ const TopBar = () => {
   };
 
   return (
-    <header className="bg-surface-container-lowest border-b border-surface-variant shadow-sm flex justify-between items-center w-full px-5 py-3 h-16 z-50 sticky top-0">
+    <header className="bg-surface-container-lowest border-b border-surface-variant shadow-sm flex justify-between items-center w-full px-5 py-3 h-16 z-50 fixed top-0 left-0 right-0">
       {/* Menu Trigger */}
       <button 
         onClick={() => setIsSidebarOpen(true)}

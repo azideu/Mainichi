@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body {
+  overscroll-behavior: none;
+}
+
 @layer base {
   /* WebViewer Optimization: Remove scrollbars but allow scrolling */
   ::-webkit-scrollbar {
@@ -11,8 +15,9 @@
   body {
     -ms-overflow-style: none;
     scrollbar-width: none;
-    /* Prevent pull-to-refresh on body, handle via custom component */
-    overscroll-behavior-y: none; 
+    /* Prevent all browser native overscroll/bounce effects */
+    overscroll-behavior: none; 
+    overflow-x: hidden;
     min-height: max(884px, 100dvh);
   }
 }
