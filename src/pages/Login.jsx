@@ -4,14 +4,29 @@ import { useAuth } from '../context/AuthContext';
 import Button3D from '../components/Button3D';
 
 const Login = () => {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState('');
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(email, password);
+    
+    if (!isLogin && password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    let success = false;
+    if (isLogin) {
+      success = await login(email, password);
+    } else {
+      success = await register(name, email, password);
+    }
+    
     if (success) {
       navigate('/');
     }
@@ -25,10 +40,25 @@ const Login = () => {
             <span className="material-symbols-outlined text-[32px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
           </div>
           <h1 className="font-h1 text-primary mb-2">Mainichi</h1>
-          <p className="font-body-md text-on-surface-variant">Start your Japanese journey.</p>
+          <p className="font-body-md text-on-surface-variant">
+            {isLogin ? 'Start your Japanese journey.' : 'Create your account today.'}
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {!isLogin && (
+            <div>
+              <label className="block font-label-caps text-on-surface-variant mb-2">Name</label>
+              <input 
+                type="text" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-shadow"
+                placeholder="Your Name"
+                required
+              />
+            </div>
+          )}
           <div>
             <label className="block font-label-caps text-on-surface-variant mb-2">Email</label>
             <input 
@@ -40,7 +70,7 @@ const Login = () => {
               required
             />
           </div>
-          <div className="mb-8">
+          <div>
             <label className="block font-label-caps text-on-surface-variant mb-2">Password</label>
             <input 
               type="password" 
@@ -51,12 +81,33 @@ const Login = () => {
               required
             />
           </div>
+          {!isLogin && (
+            <div className="mb-8">
+              <label className="block font-label-caps text-on-surface-variant mb-2">Confirm Password</label>
+              <input 
+                type="password" 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-shadow"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          )}
           
-          <Button3D type="submit" variant="primary">Log In</Button3D>
+          <Button3D type="submit" variant="primary">
+            {isLogin ? 'Log In' : 'Sign Up'}
+          </Button3D>
         </form>
         
         <p className="text-center font-body-md text-on-surface-variant mt-6 text-sm">
-          Don't have an account? <span className="text-primary font-medium cursor-pointer">Sign up</span>
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <span 
+            className="text-primary font-medium cursor-pointer"
+            onClick={() => setIsLogin(!isLogin)}
+          >
+            {isLogin ? 'Sign up' : 'Log in'}
+          </span>
         </p>
       </div>
     </div>

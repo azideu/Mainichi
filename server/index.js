@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
-import jwt from 'jwt-simple'; // Assuming jwt-simple or jsonwebtoken, I'll use jsonwebtoken since it's in package.json
 import jsonwebtoken from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
@@ -9,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5005;
 const JWT_SECRET = process.env.JWT_SECRET || 'mainichi_super_secret_key_2024';
 
 app.use(cors());
