@@ -17,7 +17,7 @@ const Review = () => {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl p-md border border-surface-variant shadow-[0_4px_12px_rgba(0,0,0,0.04)] mb-md">
+      <div className="bg-surface-container-lowest rounded-xl p-md border border-surface-variant shadow-ambient shadow-primary/5 mb-md">
         <h3 className="font-h3 text-on-surface mb-2">JLPT N5 Core</h3>
         <p className="font-body-md text-on-surface-variant mb-4">15 cards due for review</p>
         <Button3D onClick={() => navigate('/flashcard')}>Start Review</Button3D>

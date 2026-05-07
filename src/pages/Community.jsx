@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Button3D from '../components/Button3D';
+import LoadingState from '../components/LoadingState';
 
 const MOCK_DECKS = [
   { id: 1, title: 'Anime Vocabulary', author: 'OtakuMaster', downloads: 1205, price: 'Free', rating: 4.8 },
@@ -9,6 +10,16 @@ const MOCK_DECKS = [
 
 const Community = () => {
   const [activeTab, setActiveTab] = useState('discover');
+  const [isLoading, setIsLoading] = useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingState message="Discovering decks..." />;
+  }
 
   return (
     <div className="animate-in fade-in max-w-4xl mx-auto">
@@ -34,7 +45,7 @@ const Community = () => {
 
       <div className="space-y-4 mb-xl">
         {MOCK_DECKS.filter(d => activeTab === 'discover' || d.price === 'Premium').map(deck => (
-          <div key={deck.id} className="bg-surface-container-lowest rounded-xl p-md border border-surface-variant shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div key={deck.id} className="bg-surface-container-lowest rounded-xl p-md border border-surface-variant shadow-ambient shadow-primary/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-h3 text-on-surface">{deck.title}</h3>
@@ -55,9 +66,11 @@ const Community = () => {
               </div>
             </div>
             
-            <button className={`px-6 py-2 rounded-lg font-button-text transition-transform active:scale-95 ${deck.price === 'Premium' ? 'bg-tertiary text-on-tertiary shadow-[0_4px_0_#104648]' : 'bg-surface-container text-on-surface shadow-[0_4px_0_#d8dadc]'}`}>
-              {deck.price === 'Premium' ? 'Unlock' : 'Download'}
-            </button>
+            <div className="w-full sm:w-auto">
+              <Button3D variant={deck.price === 'Premium' ? 'primary' : 'secondary'}>
+                {deck.price === 'Premium' ? 'Unlock' : 'Download'}
+              </Button3D>
+            </div>
           </div>
         ))}
       </div>

@@ -78,7 +78,7 @@ const Profile = () => {
     <div className="animate-in fade-in max-w-2xl mx-auto">
       <h2 className="font-h1 text-primary mb-6">Profile</h2>
       
-      <div className="bg-surface-container-lowest rounded-xl p-md mb-6 shadow-sm border border-surface-variant text-center">
+      <div className="bg-surface-container-lowest rounded-xl p-md mb-6 shadow-ambient shadow-primary/5 border border-surface-variant text-center">
         <div className="relative w-24 h-24 mx-auto mb-4">
           <div className="w-full h-full rounded-full overflow-hidden border-4 border-primary-container shadow-md bg-surface-container">
             <img 
@@ -103,7 +103,7 @@ const Profile = () => {
         </div>
       </div>
       
-      <div className="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-variant text-center">
+      <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant text-center">
         <h3 className="font-h3 text-on-surface mb-6">Edit Profile Info</h3>
         
         <div className="mb-8">

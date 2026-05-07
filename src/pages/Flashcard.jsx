@@ -75,7 +75,7 @@ const Flashcard = () => {
             animate={{ rotateY: 0, opacity: 1 }}
             exit={{ rotateY: isFlipped ? 90 : -90, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className={`absolute inset-0 bg-surface-container-lowest rounded-xl p-md flex flex-col items-center justify-center shadow-[0_4px_12px_rgba(155,69,0,0.05)] border border-surface-variant ${isFlipped ? 'bg-surface-container' : ''}`}
+            className={`absolute inset-0 bg-surface-container-lowest rounded-xl p-md flex flex-col items-center justify-center shadow-ambient shadow-primary/5 border border-surface-variant ${isFlipped ? 'bg-surface-container' : ''}`}
           >
             {isFlipped ? (
               <div className="flex flex-col items-center text-center">
@@ -104,7 +104,7 @@ const Flashcard = () => {
             </button>
             <button 
               onClick={() => handleRating('good')}
-              className="flex-1 bg-tertiary border-2 border-tertiary text-on-tertiary font-button-text py-3 rounded-lg flex flex-col items-center justify-center active:scale-95 transition-transform shadow-[0_4px_0_#104648]"
+              className="flex-1 bg-tertiary border-2 border-tertiary text-on-tertiary font-button-text py-3 rounded-lg flex flex-col items-center justify-center active:scale-95 transition-transform shadow-3d shadow-tertiary-container"
             >
               <span className="text-sm font-normal mb-1">Good</span>
               <span className="text-xs opacity-80">10m</span>

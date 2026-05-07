@@ -19,9 +19,9 @@ const Dashboard = () => {
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="animate-in fade-in duration-300">
         {/* Hero Section / Daily Streak */}
-        <section className="bg-gradient-to-br from-primary-container to-primary rounded-xl p-md mb-md shadow-[0_4px_16px_rgba(155,69,0,0.15)] flex justify-between items-center relative overflow-hidden">
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-          <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+        <section className="bg-gradient-to-br from-primary-container to-primary rounded-xl p-md mb-md shadow-ambient shadow-primary/15 flex justify-between items-center relative overflow-hidden">
+          <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-container-lowest/10 rounded-full blur-2xl"></div>
+          <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-surface-container-lowest/10 rounded-full blur-xl"></div>
           
           <div className="z-10">
             <p className="font-label-caps text-primary-fixed mb-xs">DAILY STREAK</p>
@@ -37,7 +37,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-md">
           
           {/* Resume Lesson Card */}
-          <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex flex-col justify-between">
+          <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-sm">
                 <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center">
@@ -57,7 +57,7 @@ const Dashboard = () => {
           <MasteryRing progress={masteredWords} total={1000} label="Words learned" />
 
           {/* Daily Goal Card */}
-          <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant">
+          <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant">
             <h3 className="font-h3 text-on-surface mb-sm">Daily Goal</h3>
             <div className="flex items-center gap-sm mb-xs">
               <span className="material-symbols-outlined text-tertiary">check_circle</span>
@@ -78,8 +78,8 @@ const Dashboard = () => {
           <h2 className="font-h2 text-on-surface mb-sm">Achievements</h2>
           <div className="flex gap-sm overflow-x-auto pb-4 snap-x hide-scrollbar">
             {/* Unlocked Badge */}
-            <div className="min-w-[120px] bg-surface-container-lowest rounded-xl p-sm flex flex-col items-center border border-surface-variant shadow-[0_4px_12px_rgba(155,69,0,0.25)] snap-center">
-              <div className="w-16 h-16 rounded-full bg-tertiary-fixed flex items-center justify-center mb-xs relative shadow-[0_0_15px_rgba(155,69,0,0.6)]">
+            <div className="min-w-[120px] bg-surface-container-lowest rounded-xl p-sm flex flex-col items-center border border-surface-variant shadow-ambient shadow-primary/25 snap-center">
+              <div className="w-16 h-16 rounded-full bg-tertiary-fixed flex items-center justify-center mb-xs relative shadow-[0_0_15px_var(--tw-shadow-color)] shadow-primary/60">
                 <span className="material-symbols-outlined text-[32px] text-on-tertiary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
               </div>
               <p className="font-label-caps text-on-surface text-center">First Week</p>

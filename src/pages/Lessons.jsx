@@ -11,7 +11,7 @@ const Lessons = () => {
       </div>
 
       {/* Hero Card (Featured Lesson) */}
-      <div className="bg-surface-container-lowest rounded-xl p-md mb-8 shadow-[0_4px_12px_rgba(155,69,0,0.05)] relative overflow-hidden flex flex-col md:flex-row gap-6 items-center border border-surface-variant">
+      <div className="bg-surface-container-lowest rounded-xl p-md mb-8 shadow-ambient shadow-primary/5 relative overflow-hidden flex flex-col md:flex-row gap-6 items-center border border-surface-variant">
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary-fixed rounded-full blur-3xl opacity-30 pointer-events-none"></div>
         <div className="w-full md:w-1/3 aspect-[1.54] rounded-lg overflow-hidden shrink-0">
           <img alt="Japanese grammar illustration" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0ugkcQDIO2J4w2SE9TtgyiKaxoeuIILrIj2Q0SbLb8E2Mg9V0h4s5JQ340VnUE-43L5Ib8D9OKvGGQ70uhvweY3_xD5Xax3IzEjGXjnsxeZaPhN0MV4RqC7ttgFJ3e6DmydaWVnkXbYhLlD5a3SuGr3jb03CkNhb-t0LRQkAnzir535rL_rGuQRbUpkBzpwIC9dXiyJ4CFN0mMRiJLrAV-wL5Q-L-NeL5Re2AMnjSzB-4vL-HvdhWMPKH3tBHDBshQgX7PN14XHS"/>
@@ -54,7 +54,7 @@ const Lessons = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* Module 1: Particles */}
-        <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(155,69,0,0.05)] border border-surface-variant flex flex-col hover:bg-surface-container-high transition-colors cursor-pointer group">
+        <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant flex flex-col hover:bg-surface-container-high transition-colors cursor-pointer group">
           <div className="flex justify-between items-center mb-6">
             <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>join_inner</span>
@@ -73,7 +73,7 @@ const Lessons = () => {
         </div>
 
         {/* Module 2: Noun Sentences */}
-        <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(155,69,0,0.05)] border border-surface-variant flex flex-col hover:bg-surface-container-high transition-colors cursor-pointer group">
+        <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant flex flex-col hover:bg-surface-container-high transition-colors cursor-pointer group">
           <div className="flex justify-between items-center mb-6">
             <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>category</span>
@@ -92,7 +92,7 @@ const Lessons = () => {
         </div>
 
         {/* Module 3: Adjectives */}
-        <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(155,69,0,0.05)] border border-surface-variant flex flex-col hover:bg-surface-container-high transition-colors cursor-pointer group">
+        <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant flex flex-col hover:bg-surface-container-high transition-colors cursor-pointer group">
           <div className="flex justify-between items-center mb-6">
             <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>brush</span>

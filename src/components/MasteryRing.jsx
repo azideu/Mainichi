@@ -13,7 +13,7 @@ const MasteryRing = ({ progress = 0, total = 100, label = "Words learned" }) => 
   }, [progress, total]);
 
   return (
-    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex items-center justify-between">
+    <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant flex items-center justify-between">
       <div>
         <h3 className="font-h3 text-on-surface mb-xs">Mastery</h3>
         <p className="font-body-md text-on-surface-variant">{label}</p>

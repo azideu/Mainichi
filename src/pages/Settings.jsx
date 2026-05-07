@@ -6,7 +6,7 @@ const Settings = () => {
     <div className="animate-in fade-in max-w-2xl mx-auto">
       <h2 className="font-h1 text-primary mb-6">Settings</h2>
       
-      <div className="bg-surface-container-lowest rounded-xl p-md mb-6 shadow-sm border border-surface-variant">
+      <div className="bg-surface-container-lowest rounded-xl p-md mb-6 shadow-ambient shadow-primary/5 border border-surface-variant">
         <h3 className="font-h3 text-on-surface mb-4">Notifications</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -33,7 +33,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-variant">
+      <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant">
         <h3 className="font-h3 text-error mb-4">Danger Zone</h3>
         <p className="font-body-md text-on-surface-variant mb-4">Once you delete your account, there is no going back. Please be certain.</p>
         <button className="px-4 py-2 border-2 border-error text-error font-button-text rounded-lg hover:bg-error/10 transition-colors">

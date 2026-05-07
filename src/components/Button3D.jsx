@@ -7,8 +7,9 @@ const Button3D = ({ children, onClick, variant = 'primary', className = '', ...p
   const baseStyle = "font-h3 text-base py-3 px-4 rounded-lg flex items-center justify-center gap-2 relative w-full";
   
   const colorStyle = isPrimary 
-    ? "bg-primary text-on-primary shadow-[0_4px_0_#6a2d00]" // uses on-primary-container or darker shade for shadow
-    : "bg-surface-container text-on-surface shadow-[0_4px_0_#d8dadc]"; // surface-dim
+    ? "bg-primary text-on-primary shadow-3d shadow-primary-container"
+    : "bg-surface-container text-on-surface shadow-3d shadow-surface-variant";
+
     
   return (
     <motion.button

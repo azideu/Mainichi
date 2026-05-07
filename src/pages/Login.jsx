@@ -11,30 +11,38 @@ const Login = () => {
   const [name, setName] = useState('');
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     
     if (!isLogin && password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
 
     let success = false;
-    if (isLogin) {
-      success = await login(email, password);
-    } else {
-      success = await register(name, email, password);
-    }
-    
-    if (success) {
-      navigate('/');
+    try {
+      if (isLogin) {
+        success = await login(email, password);
+      } else {
+        success = await register(name, email, password);
+      }
+      
+      if (success) {
+        navigate('/');
+      } else {
+        setError("Invalid credentials. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-md bg-surface">
-      <div className="w-full max-w-md bg-surface-container-lowest p-xl rounded-xl shadow-[0_4px_16px_rgba(155,69,0,0.1)] border border-surface-variant">
+      <div className="w-full max-w-md bg-surface-container-lowest p-xl rounded-xl shadow-ambient shadow-primary/10 border border-surface-variant">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary-container rounded-full mx-auto flex items-center justify-center mb-4">
             <span className="material-symbols-outlined text-[32px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
@@ -44,6 +52,13 @@ const Login = () => {
             {isLogin ? 'Start your Japanese journey.' : 'Create your account today.'}
           </p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-error-container text-on-error-container rounded-lg flex items-start gap-2 border border-error/20">
+            <span className="material-symbols-outlined text-error text-[20px]">error</span>
+            <p className="font-body-md text-sm">{error}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (

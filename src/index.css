@@ -21,3 +21,12 @@ html, body {
     min-height: max(884px, 100dvh);
   }
 }
+
+@layer utilities {
+  .shadow-ambient {
+    box-shadow: 0 4px 16px var(--tw-shadow-color);
+  }
+  .shadow-3d {
+    box-shadow: 0 4px 0 var(--tw-shadow-color);
+  }
+}

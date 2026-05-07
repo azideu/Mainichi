@@ -27,7 +27,7 @@ import Sidebar from './components/Sidebar';
 const AppLayout = ({ children }) => {
   const location = useLocation();
   return (
-    <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-hidden">
+    <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-x-hidden">
       <Sidebar />
       <TopBar />
       <main className="px-edge-margin pt-[88px] pb-xl">
