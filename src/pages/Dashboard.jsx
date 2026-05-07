@@ -29,7 +29,7 @@ const Dashboard = () => {
               <span className="material-symbols-outlined text-[40px] text-primary-fixed" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
               <span className="font-h1 text-primary-fixed">{streak}</span>
             </div>
-            <p className="font-body-md text-primary-fixed/90 mt-xs">Keep it up! You're on fire.</p>
+            <p className="font-body-md text-primary-fixed/90 mt-xs">{streak > 0 ? "Keep it up! You're on fire." : "Start your learning journey today!"}</p>
           </div>
         </section>
 
@@ -49,7 +49,7 @@ const Dashboard = () => {
               <p className="font-body-md text-on-surface-variant mb-md">Master ordering sushi and expressing your preferences.</p>
             </div>
             <Button3D variant="primary">
-              Resume Lesson
+              Start Lesson
               <span className="material-symbols-outlined">arrow_forward</span>
             </Button3D>
           </div>

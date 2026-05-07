@@ -9,6 +9,8 @@ import Progress from './pages/Progress';
 import Community from './pages/Community';
 import Flashcard from './pages/Flashcard';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 
@@ -20,11 +22,13 @@ const ProtectedRoute = ({ children }) => {
 };
 
 import { AnimatePresence, motion } from 'framer-motion';
+import Sidebar from './components/Sidebar';
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
   return (
     <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-hidden">
+      <Sidebar />
       <TopBar />
       <main className="px-edge-margin pt-md pb-xl">
         <AnimatePresence mode="wait">
@@ -59,6 +63,8 @@ function App() {
             <Route path="/flashcard" element={<ProtectedRoute><AppLayout><Flashcard /></AppLayout></ProtectedRoute>} />
             <Route path="/progress" element={<ProtectedRoute><AppLayout><Progress /></AppLayout></ProtectedRoute>} />
             <Route path="/community" element={<ProtectedRoute><AppLayout><Community /></AppLayout></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
           </Routes>
         </Router>
       </AppProvider>

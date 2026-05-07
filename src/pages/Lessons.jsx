@@ -20,7 +20,7 @@ const Lessons = () => {
         <div className="flex-1 flex flex-col justify-center w-full z-10">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <span className="inline-block bg-tertiary-container text-on-tertiary-container font-label-caps px-2 py-1 rounded-sm mb-2">CONTINUE LEARNING</span>
+              <span className="inline-block bg-tertiary-container text-on-tertiary-container font-label-caps px-2 py-1 rounded-sm mb-2">START LEARNING</span>
               <h3 className="font-h2 text-on-background">Verbs: Te-Form</h3>
             </div>
             <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center shadow-sm">
@@ -34,15 +34,15 @@ const Lessons = () => {
           <div className="mb-6">
             <div className="flex justify-between font-label-caps text-on-surface-variant mb-1">
               <span>Progress</span>
-              <span>65%</span>
+              <span>0%</span>
             </div>
             <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full w-[65%]"></div>
+              <div className="h-full bg-primary rounded-full w-[0%]"></div>
             </div>
           </div>
           
           <div className="self-start">
-            <Button3D variant="primary">Resume Lesson</Button3D>
+            <Button3D variant="primary">Start Lesson</Button3D>
           </div>
         </div>
       </div>
@@ -59,16 +59,16 @@ const Lessons = () => {
             <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>join_inner</span>
             </div>
-            <span className="font-label-caps text-secondary bg-secondary-container px-2 py-1 rounded-sm">COMPLETED</span>
+            <span className="font-label-caps text-secondary bg-surface-variant text-on-surface-variant px-2 py-1 rounded-sm">NOT STARTED</span>
           </div>
           <h4 className="font-h3 text-on-background mb-2">Particles (助詞)</h4>
           <p className="font-body-md text-on-surface-variant mb-6 flex-grow">The glue of Japanese sentences. Learn wa, ga, o, ni, and de.</p>
           
           <div className="flex items-center gap-3">
             <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
-              <div className="h-full bg-secondary rounded-full w-full"></div>
+              <div className="h-full bg-secondary rounded-full w-[0%]"></div>
             </div>
-            <span className="font-label-caps text-secondary">100%</span>
+            <span className="font-label-caps text-secondary">0%</span>
           </div>
         </div>
 
@@ -78,16 +78,16 @@ const Lessons = () => {
             <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>category</span>
             </div>
-            <span className="font-label-caps text-primary bg-primary-fixed px-2 py-1 rounded-sm">IN PROGRESS</span>
+            <span className="font-label-caps text-primary bg-surface-variant text-on-surface-variant px-2 py-1 rounded-sm">LOCKED</span>
           </div>
           <h4 className="font-h3 text-on-background mb-2">Noun Sentences</h4>
           <p className="font-body-md text-on-surface-variant mb-6 flex-grow">Saying "A is B" using desu and da.</p>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 opacity-50">
             <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full w-[80%]"></div>
+              <div className="h-full bg-primary rounded-full w-[0%]"></div>
             </div>
-            <span className="font-label-caps text-primary">80%</span>
+            <span className="font-label-caps text-on-surface-variant">0%</span>
           </div>
         </div>
 
