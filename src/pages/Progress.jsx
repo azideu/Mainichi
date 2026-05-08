@@ -64,6 +64,16 @@ const Progress = () => {
           </div>
           <span className="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" style={{ fontVariationSettings: "'wght' 300" }}>chevron_right</span>
         </button>
+        <button onClick={() => {
+          import('../utils/appInventorBridge').then(module => {
+            module.sendToAppInventor(module.APP_INVENTOR_EVENTS.VIBRATE_PHONE);
+          });
+        }} className="w-full bg-primary/10 p-5 rounded-2xl border border-primary/20 flex justify-between items-center hover:bg-primary/20 transition-colors group mb-4">
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'wght' 300" }}>vibration</span>
+            <span className="font-body-md text-primary tracking-wide">Test Phone Vibration</span>
+          </div>
+        </button>
         <button onClick={logout} className="w-full bg-error/5 p-5 rounded-2xl border border-error/10 flex justify-between items-center hover:bg-error/10 transition-colors group">
           <div className="flex items-center gap-4">
             <span className="material-symbols-outlined text-error" style={{ fontVariationSettings: "'wght' 300" }}>logout</span>
