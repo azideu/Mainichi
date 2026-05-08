@@ -4,25 +4,32 @@ import { motion } from 'framer-motion';
 const Button3D = ({ children, onClick, variant = 'primary', className = '', ...props }) => {
   const isPrimary = variant === 'primary';
   
-  const baseStyle = "font-h3 text-base py-3 px-4 rounded-lg flex items-center justify-center gap-2 relative w-full";
+  // Tactical "Stone" Feel
+  const baseStyle = "font-label-caps text-base py-4 px-6 flex items-center justify-center gap-3 relative w-full transition-colors duration-300 overflow-hidden group";
   
+  // Add organic rounding and subtle 1px "ink stroke" borders
   const colorStyle = isPrimary 
-    ? "bg-primary text-on-primary shadow-3d shadow-primary-container"
-    : "bg-surface-container text-on-surface shadow-3d shadow-surface-variant";
+    ? "bg-primary text-on-primary border border-primary/20 rounded-xl shadow-3d shadow-primary-container"
+    : "bg-surface text-on-surface border border-outline/30 rounded-2xl shadow-paper-layer";
 
-    
   return (
     <motion.button
-      whileTap={{ y: 4, boxShadow: '0 0px 0 rgba(0,0,0,0)' }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98, y: 2, boxShadow: isPrimary ? '0 0px 0 rgba(0,0,0,0)' : '0 1px 2px rgba(21, 66, 18, 0.05)' }}
       className={`${baseStyle} ${colorStyle} ${className}`}
       onClick={onClick}
       style={{
-        // WebViewer optimization: disable native tap highlight
         WebkitTapHighlightColor: 'transparent',
       }}
       {...props}
     >
-      {children}
+      {/* Ink bleed effect on hover for primary button */}
+      {isPrimary && (
+        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-inherit"></div>
+      )}
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        {children}
+      </span>
     </motion.button>
   );
 };

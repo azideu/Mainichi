@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import Button3D from '../components/Button3D';
@@ -10,6 +11,16 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState(user?.profile_picture || '');
   const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef(null);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
+  };
 
   const avatars = [
     'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi',
@@ -75,47 +86,49 @@ const Profile = () => {
   };
 
   return (
-    <div className="animate-in fade-in max-w-2xl mx-auto">
-      <h2 className="font-h1 text-primary mb-6">Profile</h2>
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
+      <motion.h2 variants={itemVariants} className="font-h1 text-primary mb-8 tracking-tighter">Profile</motion.h2>
       
-      <div className="bg-surface-container-lowest rounded-xl p-md mb-6 shadow-ambient shadow-primary/5 border border-surface-variant text-center">
-        <div className="relative w-24 h-24 mx-auto mb-4">
-          <div className="w-full h-full rounded-full overflow-hidden border-4 border-primary-container shadow-md bg-surface-container">
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        <div className="relative z-10 w-28 h-28 mx-auto mb-6 bg-surface-bright rounded-xl p-1 border border-primary/20 shadow-sm">
+          <div className="w-full h-full rounded-xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply z-10 pointer-events-none"></div>
             <img 
               src={profilePicture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi'} 
               alt="User avatar" 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover relative z-0"
             />
           </div>
         </div>
-        <h3 className="font-h2 text-on-surface">{user?.name || 'User'}</h3>
-        <p className="font-body-md text-on-surface-variant mb-6">{user?.email || 'user@example.com'}</p>
+        <h3 className="font-h2 text-on-surface tracking-tight mb-1 relative z-10">{user?.name || 'Wanderer'}</h3>
+        <p className="font-body-md text-outline mb-8 relative z-10 tracking-wide">{user?.email || 'journey@mainichi.app'}</p>
         
-        <div className="flex justify-center gap-4">
-          <div className="bg-primary-container/20 px-6 py-3 rounded-xl flex flex-col items-center">
+        <div className="flex justify-center gap-6 relative z-10">
+          <div className="bg-primary/5 border border-primary/10 px-8 py-4 rounded-xl flex flex-col items-center">
             <span className="font-h2 text-primary">{streak}</span>
-            <span className="font-label-caps text-on-surface-variant">Day Streak</span>
+            <span className="font-label-caps text-outline tracking-widest text-[10px] mt-1">DAY STREAK</span>
           </div>
-          <div className="bg-secondary-container/20 px-6 py-3 rounded-xl flex flex-col items-center">
+          <div className="bg-secondary/5 border border-secondary/10 px-8 py-4 rounded-2xl flex flex-col items-center">
             <span className="font-h2 text-secondary">{masteredWords}</span>
-            <span className="font-label-caps text-on-surface-variant">Words Mastered</span>
+            <span className="font-label-caps text-outline tracking-widest text-[10px] mt-1">MASTERED</span>
           </div>
         </div>
-      </div>
+      </motion.div>
       
-      <div className="bg-surface-container-lowest rounded-xl p-md shadow-ambient shadow-primary/5 border border-surface-variant text-center">
-        <h3 className="font-h3 text-on-surface mb-6">Edit Profile Info</h3>
+      <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-lg shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        <h3 className="font-h3 text-on-surface mb-8 tracking-tight relative z-10">Edit Identity</h3>
         
-        <div className="mb-8">
-          <label className="block font-label-caps text-on-surface-variant mb-4">Choose Avatar</label>
+        <div className="mb-10 relative z-10">
+          <label className="block font-label-caps tracking-widest text-outline mb-4">CHOOSE AVATAR</label>
           <div className="flex flex-wrap justify-center gap-4">
             {/* Upload Button */}
             <button 
               onClick={() => fileInputRef.current.click()}
-              className="w-14 h-14 rounded-full bg-surface-container border-2 border-dashed border-primary/40 flex flex-col items-center justify-center text-primary hover:bg-primary/5 transition-colors group"
+              className="w-16 h-16 rounded-xl bg-surface-bright border border-dashed border-primary/30 flex flex-col items-center justify-center text-primary hover:bg-primary/5 transition-all group"
             >
-              <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
-              <span className="text-[8px] font-bold">ADD PHOTO</span>
+              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>add_a_photo</span>
             </button>
             <input 
               type="file" 
@@ -129,7 +142,7 @@ const Profile = () => {
               <button 
                 key={idx}
                 onClick={() => setProfilePicture(url)}
-                className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all ${profilePicture === url ? 'border-primary scale-110 shadow-md ring-2 ring-primary/20' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                className={`w-16 h-16 rounded-2xl overflow-hidden border transition-all ${profilePicture === url ? 'border-primary scale-110 shadow-paper-layer' : 'border-outline/10 opacity-70 hover:opacity-100 hover:border-outline/30'}`}
               >
                 <img src={url} alt={`Avatar ${idx}`} className="w-full h-full object-cover" />
               </button>
@@ -137,28 +150,28 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="h-[1px] bg-surface-variant mb-8 w-1/2 mx-auto" />
+        <div className="h-[1px] bg-outline/10 mb-10 w-1/3 mx-auto relative z-10" />
 
-        <form className="space-y-4 text-left max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-6 text-left max-w-sm mx-auto relative z-10" onSubmit={(e) => e.preventDefault()}>
           <div>
-            <label className="block font-label-caps text-on-surface-variant mb-2">Display Name</label>
+            <label className="block font-label-caps tracking-widest text-outline mb-2 ml-1">DISPLAY NAME</label>
             <input 
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-all"
+              className="w-full px-4 py-4 rounded-xl bg-surface-variant/50 border border-transparent focus:bg-surface-bright focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all shadow-inner"
               placeholder="Your Name"
             />
           </div>
           
-          <div className="pt-6">
-            <Button3D variant="primary" type="button" onClick={handleSave} disabled={isUpdating}>
-              {isUpdating ? 'Saving...' : 'Save Changes'}
+          <div className="pt-4 flex justify-center">
+            <Button3D variant="primary" type="button" onClick={handleSave} disabled={isUpdating} className="w-full">
+              {isUpdating ? 'Saving Changes...' : 'Save Changes'}
             </Button3D>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

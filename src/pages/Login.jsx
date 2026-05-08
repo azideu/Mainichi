@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Button3D from '../components/Button3D';
 
@@ -18,7 +19,7 @@ const Login = () => {
     setError('');
     
     if (!isLogin && password !== confirmPassword) {
-      setError("Passwords do not match!");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -41,90 +42,102 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-md bg-surface">
-      <div className="w-full max-w-md bg-surface-container-lowest p-xl rounded-xl shadow-ambient shadow-primary/10 border border-surface-variant">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary-container rounded-full mx-auto flex items-center justify-center mb-4">
-            <span className="material-symbols-outlined text-[32px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
+    <div className="min-h-screen flex flex-col items-center justify-center p-md bg-surface relative overflow-hidden">
+      {/* Serene Atmospheric Background */}
+      <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply pointer-events-none z-0"></div>
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-fixed rounded-full blur-3xl opacity-30 z-0"></div>
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-secondary-fixed rounded-full blur-3xl opacity-20 z-0"></div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="w-full max-w-md bg-surface-bright/90 backdrop-blur-md p-xl rounded-3xl shadow-paper-layer border border-outline/10 relative z-10"
+      >
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 bg-primary/10 rounded-2xl mx-auto flex items-center justify-center mb-6 border border-primary/20 shadow-sm">
+            <span className="material-symbols-outlined text-[40px] text-primary" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>energy_savings_leaf</span>
           </div>
-          <h1 className="font-h1 text-primary mb-2">Mainichi</h1>
-          <p className="font-body-md text-on-surface-variant">
-            {isLogin ? 'Start your Japanese journey.' : 'Create your account today.'}
+          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Mainichi</h1>
+          <p className="font-body-md text-outline tracking-wide">
+            {isLogin ? 'Resume your quiet study.' : 'Begin your journey.'}
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-error-container text-on-error-container rounded-lg flex items-start gap-2 border border-error/20">
-            <span className="material-symbols-outlined text-error text-[20px]">error</span>
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-6 p-4 bg-error/10 text-error rounded-xl flex items-start gap-3 border border-error/20">
+            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'wght' 300" }}>error</span>
             <p className="font-body-md text-sm">{error}</p>
-          </div>
+          </motion.div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {!isLogin && (
             <div>
-              <label className="block font-label-caps text-on-surface-variant mb-2">Name</label>
+              <label className="block font-label-caps tracking-widest text-outline mb-2 ml-1">NAME</label>
               <input 
                 type="text" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-shadow"
+                className="w-full px-4 py-4 rounded-xl bg-surface-variant/50 border border-transparent focus:bg-surface-bright focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all shadow-inner"
                 placeholder="Your Name"
                 required
               />
             </div>
           )}
           <div>
-            <label className="block font-label-caps text-on-surface-variant mb-2">Email</label>
+            <label className="block font-label-caps tracking-widest text-outline mb-2 ml-1">EMAIL</label>
             <input 
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-shadow"
+              className="w-full px-4 py-4 rounded-xl bg-surface-variant/50 border border-transparent focus:bg-surface-bright focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all shadow-inner"
               placeholder="name@example.com"
               required
             />
           </div>
           <div>
-            <label className="block font-label-caps text-on-surface-variant mb-2">Password</label>
+            <label className="block font-label-caps tracking-widest text-outline mb-2 ml-1">PASSWORD</label>
             <input 
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-shadow"
+              className="w-full px-4 py-4 rounded-xl bg-surface-variant/50 border border-transparent focus:bg-surface-bright focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all shadow-inner"
               placeholder="••••••••"
               required
             />
           </div>
           {!isLogin && (
             <div className="mb-8">
-              <label className="block font-label-caps text-on-surface-variant mb-2">Confirm Password</label>
+              <label className="block font-label-caps tracking-widest text-outline mb-2 ml-1">CONFIRM PASSWORD</label>
               <input 
                 type="password" 
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-surface-container border-none focus:ring-2 focus:ring-primary outline-none transition-shadow"
+                className="w-full px-4 py-4 rounded-xl bg-surface-variant/50 border border-transparent focus:bg-surface-bright focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all shadow-inner"
                 placeholder="••••••••"
                 required
               />
             </div>
           )}
           
-          <Button3D type="submit" variant="primary">
-            {isLogin ? 'Log In' : 'Sign Up'}
-          </Button3D>
+          <div className="pt-4">
+            <Button3D type="submit" variant="primary" className="w-full">
+              {isLogin ? 'Enter Sanctuary' : 'Register'}
+            </Button3D>
+          </div>
         </form>
         
-        <p className="text-center font-body-md text-on-surface-variant mt-6 text-sm">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
+        <p className="text-center font-body-md text-outline mt-8 text-sm">
+          {isLogin ? "A new wanderer? " : "Already walking the path? "}
           <span 
-            className="text-primary font-medium cursor-pointer"
+            className="text-primary font-medium cursor-pointer hover:underline underline-offset-4 decoration-primary/50 transition-all"
             onClick={() => setIsLogin(!isLogin)}
           >
             {isLogin ? 'Sign up' : 'Log in'}
           </span>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

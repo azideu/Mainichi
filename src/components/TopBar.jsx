@@ -16,90 +16,99 @@ const TopBar = () => {
   };
 
   return (
-    <header className="bg-surface-container-lowest border-b border-surface-variant shadow-ambient shadow-primary/5 flex justify-between items-center w-full px-5 py-3 h-16 z-50 fixed top-0 left-0 right-0">
-      {/* Menu Trigger */}
-      <button 
-        onClick={() => setIsSidebarOpen(true)}
-        className="text-primary transition-transform active:scale-95 duration-150 hover:bg-surface-container p-2 rounded-full"
-      >
-        <span className="material-symbols-outlined text-[24px]">menu</span>
-      </button>
-
-      {/* Logo */}
-      <div 
-        onClick={() => navigate('/')}
-        className="flex items-center gap-xs cursor-pointer active:scale-95 transition-transform"
-      >
-        <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>eco</span>
-        <h1 className="text-primary font-h3 tracking-tight">Mainichi</h1>
-      </div>
-
-      {/* Profile Button */}
-      <div className="relative">
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+      {/* Floating Glassmorphic Container */}
+      <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-paper-layer rounded-2xl flex justify-between items-center w-full px-5 py-2 h-16 relative overflow-hidden">
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        
+        {/* Menu Trigger */}
         <button 
-          onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-          className="transition-transform active:scale-95 duration-150 rounded-full overflow-hidden w-9 h-9 border-2 border-primary-container shadow-sm bg-surface-container"
+          onClick={() => setIsSidebarOpen(true)}
+          className="text-primary transition-transform active:scale-95 duration-150 hover:bg-surface-bright p-2 rounded-xl border border-transparent hover:border-outline/10 relative z-10"
         >
-          <img 
-            alt="User avatar" 
-            className="w-full h-full object-cover" 
-            src={user?.profile_picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi'} 
-          />
+          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>menu_open</span>
         </button>
 
-        <AnimatePresence>
-          {isProfileMenuOpen && (
-            <>
-              {/* Invisible backdrop to close menu */}
-              <div 
-                className="fixed inset-0 z-40" 
-                onClick={() => setIsProfileMenuOpen(false)}
-              />
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-3 w-48 bg-surface-container-lowest rounded-xl shadow-xl border border-surface-variant z-50 overflow-hidden"
-              >
-                <div className="p-3 border-b border-surface-variant">
-                  <p className="font-body-md font-bold text-on-surface truncate">{user?.name || 'User'}</p>
-                  <p className="font-label-caps text-on-surface-variant text-[10px] truncate">{user?.email || 'user@example.com'}</p>
-                </div>
-                <div className="p-1">
-                  <button 
-                    onClick={() => {
-                      setIsProfileMenuOpen(false);
-                      navigate('/profile');
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors text-sm"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">person</span>
-                    View Profile
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setIsProfileMenuOpen(false);
-                      navigate('/settings');
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors text-sm"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">settings</span>
-                    Account Settings
-                  </button>
-                  <div className="h-[1px] bg-surface-variant my-1" />
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-error hover:bg-error/10 rounded-lg transition-colors text-sm font-bold"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">logout</span>
-                    Logout
-                  </button>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+        {/* Logo */}
+        <div 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 cursor-pointer active:scale-95 transition-transform group relative z-10"
+        >
+          <div className="w-8 h-8 rounded-full border border-primary/20 bg-surface-bright flex items-center justify-center shadow-sm group-hover:bg-primary/5 transition-colors">
+            <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>energy_savings_leaf</span>
+          </div>
+          <h1 className="text-primary font-h3 tracking-tighter hidden sm:block">Mainichi</h1>
+        </div>
+
+        {/* Profile Button */}
+        <div className="relative z-10">
+          <button 
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            className="transition-transform active:scale-95 duration-150 rounded-xl overflow-hidden w-10 h-10 border border-outline/20 shadow-sm bg-surface hover:border-primary/30"
+          >
+            <img 
+              alt="User avatar" 
+              className="w-full h-full object-cover" 
+              src={user?.profile_picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi'} 
+            />
+          </button>
+
+          <AnimatePresence>
+            {isProfileMenuOpen && (
+              <>
+                {/* Invisible backdrop to close menu */}
+                <div 
+                  className="fixed inset-0 z-40" 
+                  onClick={() => setIsProfileMenuOpen(false)}
+                />
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  className="absolute right-0 mt-4 w-56 bg-surface-bright rounded-3xl shadow-ambient border border-outline/20 z-50 overflow-hidden"
+                >
+                  <div className="p-4 border-b border-outline/10 bg-surface">
+                    <p className="font-body-md text-on-surface truncate tracking-wide">{user?.name || 'Wanderer'}</p>
+                    <p className="font-label-caps text-outline text-[10px] truncate mt-1 tracking-widest">{user?.email || 'journey@mainichi.app'}</p>
+                  </div>
+                  <div className="p-2 flex flex-col gap-1">
+                    <button 
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        navigate('/profile');
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-3 text-on-surface-variant hover:text-primary hover:bg-surface rounded-xl transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110" style={{ fontVariationSettings: "'wght' 200" }}>person</span>
+                      <span className="font-body-md text-sm">Profile</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        navigate('/settings');
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-3 text-on-surface-variant hover:text-primary hover:bg-surface rounded-xl transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-[20px] transition-transform group-hover:rotate-45" style={{ fontVariationSettings: "'wght' 200" }}>settings</span>
+                      <span className="font-body-md text-sm">Settings</span>
+                    </button>
+                    <div className="h-[1px] bg-outline/10 my-1 mx-2" />
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-3 py-3 text-outline hover:text-error hover:bg-error/5 rounded-xl transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-[20px] transition-transform group-hover:-translate-x-1" style={{ fontVariationSettings: "'wght' 200" }}>logout</span>
+                      <span className="font-label-caps tracking-widest">DEPART</span>
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </header>
   );

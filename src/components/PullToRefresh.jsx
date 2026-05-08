@@ -92,7 +92,7 @@ const PullToRefresh = ({ children, onRefresh }) => {
         {(pullDistance > 0 || isRefreshing) && (
           <motion.div 
             animate={controls}
-            className="w-10 h-10 bg-surface-container-lowest rounded-full shadow-md flex items-center justify-center text-primary"
+            className="w-12 h-12 bg-surface rounded-2xl shadow-paper-layer border border-outline/10 flex items-center justify-center text-primary"
           >
             <motion.span 
               key={isRefreshing ? 'spinning' : 'pulling'}
@@ -101,7 +101,8 @@ const PullToRefresh = ({ children, onRefresh }) => {
               animate={isRefreshing ? { rotate: 360 } : { rotate: Math.min(pullDistance * 3, 360) }}
               transition={isRefreshing ? { repeat: Infinity, duration: 0.8, ease: "linear" } : { type: "tween", duration: 0 }}
               style={{ 
-                opacity: isRefreshing ? 1 : Math.min(pullDistance / THRESHOLD, 1)
+                opacity: isRefreshing ? 1 : Math.min(pullDistance / THRESHOLD, 1),
+                fontVariationSettings: "'wght' 200"
               }}
             >
               refresh
