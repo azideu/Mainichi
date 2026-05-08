@@ -5,7 +5,13 @@ import jsonwebtoken from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5005;
@@ -13,6 +19,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'mainichi_super_secret_key_2024';
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
+
+// Serve static files from the React app build folder
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // MySQL Database Connection Pool
 const pool = mysql.createPool({
@@ -235,6 +244,11 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
+});
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 app.listen(PORT, () => {

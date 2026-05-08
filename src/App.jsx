@@ -49,7 +49,16 @@ const AppLayout = ({ children }) => {
 };
 
 
+import { initAppInventorListener } from './utils/appInventorBridge';
+
 function App() {
+  React.useEffect(() => {
+    initAppInventorListener((data) => {
+      console.log("Data received from App Inventor:", data);
+      // You can add global event handling here (e.g., updating sensor state in AppContext)
+    });
+  }, []);
+
   return (
     <AuthProvider>
       <AppProvider>
