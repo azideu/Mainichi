@@ -59,19 +59,19 @@ app.post('/api/auth/register', async (req, res) => {
     const { name, email, password } = req.body;
     
     // Check if user exists
-    const [existing] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [existing] = await pool.query('SELECT * FROM mainichi_users WHERE email = ?', [email]);
     if (existing.length > 0) {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+      'INSERT INTO mainichi_users (name, email, password_hash) VALUES (?, ?, ?)',
       [name, email, hashedPassword]
     );
 
     // Create initial stats record
-    await pool.query('INSERT INTO user_stats (user_id) VALUES (?)', [result.insertId]);
+    await pool.query('INSERT INTO mainichi_user_stats (user_id) VALUES (?)', [result.insertId]);
 
     const token = jsonwebtoken.sign({ id: result.insertId, email }, JWT_SECRET, { expiresIn: '7d' });
     res.status(201).json({ token, user: { id: result.insertId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi' } });
@@ -85,7 +85,7 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [users] = await pool.query('SELECT * FROM mainichi_users WHERE email = ?', [email]);
     if (users.length === 0) {
       return res.status(400).json({ error: 'User not found' });
     }
@@ -114,7 +114,7 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
     const userId = req.user.id;
 
     await pool.query(
-      'UPDATE users SET name = ?, profile_picture = ? WHERE id = ?',
+      'UPDATE mainichi_users SET name = ?, profile_picture = ? WHERE id = ?',
       [name, profile_picture, userId]
     );
 
@@ -134,7 +134,7 @@ app.post('/api/vocab', authenticateToken, async (req, res) => {
   try {
     const { deck_id, kanji, furigana, english } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO vocabulary (deck_id, kanji, furigana, english) VALUES (?, ?, ?, ?)',
+      'INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, english) VALUES (?, ?, ?, ?)',
       [deck_id, kanji, furigana, english]
     );
     res.status(201).json({ id: result.insertId, deck_id, kanji, furigana, english });
@@ -148,7 +148,7 @@ app.post('/api/vocab', authenticateToken, async (req, res) => {
 app.get('/api/decks/:deck_id/vocab', authenticateToken, async (req, res) => {
   try {
     const { deck_id } = req.params;
-    const [rows] = await pool.query('SELECT * FROM vocabulary WHERE deck_id = ?', [deck_id]);
+    const [rows] = await pool.query('SELECT * FROM mainichi_vocabulary WHERE deck_id = ?', [deck_id]);
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -162,7 +162,7 @@ app.put('/api/vocab/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { kanji, furigana, english } = req.body;
     await pool.query(
-      'UPDATE vocabulary SET kanji = ?, furigana = ?, english = ? WHERE id = ?',
+      'UPDATE mainichi_vocabulary SET kanji = ?, furigana = ?, english = ? WHERE id = ?',
       [kanji, furigana, english, id]
     );
     res.json({ success: true });
@@ -176,7 +176,7 @@ app.put('/api/vocab/:id', authenticateToken, async (req, res) => {
 app.delete('/api/vocab/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query('DELETE FROM vocabulary WHERE id = ?', [id]);
+    await pool.query('DELETE FROM mainichi_vocabulary WHERE id = ?', [id]);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -195,7 +195,7 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
     const user_id = req.user.id;
 
     // Get current progress or set defaults
-    let [progressRows] = await pool.query('SELECT * FROM user_progress WHERE user_id = ? AND vocab_id = ?', [user_id, vocab_id]);
+    let [progressRows] = await pool.query('SELECT * FROM mainichi_user_progress WHERE user_id = ? AND vocab_id = ?', [user_id, vocab_id]);
     let progress = progressRows[0] || {
       easiness_factor: 2.5,
       interval_days: 0,
@@ -232,7 +232,7 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
 
     // Upsert the progress
     await pool.query(`
-      INSERT INTO user_progress (user_id, vocab_id, easiness_factor, interval_days, repetitions, next_review_date)
+      INSERT INTO mainichi_user_progress (user_id, vocab_id, easiness_factor, interval_days, repetitions, next_review_date)
       VALUES (?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE 
         easiness_factor = VALUES(easiness_factor),
