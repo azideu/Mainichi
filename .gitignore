@@ -4,6 +4,6 @@ dist/
 .DS_Store
 
 # User requested to ignore:
-context/
-.vscode/
-mockups/
+/context/
+/.vscode/
+/mockups/
