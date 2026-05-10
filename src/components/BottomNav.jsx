@@ -3,11 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const NAV_ITEMS = [
-  { id: 'home', path: '/', icon: 'dashboard', label: 'Home' },
-  { id: 'lessons', path: '/lessons', icon: 'menu_book', label: 'Lessons' },
-  { id: 'review', path: '/review', icon: 'auto_stories', label: 'Review' },
-  { id: 'community', path: '/community', icon: 'groups', label: 'Community' },
-  { id: 'progress', path: '/progress', icon: 'auto_graph', label: 'Progress' },
+  { id: 'home', path: '/', icon: 'dashboard', label: 'ホーム' },
+  { id: 'lessons', path: '/lessons', icon: 'menu_book', label: '授業' },
+  { id: 'review', path: '/review', icon: 'auto_stories', label: '復習' },
+  { id: 'community', path: '/community', icon: 'groups', label: '交流' },
+  { id: 'progress', path: '/progress', icon: 'auto_graph', label: '進捗' },
 ];
 
 const BottomNav = () => {

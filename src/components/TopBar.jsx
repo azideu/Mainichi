@@ -18,9 +18,9 @@ const TopBar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
       {/* Floating Glassmorphic Container */}
-      <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-paper-layer rounded-2xl flex justify-between items-center w-full px-5 py-2 h-16 relative overflow-hidden">
+      <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-paper-layer rounded-2xl flex justify-between items-center w-full px-5 py-2 h-16 relative">
         {/* Subtle texture overlay */}
-        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-2xl overflow-hidden"></div>
         
         {/* Menu Trigger */}
         <button 

@@ -25,7 +25,7 @@ const Progress = () => {
         <div className="w-28 h-28 rounded-2xl overflow-hidden border border-outline/20 shadow-paper-layer mb-6 bg-surface-bright p-1">
           <div className="w-full h-full rounded-2xl overflow-hidden relative">
             <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply z-10 pointer-events-none"></div>
-            <img alt="User avatar" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh4KuvQk9ObilNoyVYD3socfuAYe31_rOs23VAMSuZbDDLPtK_goQ20pk9Vv07d507e09Qi2VoDqfep8E1IcCO1ijTfAEil6bvkQwekWKWxymqw-BXY6ZHq2IZMnY9dJ9flJAo2zihS9MCpG2Ams5HiiS4WYClvx_AjOnmtYemg1YSZ7fwHDMXpGWUsjNMf_PLos0WlQ-qb2uglxuyonIHGQ_YCZnyPyg7X0cDR5ue5lrPsupyw7sxlSPlS6xBcPEb2hkn_UDX_as" />
+            <img alt="User avatar" className="w-full h-full object-cover" src={user?.profile_picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi'} />
           </div>
         </div>
         <h2 className="font-h2 text-on-surface tracking-tighter">{user?.name || 'Wanderer'}</h2>

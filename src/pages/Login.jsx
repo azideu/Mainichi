@@ -52,7 +52,7 @@ const Login = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="w-full max-w-xl bg-surface-bright/90 backdrop-blur-md p-xl rounded-3xl shadow-paper-layer border border-outline/10 relative z-10"
+        className="w-full max-w-xl bg-surface-bright/90 backdrop-blur-md p-6 sm:p-10 rounded-3xl shadow-paper-layer border border-outline/10 relative z-10"
       >
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-primary/10 rounded-2xl mx-auto flex items-center justify-center mb-6 border border-primary/20 shadow-sm">

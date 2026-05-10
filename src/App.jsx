@@ -30,7 +30,7 @@ const AppLayout = ({ children }) => {
     <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-x-hidden">
       <Sidebar />
       <TopBar />
-      <main className="px-edge-margin pt-[88px] pb-xl">
+      <main className="px-4 sm:px-md pt-[88px] pb-xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
