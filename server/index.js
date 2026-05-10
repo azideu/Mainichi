@@ -77,7 +77,7 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(201).json({ token, user: { id: result.insertId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi' } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -100,7 +100,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, profile_picture: user.profile_picture } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -121,7 +121,7 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
     res.json({ success: true, user: { id: userId, name, profile_picture } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -140,7 +140,7 @@ app.post('/api/vocab', authenticateToken, async (req, res) => {
     res.status(201).json({ id: result.insertId, deck_id, kanji, furigana, english });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -152,7 +152,7 @@ app.get('/api/decks/:deck_id/vocab', authenticateToken, async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -168,7 +168,7 @@ app.put('/api/vocab/:id', authenticateToken, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -180,7 +180,7 @@ app.delete('/api/vocab/:id', authenticateToken, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -244,7 +244,7 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
     res.json({ success: true, next_review_date: nextReview });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 

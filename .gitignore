@@ -7,3 +7,4 @@ dist/
 /context/
 /.vscode/
 /mockups/
+.env
