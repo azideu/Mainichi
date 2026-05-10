@@ -65,7 +65,7 @@ const Dashboard = () => {
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="font-h1 text-[64px] text-primary leading-none tracking-tighter">{streak}</span>
-                    <span className="font-h3 text-primary/60">days</span>
+                    <span className="font-h3 text-primary/60">{streak === 1 ? 'day' : 'days'}</span>
                   </div>
                 </div>
                 <p className="font-body-lg text-on-surface-variant mt-sm max-w-sm">

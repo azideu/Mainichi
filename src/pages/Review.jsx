@@ -5,6 +5,25 @@ import Button3D from '../components/Button3D';
 
 const Review = () => {
   const navigate = useNavigate();
+  const [dueCount, setDueCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchDue = async () => {
+      try {
+        const token = localStorage.getItem('mainichi_token');
+        const res = await fetch('/api/progress/due', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDueCount(data.length);
+        }
+      } catch (err) {
+        console.error("Failed to fetch due count", err);
+      }
+    };
+    fetchDue();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -25,7 +44,7 @@ const Review = () => {
         </div>
         <div className="w-14 h-14 bg-surface-bright border border-primary/20 rounded-2xl flex items-center justify-center shadow-sm relative overflow-hidden group">
           <div className="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors"></div>
-          <span className="font-h2 text-primary relative z-10">15</span>
+          <span className="font-h2 text-primary relative z-10">{dueCount}</span>
         </div>
       </motion.div>
 
@@ -33,8 +52,10 @@ const Review = () => {
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <div className="relative z-10">
           <h3 className="font-h2 text-on-surface mb-2 tracking-tight">JLPT N5 Core</h3>
-          <p className="font-body-md text-on-surface-variant mb-6">15 cards due for review</p>
-          <Button3D onClick={() => navigate('/flashcard')} variant="primary">Commence Review</Button3D>
+          <p className="font-body-md text-on-surface-variant mb-6">{dueCount} cards due for review</p>
+          <Button3D onClick={() => navigate('/flashcard')} variant="primary" disabled={dueCount === 0}>
+            {dueCount > 0 ? 'Commence Review' : 'Nothing Due'}
+          </Button3D>
         </div>
       </motion.div>
 

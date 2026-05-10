@@ -188,6 +188,81 @@ app.delete('/api/vocab/:id', authenticateToken, async (req, res) => {
 // SRS & PROGRESS TRACKING ROUTES
 // ==========================================
 
+// Get user stats and settings
+app.get('/api/progress/stats', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    let [statsRows] = await pool.query('SELECT * FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+    
+    // If stats don't exist for some reason, create defaults
+    if (statsRows.length === 0) {
+      await pool.query('INSERT INTO mainichi_user_stats (user_id) VALUES (?)', [user_id]);
+      [statsRows] = await pool.query('SELECT * FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+    }
+    
+    const stats = statsRows[0];
+    
+    // Calculate daily goal current progress (reviews done today)
+    // We can infer this roughly, but typically we'd need a reviews_log table.
+    // For simplicity, we'll return a calculated 'dailyGoalCurrent' of 0 unless we track it explicitly.
+    // Let's just return what we have in stats.
+    res.json({
+      streak: stats.current_streak,
+      longestStreak: stats.longest_streak,
+      masteredWords: stats.words_mastered,
+      masteryRequirement: stats.mastery_requirement,
+      dailyGoal: { current: 0, total: stats.daily_goal }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Update settings
+app.put('/api/progress/settings', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    let { masteryRequirement, dailyGoal } = req.body;
+    
+    if (masteryRequirement > 10) masteryRequirement = 10;
+    if (masteryRequirement < 1) masteryRequirement = 1;
+    if (dailyGoal < 1) dailyGoal = 1;
+
+    await pool.query(
+      'UPDATE mainichi_user_stats SET mastery_requirement = ?, daily_goal = ? WHERE user_id = ?', 
+      [masteryRequirement, dailyGoal, user_id]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Get due reviews
+app.get('/api/progress/due', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    // Select all vocabulary that:
+    // 1. Has no progress record yet (new cards)
+    // 2. Has a next_review_date in the past
+    const query = `
+      SELECT v.* FROM mainichi_vocabulary v
+      LEFT JOIN mainichi_user_progress p ON v.id = p.vocab_id AND p.user_id = ?
+      WHERE p.next_review_date <= CURRENT_TIMESTAMP OR p.id IS NULL
+      ORDER BY p.next_review_date ASC
+      LIMIT 50
+    `;
+    const [rows] = await pool.query(query, [user_id]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
 // Record a review result (Spaced Repetition Logic)
 app.post('/api/progress/review', authenticateToken, async (req, res) => {
   try {
@@ -241,7 +316,59 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
         next_review_date = VALUES(next_review_date)
     `, [user_id, vocab_id, progress.easiness_factor, progress.interval_days, progress.repetitions, nextReview]);
 
-    res.json({ success: true, next_review_date: nextReview });
+    // ==== Update Streak and Mastered Words ====
+    // 1. Get current stats
+    const [statsRows] = await pool.query('SELECT * FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+    const stats = statsRows[0];
+    
+    if (stats) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      let lastStudy = stats.last_study_date ? new Date(stats.last_study_date) : null;
+      if (lastStudy) lastStudy.setHours(0, 0, 0, 0);
+      
+      let newStreak = stats.current_streak;
+      let newLongest = stats.longest_streak;
+      
+      if (!lastStudy) {
+        newStreak = 1;
+      } else {
+        const diffTime = Math.abs(today - lastStudy);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          // Studied yesterday, increment streak
+          newStreak += 1;
+        } else if (diffDays > 1) {
+          // Missed a day, reset streak
+          newStreak = 1;
+        }
+        // If diffDays === 0, already studied today, streak remains the same
+      }
+      
+      if (newStreak > newLongest) {
+        newLongest = newStreak;
+      }
+
+      // 2. Recalculate mastered words based on the requirement
+      const reqReps = stats.mastery_requirement || 3;
+      const [masteredRows] = await pool.query(
+        'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND repetitions >= ?',
+        [user_id, reqReps]
+      );
+      const newMasteredWords = masteredRows[0].count;
+
+      // 3. Update stats table
+      await pool.query(
+        'UPDATE mainichi_user_stats SET current_streak = ?, longest_streak = ?, last_study_date = ?, words_mastered = ? WHERE user_id = ?',
+        [newStreak, newLongest, new Date(), newMasteredWords, user_id]
+      );
+
+      res.json({ success: true, next_review_date: nextReview, streak: newStreak, masteredWords: newMasteredWords });
+    } else {
+      res.json({ success: true, next_review_date: nextReview });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });

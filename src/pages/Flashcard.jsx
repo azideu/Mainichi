@@ -1,146 +1,291 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
 
-const mockDeck = [
-  { id: 1, kanji: '水', furigana: 'みず', english: 'Water', audio: true },
-  { id: 2, kanji: '火', furigana: 'ひ', english: 'Fire', audio: true },
-  { id: 3, kanji: '木', furigana: 'き', english: 'Tree/Wood', audio: true }
-];
+const STEPS = {
+  RECALL: 'RECALL',
+  MEANING: 'MEANING',
+  ONYOMI: 'ONYOMI',
+  KUNYOMI: 'KUNYOMI',
+  RESULT: 'RESULT'
+};
 
 const Flashcard = () => {
   const navigate = useNavigate();
   const { recordReview } = useApp();
+  const [deck, setDeck] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [step, setStep] = useState(STEPS.RECALL);
   const [isFinished, setIsFinished] = useState(false);
+  const [results, setResults] = useState({ meaning: null, onyomi: null, kunyomi: null });
+  const [options, setOptions] = useState({ meaning: [], onyomi: [], kunyomi: [] });
 
-  const currentCard = mockDeck[currentIndex];
+  useEffect(() => {
+    const fetchDue = async () => {
+      try {
+        const token = localStorage.getItem('mainichi_token');
+        const res = await fetch('/api/progress/due', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDeck(data);
+          if (data.length > 0) generateOptions(0, data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch due cards", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDue();
+  }, []);
 
-  const handleReveal = () => {
-    setIsFlipped(true);
+  const generateOptions = (index, currentDeck) => {
+    const card = currentDeck[index];
+    // Pool for distractors - use all cards in deck
+    const pool = currentDeck;
+    
+    const getDistractors = (attr, correctVal) => {
+      // Find other values for the same attribute from the deck
+      const distractors = pool
+        .filter(c => c.id !== card.id && c[attr] !== correctVal)
+        .map(c => c[attr])
+        .filter((val, idx, self) => val && self.indexOf(val) === idx);
+      
+      // Shuffle and take 2
+      const shuffled = [...distractors].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 2);
+      
+      // Add correct value and shuffle again
+      return [...selected, correctVal].sort(() => 0.5 - Math.random());
+    };
+
+    setOptions({
+      meaning: getDistractors('english', card.english),
+      onyomi: getDistractors('onyomi', card.onyomi),
+      kunyomi: getDistractors('kunyomi', card.kunyomi)
+    });
   };
 
-  const handleRating = (rating) => {
-    recordReview(currentCard.id, rating);
-    if (currentIndex < mockDeck.length - 1) {
-      setIsFlipped(false);
-      setCurrentIndex(currentIndex + 1);
+  const currentCard = deck[currentIndex];
+
+  const handleForgot = () => {
+    setResults({ meaning: false, onyomi: false, kunyomi: false });
+    setStep(STEPS.RESULT);
+  };
+
+  const handleChoice = (type, choice) => {
+    const isCorrect = choice === currentCard[type === 'meaning' ? 'english' : type];
+    setResults(prev => ({ ...prev, [type]: isCorrect }));
+    
+    if (type === 'meaning') setStep(STEPS.ONYOMI);
+    else if (type === 'onyomi') setStep(STEPS.KUNYOMI);
+    else if (type === 'kunyomi') setStep(STEPS.RESULT);
+  };
+
+  const handleNext = async () => {
+    // If any part was wrong or forgot was pressed, it's a 'hard' review
+    const allCorrect = results.meaning && results.onyomi && results.kunyomi;
+    await recordReview(currentCard.id, allCorrect ? 'good' : 'hard');
+    
+    if (currentIndex < deck.length - 1) {
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
+      setStep(STEPS.RECALL);
+      setResults({ meaning: null, onyomi: null, kunyomi: null });
+      generateOptions(nextIdx, deck);
     } else {
       setIsFinished(true);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh]">
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
+        <p className="font-body-md text-outline animate-pulse">Consulting the archives...</p>
+      </div>
+    );
+  }
+
+  if (deck.length === 0 && !isFinished) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh] text-center px-6">
+        <span className="material-symbols-outlined text-[64px] text-primary/30 mb-6" style={{ fontVariationSettings: "'wght' 200" }}>auto_awesome</span>
+        <h2 className="font-h2 text-on-surface mb-2">Queue Clear</h2>
+        <p className="font-body-md text-outline mb-8">All your kanji are currently at rest.</p>
+        <Button3D onClick={() => navigate('/')} variant="primary">Return Home</Button3D>
+      </div>
+    );
+  }
+
   if (isFinished) {
     return (
-      <div className="flex flex-col items-center justify-center h-[70vh] animate-in fade-in max-w-md mx-auto text-center">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", damping: 15 }}
-          className="w-28 h-28 rounded-2xl bg-surface-bright border border-primary/20 flex items-center justify-center mb-8 relative overflow-hidden shadow-paper-layer"
-        >
-          <div className="absolute inset-0 bg-primary/10"></div>
-          <span className="material-symbols-outlined text-[56px] text-primary relative z-10" style={{ fontVariationSettings: "'wght' 200" }}>spa</span>
-        </motion.div>
-        <h2 className="font-h1 text-on-surface mb-4 tracking-tighter">Review Complete</h2>
-        <p className="font-body-md text-outline mb-10 leading-relaxed">Great job keeping up with your studies. The path to mastery is built on daily steps.</p>
-        <Button3D onClick={() => navigate('/')} variant="primary">Return to Sanctuary</Button3D>
+      <div className="flex flex-col items-center justify-center h-[70vh] animate-in fade-in max-w-md mx-auto text-center px-6">
+        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-8 border border-primary/20 shadow-paper-layer">
+          <span className="material-symbols-outlined text-[48px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>done_all</span>
+        </div>
+        <h2 className="font-h1 text-on-surface mb-4 tracking-tighter">Garden Tended</h2>
+        <p className="font-body-lg text-on-surface-variant mb-10 leading-relaxed">
+          You've successfully reviewed all due kanji. Your path to mastery continues.
+        </p>
+        <Button3D onClick={() => navigate('/')} variant="primary" className="w-full">
+          Return to Sanctuary
+        </Button3D>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-start h-full pt-4 animate-in fade-in max-w-md mx-auto">
-      {/* Top Header */}
-      <div className="w-full flex justify-between items-center mb-8 bg-surface-bright/50 p-2 rounded-full border border-outline/10 backdrop-blur-md">
-        <button onClick={() => navigate(-1)} className="text-outline hover:text-primary p-2 rounded-full hover:bg-surface transition-colors flex items-center justify-center">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>close</span>
+    <div className="max-w-md mx-auto h-[85vh] flex flex-col pt-4 px-4">
+      {/* Top Bar */}
+      <div className="flex justify-between items-center mb-8">
+        <button onClick={() => navigate('/')} className="text-outline hover:text-primary transition-colors">
+          <span className="material-symbols-outlined">close</span>
         </button>
-        <div className="flex-1 px-4">
+        <div className="flex-1 px-8">
           <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${(currentIndex / mockDeck.length) * 100}%` }}
-            ></div>
+            <motion.div 
+              className="h-full bg-primary rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${(currentIndex / deck.length) * 100}%` }}
+              transition={{ duration: 0.5 }}
+            />
           </div>
         </div>
-        <span className="font-label-caps text-outline tracking-widest px-3">{currentIndex + 1}/{mockDeck.length}</span>
+        <span className="font-label-caps text-outline text-[10px] tracking-widest">{currentIndex + 1}/{deck.length}</span>
       </div>
 
-      <div className="w-full mb-6 text-center">
-        <h2 className="font-label-caps text-outline tracking-[0.2em]">JLPT N5 CORE</h2>
+      {/* Kanji Display */}
+      <div className="flex flex-col items-center mb-10">
+        <motion.div 
+          key={currentIndex}
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="relative"
+        >
+          {/* Circular frame like Kanji Garden */}
+          <div className="absolute inset-0 -m-8 border-4 border-dashed border-outline/10 rounded-full animate-[spin_30s_linear_infinite]"></div>
+          <div className="w-44 h-44 bg-surface rounded-full flex items-center justify-center shadow-paper-layer border border-outline/5 relative z-10 overflow-hidden">
+            <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply"></div>
+            <span className="text-[96px] font-bold text-on-surface relative z-10" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+              {currentCard.kanji}
+            </span>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Card Area */}
-      <div className="perspective-1000 w-full h-[400px] mb-10 relative">
-        <AnimatePresence initial={false} mode="wait">
-          <motion.div
-            key={currentCard.id + (isFlipped ? '-back' : '-front')}
-            initial={{ rotateY: isFlipped ? -180 : 180, opacity: 0, scale: 0.95 }}
-            animate={{ rotateY: 0, opacity: 1, scale: 1 }}
-            exit={{ rotateY: isFlipped ? 180 : -180, opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 200, damping: 25 }}
-            className={`absolute inset-0 rounded-xl p-8 flex flex-col items-center justify-center shadow-paper-layer border border-outline/10 overflow-hidden ${isFlipped ? 'bg-surface-bright' : 'bg-surface'}`}
-          >
-            {/* Washi Texture */}
-            <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply pointer-events-none"></div>
-            
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
-              {isFlipped ? (
-                <div className="flex flex-col items-center text-center">
-                  <p className="font-body-lg text-outline mb-4 tracking-widest">{currentCard.furigana}</p>
-                  <h1 className="font-h1 text-[64px] text-on-surface mb-8 opacity-90">{currentCard.kanji}</h1>
-                  <div className="h-[1px] w-12 bg-primary/30 mb-6"></div>
-                  <p className="font-h3 text-primary tracking-wide">{currentCard.english}</p>
+      {/* Interaction Area */}
+      <div className="flex-1 flex flex-col">
+        <AnimatePresence mode="wait">
+          {step === STEPS.RECALL && (
+            <motion.div 
+              key="recall"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex flex-col items-center text-center space-y-8"
+            >
+              <p className="font-body-lg text-outline leading-relaxed">
+                Recall the <span className="text-on-surface font-medium">meaning</span>, <span className="text-on-surface font-medium">on'yomi</span>, and <span className="text-on-surface font-medium">kun'yomi</span> for this kanji.
+              </p>
+              <div className="w-full space-y-4">
+                <Button3D onClick={() => setStep(STEPS.MEANING)} variant="primary" className="w-full py-6">
+                  Recall readings
+                </Button3D>
+                <button 
+                  onClick={handleForgot}
+                  className="w-full py-4 bg-surface-variant/30 rounded-2xl text-outline font-label-caps tracking-widest hover:bg-surface-variant/50 transition-all border border-outline/5"
+                >
+                  Not sure?
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {(step === STEPS.MEANING || step === STEPS.ONYOMI || step === STEPS.KUNYOMI) && (
+            <motion.div 
+              key={step}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="flex flex-col space-y-6"
+            >
+              <p className="font-label-caps text-outline text-center tracking-[0.2em]">
+                CHOOSE THE {step}
+              </p>
+              <div className="space-y-3">
+                {options[step.toLowerCase()]?.map((opt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleChoice(step.toLowerCase(), opt)}
+                    className="w-full py-5 px-6 bg-surface border border-outline/10 rounded-2xl font-h3 text-on-surface hover:border-primary/50 hover:bg-primary/5 transition-all shadow-paper-layer text-center active:scale-[0.98]"
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              <button 
+                onClick={handleForgot}
+                className="w-full py-4 text-outline font-label-caps tracking-widest hover:text-primary transition-colors mt-2"
+              >
+                Forgot?
+              </button>
+            </motion.div>
+          )}
+
+          {step === STEPS.RESULT && (
+            <motion.div 
+              key="result"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col space-y-8"
+            >
+              <div className="bg-surface rounded-3xl p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
+                <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply"></div>
+                <div className="relative z-10 space-y-6">
+                  <div className="flex flex-col">
+                    <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
+                    <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
+                      {currentCard.english} {results.meaning === false && '✗'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
+                    <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
+                      {currentCard.onyomi} {results.onyomi === false && '✗'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
+                    <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
+                      {currentCard.kunyomi} {results.kunyomi === false && '✗'}
+                    </span>
+                  </div>
                 </div>
-              ) : (
-                <h1 className="font-h1 text-[80px] text-on-surface opacity-90">{currentCard.kanji}</h1>
-              )}
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+              </div>
 
-      {/* Action Area */}
-      <div className="w-full mt-auto mb-6 px-4">
-        {!isFlipped ? (
-          <Button3D onClick={handleReveal} variant="primary" className="w-full">
-            Reveal Answer
-          </Button3D>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 20 }}
-            className="w-full flex justify-between gap-4"
-          >
-            <button 
-              onClick={() => handleRating('hard')}
-              className="flex-1 bg-surface border border-outline/20 text-on-surface-variant py-4 rounded-2xl flex flex-col items-center justify-center hover:bg-surface-bright hover:border-outline/40 transition-all active:scale-95 shadow-sm"
-            >
-              <span className="font-label-caps tracking-widest mb-1 text-[10px]">HARD</span>
-              <span className="font-body-md text-xs opacity-50">1m</span>
-            </button>
-            <button 
-              onClick={() => handleRating('good')}
-              className="flex-[1.5] bg-surface-bright border border-primary/30 text-primary py-4 rounded-xl flex flex-col items-center justify-center active:scale-95 transition-all shadow-paper-layer hover:bg-primary/5 relative overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-primary/5 opacity-0 hover:opacity-100 transition-opacity"></div>
-              <span className="font-label-caps tracking-widest mb-1 text-[10px] relative z-10">GOOD</span>
-              <span className="font-body-md text-xs opacity-70 relative z-10">10m</span>
-            </button>
-            <button 
-              onClick={() => handleRating('easy')}
-              className="flex-1 bg-surface border border-outline/20 text-on-surface-variant py-4 rounded-2xl flex flex-col items-center justify-center hover:bg-surface-bright hover:border-outline/40 transition-all active:scale-95 shadow-sm"
-            >
-              <span className="font-label-caps tracking-widest mb-1 text-[10px]">EASY</span>
-              <span className="font-body-md text-xs opacity-50">4d</span>
-            </button>
-          </motion.div>
-        )}
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => {
+                    import('../utils/appInventorBridge').then(m => m.sendToAppInventor(m.APP_INVENTOR_EVENTS.TEXT_TO_SPEECH, currentCard.kanji));
+                  }}
+                  className="w-16 h-16 rounded-2xl bg-surface border border-outline/10 flex items-center justify-center text-outline hover:text-primary transition-colors shadow-sm"
+                >
+                  <span className="material-symbols-outlined">volume_up</span>
+                </button>
+                <Button3D onClick={handleNext} variant="primary" className="flex-1">
+                  Next Card
+                  <span className="material-symbols-outlined ml-2">arrow_forward</span>
+                </Button3D>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

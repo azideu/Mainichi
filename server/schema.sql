@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS mainichi_user_stats (
     longest_streak INT DEFAULT 0,
     last_study_date DATE,
     words_mastered INT DEFAULT 0,
+    mastery_requirement INT DEFAULT 10,
+    daily_goal INT DEFAULT 20,
     FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
 );
 
