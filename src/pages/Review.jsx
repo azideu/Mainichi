@@ -2,9 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button3D from '../components/Button3D';
+import { useApp } from '../context/AppContext';
+import { sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
 
 const Review = () => {
   const navigate = useNavigate();
+  const { isMobileApp } = useApp();
   const [dueCount, setDueCount] = React.useState(0);
 
   React.useEffect(() => {
@@ -53,7 +56,12 @@ const Review = () => {
         <div className="relative z-10">
           <h3 className="font-h2 text-on-surface mb-2 tracking-tight">JLPT N5 Core</h3>
           <p className="font-body-md text-on-surface-variant mb-6">{dueCount} cards due for review</p>
-          <Button3D onClick={() => navigate('/flashcard')} variant="primary" disabled={dueCount === 0}>
+          <Button3D onClick={() => {
+            if (isMobileApp) {
+              sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
+            }
+            navigate('/flashcard');
+          }} variant="primary" disabled={dueCount === 0}>
             {dueCount > 0 ? 'Commence Review' : 'Nothing Due'}
           </Button3D>
         </div>

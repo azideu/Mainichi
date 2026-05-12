@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import MasteryRing from '../components/MasteryRing';
 import Button3D from '../components/Button3D';
 import PullToRefresh from '../components/PullToRefresh';
+import LoadingState from '../components/LoadingState';
 import { useApp } from '../context/AppContext';
 
 import logoNoText from '../assets/logo-no-text.svg';
 
 const Dashboard = () => {
-  const { streak, masteredWords, dailyGoal, fetchStats } = useApp();
+  const { streak, masteredWords, dailyGoal, fetchStats, isFetchingStats } = useApp();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const navigate = useNavigate();
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -35,6 +38,10 @@ const Dashboard = () => {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
+
+  if (isFetchingStats && !isRefreshing) {
+    return <LoadingState />;
+  }
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -105,7 +112,7 @@ const Dashboard = () => {
             </div>
             
             <div className="relative z-10">
-              <Button3D variant="primary">
+              <Button3D variant="primary" onClick={() => navigate('/lessons')}>
                 Resume Path
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>arrow_right_alt</span>
               </Button3D>
@@ -149,7 +156,10 @@ const Dashboard = () => {
         <motion.section variants={itemVariants} className="relative z-10 mb-xl">
           <div className="flex justify-between items-baseline mb-lg">
             <h2 className="font-h2 text-on-surface tracking-tight">Milestones</h2>
-            <button className="font-label-caps text-outline hover:text-primary transition-colors tracking-widest flex items-center gap-1">
+            <button 
+              onClick={() => navigate('/progress')}
+              className="font-label-caps text-outline hover:text-primary transition-colors tracking-widest flex items-center gap-1"
+            >
               VIEW ALL <span className="material-symbols-outlined text-[16px]">chevron_right</span>
             </button>
           </div>

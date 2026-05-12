@@ -7,7 +7,7 @@
  * - App blocks should watch for 'WebViewStringChange' event.
  */
 
-const IS_APP_INVENTOR = !!window.AppInventor;
+export const IS_APP_INVENTOR = !!window.AppInventor;
 
 /**
  * Sends a command to MIT App Inventor

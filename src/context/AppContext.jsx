@@ -1,23 +1,57 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { IS_APP_INVENTOR, getFromTinyDB } from '../utils/appInventorBridge';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [streak, setStreak] = useState(0);
   const [masteredWords, setMasteredWords] = useState(0);
   const [masteryRequirement, setMasteryRequirement] = useState(10);
   const [dailyGoal, setDailyGoal] = useState({ current: 0, total: 20 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isFetchingStats, setIsFetchingStats] = useState(true);
+  const [isMobileApp] = useState(IS_APP_INVENTOR);
+
+  const handleAppInventorData = React.useCallback((payload) => {
+    switch (payload.action) {
+      case 'TINYDB_RESPONSE':
+        console.log('Received cached progress from TinyDB:', payload.data);
+        // Process offline sync data here
+        break;
+      case 'SENSOR_DATA':
+        console.log('Received sensor data (e.g. shake to shuffle):', payload.data);
+        break;
+      default:
+        console.log('Unhandled App Inventor action:', payload.action);
+    }
+  }, []);
   
   const fetchStats = async () => {
     try {
+      setIsFetchingStats(true);
+      
+      if (isMobileApp) {
+        console.log('Checking TinyDB for cached stats before fetching from server...');
+        getFromTinyDB('user_stats');
+      }
+
       const token = localStorage.getItem('mainichi_token');
-      if (!token) return;
+      if (!token) {
+        setIsFetchingStats(false);
+        return;
+      }
       const res = await fetch('/api/progress/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        setIsFetchingStats(false);
+        return;
+      }
+      
       if (res.ok) {
         const data = await res.json();
         setStreak(data.streak);
@@ -27,6 +61,8 @@ export const AppProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Failed to fetch stats", err);
+    } finally {
+      setIsFetchingStats(false);
     }
   };
 
@@ -47,6 +83,12 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify({ masteryRequirement: newMasteryReq, dailyGoal: newDailyGoal })
       });
+      
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        return false;
+      }
+      
       if (res.ok) {
         setMasteryRequirement(newMasteryReq);
         setDailyGoal(prev => ({ ...prev, total: newDailyGoal }));
@@ -70,6 +112,12 @@ export const AppProvider = ({ children }) => {
         },
         body: JSON.stringify({ vocab_id: wordId, rating })
       });
+      
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        return;
+      }
+      
       if (res.ok) {
         const data = await res.json();
         if (data.streak !== undefined) setStreak(data.streak);
@@ -88,6 +136,9 @@ export const AppProvider = ({ children }) => {
       masteryRequirement, setMasteryRequirement,
       dailyGoal, setDailyGoal,
       isSidebarOpen, setIsSidebarOpen,
+      isFetchingStats,
+      isMobileApp,
+      handleAppInventorData,
       recordReview,
       updateSettings,
       fetchStats

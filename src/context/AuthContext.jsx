@@ -80,6 +80,11 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ name, profile_picture })
       });
       
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error('Session expired. Please log in again.');
+      }
+      
       const data = await response.json();
       
       if (!response.ok) throw new Error(data.error || 'Update failed');

@@ -50,18 +50,26 @@ const AppLayout = ({ children }) => {
 
 
 import { initAppInventorListener } from './utils/appInventorBridge';
+import { useApp } from './context/AppContext';
 
-function App() {
+const AppGlobalListener = () => {
+  const { handleAppInventorData } = useApp();
+  
   React.useEffect(() => {
     initAppInventorListener((data) => {
       console.log("Data received from App Inventor:", data);
-      // You can add global event handling here (e.g., updating sensor state in AppContext)
+      handleAppInventorData(data);
     });
-  }, []);
+  }, [handleAppInventorData]);
 
+  return null;
+};
+
+function App() {
   return (
     <AuthProvider>
       <AppProvider>
+        <AppGlobalListener />
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />

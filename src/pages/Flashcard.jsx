@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
+import { speakText, sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
 
 const STEPS = {
   RECALL: 'RECALL',
@@ -14,7 +15,7 @@ const STEPS = {
 
 const Flashcard = () => {
   const navigate = useNavigate();
-  const { recordReview } = useApp();
+  const { recordReview, isMobileApp } = useApp();
   const [deck, setDeck] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -81,6 +82,10 @@ const Flashcard = () => {
   const handleChoice = (type, choice) => {
     const isCorrect = choice === currentCard[type === 'meaning' ? 'english' : type];
     setResults(prev => ({ ...prev, [type]: isCorrect }));
+    
+    if (isMobileApp) {
+      sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: isCorrect ? 50 : 200 });
+    }
     
     if (type === 'meaning') setStep(STEPS.ONYOMI);
     else if (type === 'onyomi') setStep(STEPS.KUNYOMI);
@@ -272,7 +277,9 @@ const Flashcard = () => {
               <div className="flex gap-4">
                 <button 
                   onClick={() => {
-                    import('../utils/appInventorBridge').then(m => m.sendToAppInventor(m.APP_INVENTOR_EVENTS.TEXT_TO_SPEECH, currentCard.kanji));
+                    if (isMobileApp) {
+                      speakText(currentCard.kanji);
+                    }
                   }}
                   className="w-16 h-16 rounded-2xl bg-surface border border-outline/10 flex items-center justify-center text-outline hover:text-primary transition-colors shadow-sm"
                 >
