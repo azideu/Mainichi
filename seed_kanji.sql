@@ -1,82 +1,83 @@
 DELETE FROM mainichi_vocabulary WHERE deck_id = 1;
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, 'Kanji', '', '', 'Onyomi Kunyomi Meanings Vocab');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '先', 'セン', 'さき, ま.ず', 'ahead, before, future, precedence, previous');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '生', 'セイ', 'い.きる, き, なま', 'birth, genuine, life');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '何', 'カ', 'なに, なん', 'what • 何 → なに → what');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '一', 'イチ,', '', 'イツ ひと.つ one, one radical (no.1)');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '二', 'ニ', 'ふた, ふた.つ', 'two, two radical (no. 7)');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '四', 'シ', 'よ, よっ.つ', 'four • 四 → し → four; 4');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '三', 'サン', 'み, みっ.つ', 'three • 三 → さん → three; 3');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '学', 'ガク', 'まな.ぶ', 'learning, science, study');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '名', 'メイ', 'な', 'distinguished, name, noted, reputation');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '日', 'ニチ', 'ひ', 'Japan, counter for days, day, sun');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '国', 'コク', 'くに', 'country • 国 → くに → country; state');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '年', 'ネン', 'とし', 'counter for years, year');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '大', '', '', 'big, large • 大 → だい → large; big; great; huge; vast; major; important; serious; severe');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '本', 'ホン', 'もと', 'book, counter for long cylindrical things, main, origin, present, real, true');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '雨', 'ウ', 'あめ', 'rain • 雨 → あめ → rain');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '五', 'ゴ', 'いつ, いつ.つ', 'five • 五 → ご → five; 5');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '六', 'ロク', 'む, むっ.つ', 'six • 六 → ろく → six; 6');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '七', 'シチ', 'なな, なな.つ', 'seven • 七 → しち → seven');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '八', 'ハチ', 'や, や.つ, やっ.つ', 'eight, eight radical (no. 12)');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '九', 'キュウ,', '', 'ク ここの, ここの.つ nine • 九 → きゅう → nine; 9');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '月', 'ゲツ', 'つき', 'month, moon • 月 → つき → Moon');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '火', 'カ', 'ひ', 'fire • 火 → ひ → fire; flame; blaze');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '金', 'キン,', '', 'ゴン かね gold • 黄金 → おうごん → gold (Au)');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '木', 'モク', 'き', 'tree, wood • 木 → き → tree; shrub; bush');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '土', 'ト,', '', 'ド つち Turkey, earth, ground, soil');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '山', 'サン', 'やま', 'mountain • 山 → やま → mountain; hill');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '人', 'ジン,', '', 'ニン ひと person • 人 → ひと → person; someone; somebody');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '女', 'ジョ', 'おんな', 'female, woman');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '子', '', '', 'child, first sign of Chinese zodiac, sign of the rat');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '男', 'ダン,', '', 'ナン お, おとこ male • 男 → おとこ → man; male');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '父', 'フ', 'ちち', 'father • 父 → ちち → father');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '母', 'ボ', 'はは', 'mother • 母 → はは → mother');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '友', 'ユウ', 'とも', 'friend • 友 → とも → friend; companion; comrade; pal');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '校', 'コウ', '', 'correction, exam, printing, proof, school');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '時', 'ジ', 'とき', 'hour, time • 時 → とき → time; hour; moment');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '間', 'カン,', '', 'ケン あい, あいだ, ま interval, space');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '上', '', '', 'above, up • 上 → うえ → above; over; up');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '中', 'チュウ', 'なか', 'center, in, inside, mean, middle');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '下', '', '', 'below, descend, down, give, inferior, low');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '小', '', '', 'little, small • 小 → しょう → smallness; small item');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '半', 'ハン', 'なか.ば', 'half, middle, odd number, part-, semi-');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '今', 'コン', 'いま', 'now • 今 → いま → now; the present time; just now; soon; immediately');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '毎', 'マイ', 'ごと', 'every • 毎 → まい → every (usu. with events, e.g. every weekend); each');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '行', '', '', 'act, bank, carry out, conduct, going, journey, line, row');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '来', 'ライ', 'く.る', 'become, cause, come, due, next');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '見', '', '', 'chances, hopes, idea, look at, opinion, see, visible');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '入', 'ニュウ', 'い.れる, はい.る', 'enter, insert • 入り → いり → entering; entrance; entry');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '出', 'シュツ', 'だ.す, で.る', 'come out, exit, go out, leave, protrude, put out');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '右', 'ウ', 'みぎ', 'right • 右 → みぎ → right; right- hand side');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '左', 'サ', 'ひだり', 'left • 左 → ひだり → left; left- hand side');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '前', 'ゼン', 'まえ', 'before, in front');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '後', '', '', 'back, behind, later');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '北', 'ホク', 'きた', 'north • 北 → きた → north');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '南', 'ナ,', '', 'ナン みなみ south • 南 → みなみ → south');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '東', 'トウ', 'ひがし', 'east • 東 → ひがし → east');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '西', 'ス,', '', 'セイ にし Spain, west • 西 → にし → west');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '天', 'テン', 'あめ', 'heavens, imperial, sky');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '気', 'キ,', '', 'ケ き air, atmosphere, mind, mood, spirit');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '電', 'デン', '', 'electricity • 稲妻 → いなずま → lightning; flash of lightning; lightning bolt');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '話', 'ワ', 'はな.す, はなし', 'tale, talk • 話 → はなし → talk; speech; chat; conversation');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '読', 'ドク', 'よ.む', 'read • 読書 → どくしょ → reading (books)');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '書', 'ショ', 'か.く', 'write • 文 → ふみ → letter; note; mail');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '食', 'ショク', 'た.べる', 'eat, food • 食 → しょく → food; foodstuff');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '車', 'シャ', 'くるま', 'car • 車 → くるま → car; automobile; vehicle');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '白', 'ハク', 'しろ, しろ.い', 'white • 白 → しろ → white');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '百', 'ヒャク', 'もも', 'hundred • 百 → ひゃく → hundred; 100');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '千', 'セン', 'ち', 'thousand • 千 → せん → thousand; 1,');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '万', 'バン,', '', 'マン よろず 10,000, ten thousand');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '円', '', '', 'circle, round, yen');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '外', '', '', 'outside • 外 → そと → outside; exterior');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '語', 'ゴ', 'かた.らう, かた.る', 'language, speech, word');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '休', '', '', 'day off, rest, retire, sleep');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '水', 'スイ', 'みず', 'water • 水 → みず → water (esp. cool or cold)');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '川', 'セン', 'かわ', 'river, river or three-stroke river radical (no. 47), stream');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '午', '', '', 'noon, seventh sign of Chinese zodiac, sign of the horse');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '高', '', '', 'expensive, high, tall');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '長', 'チョウ', 'おさ, なが.い', 'leader, long, senior, superior');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '十', 'ジュウ', 'そ, と, とお', 'ten • 十 → じゅう → ten; 10');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '聞', 'ブン,', '', 'モン き.く, き.こえる ask, hear, listen');
-INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES (1, '誰', 'スイ', 'だれ', 'somebody, someone, who');
+
+INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES 
+(1, '先', 'セン', 'さき, ま.ず', 'ahead, before, future, precedence, previous'),
+(1, '生', 'セイ, ショウ', 'い.きる, う.む, なま', 'birth, genuine, life'),
+(1, '何', 'カ', 'なに, なん', 'what'),
+(1, '一', 'イチ, イツ', 'ひと.つ', 'one'),
+(1, '二', 'ニ', 'ふた.つ', 'two'),
+(1, '三', 'サン', 'みっ.つ', 'three'),
+(1, '四', 'シ', 'よ, よっ.つ, よん', 'four'),
+(1, '五', 'ゴ', 'いつ.つ', 'five'),
+(1, '六', 'ロク', 'むっ.つ', 'six'),
+(1, '七', 'シチ', 'なな.つ', 'seven'),
+(1, '八', 'ハチ', 'やっ.つ', 'eight'),
+(1, '九', 'キュウ, ク', 'ここの.つ', 'nine'),
+(1, '十', 'ジュウ', 'とお', 'ten'),
+(1, '百', 'ヒャク', 'もも', 'hundred'),
+(1, '千', 'セン', 'ち', 'thousand'),
+(1, '万', 'マン, バン', 'よろず', 'ten thousand'),
+(1, '円', 'エン', 'まる.い', 'circle, yen'),
+(1, '日', 'ニチ, ジツ', 'ひ, か', 'day, sun, Japan'),
+(1, '月', 'ゲツ, ガツ', 'つき', 'month, moon'),
+(1, '火', 'カ', 'ひ, ほ', 'fire'),
+(1, '水', 'スイ', 'みず', 'water'),
+(1, '木', 'モク, ボク', 'き', 'tree, wood'),
+(1, '金', 'キン, コン', 'かね, かな', 'gold, money'),
+(1, '土', 'ド, ト', 'つち', 'earth, soil, ground'),
+(1, '山', 'サン', 'やま', 'mountain'),
+(1, '川', 'セン', 'かわ', 'river'),
+(1, '天', 'テン', 'あめ, あま', 'heavens, sky'),
+(1, '気', 'キ, ケ', 'いき', 'spirit, mind, air, atmosphere'),
+(1, '雨', 'ウ', 'あめ', 'rain'),
+(1, '人', 'ジン, ニン', 'ひと', 'person'),
+(1, '女', 'ジョ', 'おんな, め', 'female, woman'),
+(1, '男', 'ダン, ナン', 'おとこ', 'male, man'),
+(1, '子', 'シ, ス', 'こ', 'child'),
+(1, '父', 'フ', 'ちち', 'father'),
+(1, '母', 'ボ', 'はは', 'mother'),
+(1, '友', 'ユウ', 'とも', 'friend'),
+(1, '本', 'ホン', 'もと', 'book, origin, main'),
+(1, '学', 'ガク', 'まな.ぶ', 'study, learning, science'),
+(1, '校', 'コウ', '', 'school, exam'),
+(1, '名', 'メイ, ミョウ', 'な', 'name, reputation, distinguished'),
+(1, '年', 'ネン', 'とし', 'year'),
+(1, '大', 'ダイ, タイ', 'おお.きい', 'big, large, great'),
+(1, '小', 'ショウ', 'ちい.さい, こ, お', 'small, little'),
+(1, '中', 'チュウ', 'なか', 'middle, inside, center'),
+(1, '高', 'コウ', 'たか.い', 'high, expensive, tall'),
+(1, '長', 'チョウ', 'なが.い, おさ', 'long, leader, superior'),
+(1, '半', 'ハン', 'なか.ば', 'half, middle, semi-'),
+(1, '時', 'ジ', 'とき', 'time, hour'),
+(1, '間', 'カン, ケン', 'あいだ, ま', 'interval, space, between'),
+(1, '上', 'ジョウ', 'うえ, あ.がる, のぼ.る', 'above, up, over'),
+(1, '下', 'カ, ゲ', 'した, さ.げる, くだ.る', 'below, down, under'),
+(1, '前', 'ゼン', 'まえ', 'before, in front'),
+(1, '後', 'ゴ, コウ', 'のち, うし.ろ, あと', 'after, behind, later'),
+(1, '午', 'ゴ', 'うま', 'noon'),
+(1, '今', 'コン, キン', 'いま', 'now'),
+(1, '毎', 'マイ', 'ごと', 'every'),
+(1, '行', 'コウ, ギョウ', 'い.く, おこな.う', 'go, conduct, line'),
+(1, '来', 'ライ', 'く.る, きた.る', 'come, next, become'),
+(1, '見', 'ケン', 'み.る, み.える, み.せる', 'see, look, visible'),
+(1, '入', 'ニュウ', 'はい.る, い.れる', 'enter, insert'),
+(1, '出', 'シュツ', 'で.る, だ.す', 'exit, leave, put out'),
+(1, '読', 'ドク', 'よ.む', 'read'),
+(1, '書', 'ショ', 'か.く', 'write'),
+(1, '話', 'ワ', 'はな.す, はなし', 'talk, speech, story'),
+(1, '聞', 'ブン, モン', 'き.く, き.こえる', 'hear, listen, ask'),
+(1, '食', 'ショク', 'た.べる, く.う', 'eat, food'),
+(1, '車', 'シャ', 'くるま', 'car, vehicle'),
+(1, '語', 'ゴ', 'かた.る', 'language, word, speech'),
+(1, '右', 'ウ, ユウ', 'みぎ', 'right'),
+(1, '左', 'サ', 'ひだり', 'left'),
+(1, '東', 'トウ', 'ひがし', 'east'),
+(1, '西', 'セイ, サイ', 'にし', 'west'),
+(1, '南', 'ナン', 'みなみ', 'south'),
+(1, '北', 'ホク', 'きた', 'north'),
+(1, '外', 'ガイ, ゲ', 'そと, ほか, はず.れる', 'outside, external'),
+(1, '国', 'コク', 'くに', 'country, state'),
+(1, '白', 'ハク, ビャク', 'しろ, しろ.い', 'white'),
+(1, '電', 'デン', '', 'electricity'),
+(1, '休', 'キュウ', 'やす.む', 'rest, day off'),
+(1, '誰', 'スイ', 'だれ', 'who');
