@@ -92,16 +92,39 @@ const Flashcard = () => {
     else if (type === 'kunyomi') setStep(STEPS.RESULT);
   };
 
-  const handleNext = async () => {
-    // If any part was wrong or forgot was pressed, it's a 'hard' review
-    const allCorrect = results.meaning && results.onyomi && results.kunyomi;
-    await recordReview(currentCard.id, allCorrect ? 'good' : 'hard');
-    
+  const [nextReviewText, setNextReviewText] = useState('');
+
+  useEffect(() => {
+    if (step === STEPS.RESULT && currentCard) {
+      const allCorrect = results.meaning && results.onyomi && results.kunyomi;
+      const performRecord = async () => {
+        const data = await recordReview(currentCard.id, allCorrect ? 'good' : 'hard');
+        if (data && data.next_review_date) {
+          const next = new Date(data.next_review_date);
+          const now = new Date();
+          const diffMs = next - now;
+          const diffMins = Math.round(diffMs / (1000 * 60));
+          
+          if (diffMins < 60) {
+            setNextReviewText(`${diffMins} minutes`);
+          } else if (diffMins < 1440) {
+            setNextReviewText(`${Math.round(diffMins / 60)} hours`);
+          } else {
+            setNextReviewText(`${Math.round(diffMins / 1440)} days`);
+          }
+        }
+      };
+      performRecord();
+    }
+  }, [step]);
+
+  const handleNext = () => {
     if (currentIndex < deck.length - 1) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       setStep(STEPS.RECALL);
       setResults({ meaning: null, onyomi: null, kunyomi: null });
+      setNextReviewText('');
       generateOptions(nextIdx, deck);
     } else {
       setIsFinished(true);
@@ -250,6 +273,17 @@ const Flashcard = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col space-y-8"
             >
+              <div className="text-center space-y-1">
+                <h2 className={`font-h2 ${results.meaning && results.onyomi && results.kunyomi ? 'text-primary' : 'text-error'}`}>
+                  {results.meaning && results.onyomi && results.kunyomi ? 'Correct!' : 'Incorrect'}
+                </h2>
+                {nextReviewText && (
+                  <p className="font-body-md text-outline">
+                    Review again in <span className="font-medium text-on-surface-variant">{nextReviewText}</span>
+                  </p>
+                )}
+              </div>
+
               <div className="bg-surface rounded-3xl p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
                 <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply"></div>
                 <div className="relative z-10 space-y-6">

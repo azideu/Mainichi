@@ -304,19 +304,27 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
     if (rating === 'good') quality = 4;
     if (rating === 'hard') quality = 3; // Using 3 so it doesn't drop rep count to 0, just reduces EF
 
+    // Custom SRS Stages (in minutes)
+    // 0: 10m, 1: 90m, 2: 4h, 3: 1d, 4: 3d, 5: 7d, 6: 14d, 7: 30d, 8: 90d, 9: 180d
+    const intervals = [10, 90, 240, 1440, 4320, 10080, 20160, 43200, 129600, 259200];
+    
+    let intervalMinutes = 0;
     if (quality >= 3) {
-      if (progress.repetitions === 0) {
-        progress.interval_days = 1;
-      } else if (progress.repetitions === 1) {
-        progress.interval_days = 6;
+      if (progress.repetitions < intervals.length) {
+        intervalMinutes = intervals[progress.repetitions];
       } else {
-        progress.interval_days = Math.round(progress.interval_days * progress.easiness_factor);
+        // Fallback to SM-2 like growth
+        const lastInterval = progress.interval_days * 1440 || intervals[intervals.length - 1];
+        intervalMinutes = Math.round(lastInterval * progress.easiness_factor);
       }
       progress.repetitions += 1;
     } else {
       progress.repetitions = 0;
-      progress.interval_days = 1;
+      intervalMinutes = 10; // Reset to 10 minutes if failed
     }
+
+    // Update interval_days for legacy/DB compatibility (approximate)
+    progress.interval_days = Math.max(1, Math.round(intervalMinutes / 1440));
 
     // Update Easiness Factor
     progress.easiness_factor = progress.easiness_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
@@ -324,7 +332,7 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
 
     // Calculate next review date
     const nextReview = new Date();
-    nextReview.setDate(nextReview.getDate() + progress.interval_days);
+    nextReview.setMinutes(nextReview.getMinutes() + intervalMinutes);
 
     // Upsert the progress
     await pool.query(`

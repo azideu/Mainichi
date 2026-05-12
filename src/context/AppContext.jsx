@@ -115,7 +115,7 @@ export const AppProvider = ({ children }) => {
       
       if (res.status === 401 || res.status === 403) {
         logout();
-        return;
+        return null;
       }
       
       if (res.ok) {
@@ -123,9 +123,12 @@ export const AppProvider = ({ children }) => {
         if (data.streak !== undefined) setStreak(data.streak);
         if (data.masteredWords !== undefined) setMasteredWords(data.masteredWords);
         setDailyGoal(prev => ({ ...prev, current: Math.min(prev.current + 1, prev.total) }));
+        return data;
       }
+      return null;
     } catch (err) {
       console.error("Failed to record review", err);
+      return null;
     }
   };
 

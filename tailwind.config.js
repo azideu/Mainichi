@@ -26,8 +26,12 @@ export default {
         base: "8px", xs: "4px", sm: "12px", md: "24px", lg: "48px", xl: "80px", gutter: "24px", margin: "32px"
       },
       fontFamily: {
-        h1: ["Lexend", "sans-serif"], h2: ["Lexend", "sans-serif"], h3: ["Lexend", "sans-serif"],
-        "body-lg": ["Lexend", "sans-serif"], "body-md": ["Lexend", "sans-serif"], "label-sm": ["Lexend", "sans-serif"]
+        h1: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
+        h2: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
+        h3: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
+        "body-lg": ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
+        "body-md": ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
+        "label-sm": ["Lexend", "Zen Kaku Gothic New", "sans-serif"]
       },
       fontSize: {
         h1: ["48px", {lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "600"}],
