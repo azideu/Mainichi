@@ -5,6 +5,8 @@ import Button3D from '../components/Button3D';
 import PullToRefresh from '../components/PullToRefresh';
 import { useApp } from '../context/AppContext';
 
+import logoNoText from '../assets/logo-no-text.svg';
+
 const Dashboard = () => {
   const { streak, masteredWords, dailyGoal } = useApp();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -87,7 +89,7 @@ const Dashboard = () => {
           {/* Resume Lesson Card - Takes up 7 columns on large screens */}
           <motion.div variants={itemVariants} className="lg:col-span-7 bg-surface rounded-xl p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500">
             <div className="absolute -right-12 -top-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110">
-               <span className="material-symbols-outlined text-[200px]" style={{ fontVariationSettings: "'FILL' 1" }}>energy_savings_leaf</span>
+               <img src={logoNoText} alt="" className="w-[200px] h-auto" />
             </div>
             
             <div className="relative z-10 mb-xl">

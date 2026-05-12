@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import logoNoText from '../assets/logo-no-text.svg';
+
 const TopBar = () => {
   const { setIsSidebarOpen } = useApp();
   const { user, logout } = useAuth();
@@ -35,10 +37,7 @@ const TopBar = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-2 cursor-pointer active:scale-95 transition-transform group relative z-10"
         >
-          <div className="w-8 h-8 rounded-full border border-primary/20 bg-surface-bright flex items-center justify-center shadow-sm group-hover:bg-primary/5 transition-colors">
-            <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>energy_savings_leaf</span>
-          </div>
-          <h1 className="text-primary font-h3 tracking-tighter hidden sm:block">Mainichi</h1>
+          <img src={logoNoText} alt="Mainichi" className="h-8 w-auto opacity-90 group-hover:opacity-100 transition-opacity" />
         </div>
 
         {/* Profile Button */}

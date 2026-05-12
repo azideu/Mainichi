@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Button3D from '../components/Button3D';
 
+import logo from '../assets/logo.svg';
+
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -55,10 +57,9 @@ const Login = () => {
         className="w-full max-w-xl bg-surface-bright/90 backdrop-blur-md p-6 sm:p-10 rounded-3xl shadow-paper-layer border border-outline/10 relative z-10"
       >
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-primary/10 rounded-2xl mx-auto flex items-center justify-center mb-6 border border-primary/20 shadow-sm">
-            <span className="material-symbols-outlined text-[40px] text-primary" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>energy_savings_leaf</span>
+          <div className="mb-6 flex justify-center">
+            <img src={logo} alt="Mainichi Logo" className="h-20 w-auto opacity-95 hover:opacity-100 transition-opacity drop-shadow-sm" />
           </div>
-          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Mainichi</h1>
           <p className="font-body-md text-outline tracking-wide">
             {isLogin ? 'Resume your quiet study.' : 'Begin your journey.'}
           </p>

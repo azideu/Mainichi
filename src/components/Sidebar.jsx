@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import logoNoText from '../assets/logo-no-text.svg';
+
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useApp();
   const { user, logout } = useAuth();
@@ -52,11 +54,14 @@ const Sidebar = () => {
             <div className="relative z-10 flex flex-col h-full p-lg">
               {/* Header: Editorial & Minimal */}
               <div className="flex items-center justify-between mb-xl">
-                <div className="flex items-center gap-sm group">
-                  <div className="w-12 h-12 border border-primary/20 rounded-xl flex items-center justify-center bg-surface-bright shadow-paper-layer transition-transform group-hover:scale-105">
-                    <span className="material-symbols-outlined text-primary text-[28px]" style={{ fontVariationSettings: "'wght' 200, 'FILL' 1" }}>energy_savings_leaf</span>
-                  </div>
-                  <h2 className="font-h2 text-primary tracking-tighter">Mainichi</h2>
+                <div 
+                  onClick={() => {
+                    navigate('/');
+                    setIsSidebarOpen(false);
+                  }}
+                  className="flex items-center gap-sm group cursor-pointer"
+                >
+                  <img src={logoNoText} alt="Mainichi" className="h-10 w-auto opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-[1.02]" />
                 </div>
                 <button 
                   onClick={() => setIsSidebarOpen(false)}
