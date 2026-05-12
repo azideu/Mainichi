@@ -203,15 +203,18 @@ app.get('/api/progress/stats', authenticateToken, async (req, res) => {
     const stats = statsRows[0];
     
     // Calculate daily goal current progress (reviews done today)
-    // We can infer this roughly, but typically we'd need a reviews_log table.
-    // For simplicity, we'll return a calculated 'dailyGoalCurrent' of 0 unless we track it explicitly.
-    // Let's just return what we have in stats.
+    const [doneRows] = await pool.query(
+      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(updated_at) = CURRENT_DATE',
+      [user_id]
+    );
+    const reviewsDoneToday = doneRows[0].count;
+    
     res.json({
       streak: stats.current_streak,
       longestStreak: stats.longest_streak,
       masteredWords: stats.words_mastered,
       masteryRequirement: stats.mastery_requirement,
-      dailyGoal: { current: 0, total: stats.daily_goal }
+      dailyGoal: { current: reviewsDoneToday, total: stats.daily_goal }
     });
   } catch (err) {
     console.error(err);
@@ -245,6 +248,24 @@ app.put('/api/progress/settings', authenticateToken, async (req, res) => {
 app.get('/api/progress/due', authenticateToken, async (req, res) => {
   try {
     const user_id = req.user.id;
+    
+    // 1. Get user's daily goal
+    const [statsRows] = await pool.query('SELECT daily_goal FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+    const dailyGoal = statsRows[0]?.daily_goal || 20;
+    
+    // 2. Get reviews done today
+    const [doneRows] = await pool.query(
+      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(updated_at) = CURRENT_DATE',
+      [user_id]
+    );
+    const reviewsDoneToday = doneRows[0].count;
+    
+    const limit = Math.max(0, dailyGoal - reviewsDoneToday);
+    
+    if (limit === 0) {
+      return res.json([]);
+    }
+
     // Select all vocabulary that:
     // 1. Has no progress record yet (new cards)
     // 2. Has a next_review_date in the past
@@ -253,9 +274,9 @@ app.get('/api/progress/due', authenticateToken, async (req, res) => {
       LEFT JOIN mainichi_user_progress p ON v.id = p.vocab_id AND p.user_id = ?
       WHERE p.next_review_date <= CURRENT_TIMESTAMP OR p.id IS NULL
       ORDER BY p.next_review_date ASC
-      LIMIT 50
+      LIMIT ?
     `;
-    const [rows] = await pool.query(query, [user_id]);
+    const [rows] = await pool.query(query, [user_id, limit]);
     res.json(rows);
   } catch (err) {
     console.error(err);

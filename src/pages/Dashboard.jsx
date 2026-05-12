@@ -8,13 +8,14 @@ import { useApp } from '../context/AppContext';
 import logoNoText from '../assets/logo-no-text.svg';
 
 const Dashboard = () => {
-  const { streak, masteredWords, dailyGoal } = useApp();
+  const { streak, masteredWords, dailyGoal, fetchStats } = useApp();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await fetchStats();
+    // Simulate extra visual weight for the refresh
+    await new Promise(resolve => setTimeout(resolve, 800));
     setIsRefreshing(false);
   };
 
