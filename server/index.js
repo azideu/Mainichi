@@ -241,8 +241,110 @@ app.delete('/api/vocab/:id', authenticateToken, async (req, res) => {
 });
 
 // ==========================================
+// DECKS & COMMUNITY ROUTES
+// ==========================================
+
+// Get Decks
+app.get('/api/decks', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const query = `
+      SELECT d.id, d.title, d.description, d.is_premium, d.created_at, 
+             COALESCE(u.name, 'Admin') AS author, 
+             (SELECT COUNT(*) FROM mainichi_vocabulary WHERE deck_id = d.id) AS word_count,
+             EXISTS(SELECT 1 FROM mainichi_user_decks WHERE user_id = ? AND deck_id = d.id) AS downloaded
+      FROM mainichi_decks d
+      LEFT JOIN mainichi_users u ON d.author_id = u.id
+      ORDER BY d.id ASC
+    `;
+    const [rows] = await pool.query(query, [user_id]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Create Deck (with vocabulary list inside a transaction)
+app.post('/api/decks', authenticateToken, async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const user_id = req.user.id;
+    const { title, description, is_premium, vocabulary } = req.body;
+
+    if (!title || !vocabulary || !Array.isArray(vocabulary) || vocabulary.length === 0) {
+      return res.status(400).json({ error: 'Title and a non-empty vocabulary list are required.' });
+    }
+
+    // 1. Insert Deck
+    const [deckResult] = await connection.query(
+      'INSERT INTO mainichi_decks (author_id, title, description, is_premium) VALUES (?, ?, ?, ?)',
+      [user_id, title, description || '', is_premium ? 1 : 0]
+    );
+    const deck_id = deckResult.insertId;
+
+    // 2. Insert Vocabulary Cards
+    const vocabValues = vocabulary.map(item => [
+      deck_id,
+      item.kanji,
+      item.furigana || '',
+      item.onyomi || '',
+      item.kunyomi || '',
+      item.english
+    ]);
+
+    await connection.query(
+      'INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, onyomi, kunyomi, english) VALUES ?',
+      [vocabValues]
+    );
+
+    // 3. Auto-unlock/download the deck for the creator
+    await connection.query(
+      'INSERT INTO mainichi_user_decks (user_id, deck_id) VALUES (?, ?)',
+      [user_id, deck_id]
+    );
+
+    await connection.commit();
+    res.status(201).json({ success: true, deck_id, word_count: vocabulary.length });
+  } catch (err) {
+    await connection.rollback();
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  } finally {
+    connection.release();
+  }
+});
+
+// Download/Unlock Deck
+app.post('/api/decks/:id/download', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const deck_id = parseInt(req.params.id, 10);
+
+    // Verify deck exists
+    const [deckRows] = await pool.query('SELECT * FROM mainichi_decks WHERE id = ?', [deck_id]);
+    if (deckRows.length === 0) {
+      return res.status(404).json({ error: 'Deck not found' });
+    }
+
+    // Insert join table record
+    await pool.query(
+      'INSERT IGNORE INTO mainichi_user_decks (user_id, deck_id) VALUES (?, ?)',
+      [user_id, deck_id]
+    );
+
+    res.json({ success: true, message: 'Deck unlocked successfully!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// ==========================================
 // SRS & PROGRESS TRACKING ROUTES
 // ==========================================
+
 
 // Get user stats and settings
 app.get('/api/progress/stats', authenticateToken, async (req, res) => {
@@ -374,37 +476,43 @@ app.post('/api/progress/demo/simulate-streak', authenticateToken, async (req, re
 app.get('/api/progress/due', authenticateToken, async (req, res) => {
   try {
     const user_id = req.user.id;
+    const deckId = req.query.deckId ? parseInt(req.query.deckId, 10) : 1;
     
     // 1. Get user's daily goal
     const [statsRows] = await pool.query('SELECT daily_goal FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
     const dailyGoal = statsRows[0]?.daily_goal || 20;
     
-    // 2. Get reviews done today (timezone-aware)
-    const tzOffsetStr = getTimezoneOffsetString(req);
-    const todayLocalDate = getUserLocalDate(req);
-    const [doneRows] = await pool.query(
-      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, \'+00:00\', ?)) = ?',
-      [user_id, tzOffsetStr, todayLocalDate.toString()]
-    );
-    const reviewsDoneToday = doneRows[0].count;
+    let limit = 999;
     
-    const limit = Math.max(0, dailyGoal - reviewsDoneToday);
-    
-    if (limit === 0) {
-      return res.json([]);
+    // Apply daily goal restrictions only to the main N5 core deck (deckId = 1)
+    if (deckId === 1) {
+      // 2. Get reviews done today (timezone-aware)
+      const tzOffsetStr = getTimezoneOffsetString(req);
+      const todayLocalDate = getUserLocalDate(req);
+      const [doneRows] = await pool.query(
+        'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, \'+00:00\', ?)) = ?',
+        [user_id, tzOffsetStr, todayLocalDate.toString()]
+      );
+      const reviewsDoneToday = doneRows[0].count;
+      limit = Math.max(0, dailyGoal - reviewsDoneToday);
+      
+      if (limit === 0) {
+        return res.json([]);
+      }
     }
 
     // Select all vocabulary that:
-    // 1. Has no progress record yet (new cards)
-    // 2. Has a next_review_date in the past
+    // 1. Belongs to the requested deckId
+    // 2. Has no progress record yet (new cards)
+    // 3. Has a next_review_date in the past
     const query = `
       SELECT v.* FROM mainichi_vocabulary v
       LEFT JOIN mainichi_user_progress p ON v.id = p.vocab_id AND p.user_id = ?
-      WHERE p.next_review_date <= CURRENT_TIMESTAMP OR p.id IS NULL
+      WHERE v.deck_id = ? AND (p.next_review_date <= CURRENT_TIMESTAMP OR p.id IS NULL)
       ORDER BY p.next_review_date ASC
       LIMIT ?
     `;
-    const [rows] = await pool.query(query, [user_id, limit]);
+    const [rows] = await pool.query(query, [user_id, deckId, limit]);
     res.json(rows);
   } catch (err) {
     console.error(err);
