@@ -61,3 +61,14 @@ CREATE TABLE IF NOT EXISTS mainichi_user_stats (
     FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
 );
 
+-- User Decks Join Table
+CREATE TABLE IF NOT EXISTS mainichi_user_decks (
+    user_id INT NOT NULL,
+    deck_id INT NOT NULL,
+    unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, deck_id),
+    FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE,
+    FOREIGN KEY (deck_id) REFERENCES mainichi_decks(id) ON DELETE CASCADE
+);
+
+
