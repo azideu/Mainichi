@@ -70,7 +70,15 @@ const TopBar = () => {
                   className="absolute right-0 mt-4 w-56 bg-surface-bright rounded-3xl shadow-ambient border border-outline/20 z-50 overflow-hidden"
                 >
                   <div className="p-4 border-b border-outline/10 bg-surface">
-                    <p className="font-body-md text-on-surface truncate tracking-wide">{user?.name || 'Wanderer'}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-body-md text-on-surface truncate tracking-wide">{user?.name || 'Wanderer'}</p>
+                      {user?.is_premium === 1 && (
+                        <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-label-caps font-bold px-1.5 py-0.5 rounded text-[8px] tracking-wider flex items-center gap-0.5 shadow-sm">
+                          <span className="material-symbols-outlined text-[8px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                          PRO
+                        </span>
+                      )}
+                    </div>
                     <p className="font-label-caps text-outline text-[10px] truncate mt-1 tracking-widest">{user?.email || 'journey@mainichi.app'}</p>
                   </div>
                   <div className="p-2 flex flex-col gap-1">

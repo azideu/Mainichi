@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
+import PremiumSubscriptionModal from './components/PremiumSubscriptionModal';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -26,6 +27,8 @@ import Sidebar from './components/Sidebar';
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
+  const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
+  
   return (
     <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-x-hidden">
       <Sidebar />
@@ -44,6 +47,7 @@ const AppLayout = ({ children }) => {
         </AnimatePresence>
       </main>
       <BottomNav />
+      <PremiumSubscriptionModal isOpen={isPremiumModalOpen} onClose={() => setIsPremiumModalOpen(false)} />
     </div>
   );
 };

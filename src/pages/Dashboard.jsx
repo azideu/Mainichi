@@ -6,11 +6,13 @@ import Button3D from '../components/Button3D';
 import PullToRefresh from '../components/PullToRefresh';
 import LoadingState from '../components/LoadingState';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 import logoNoText from '../assets/logo-no-text.svg';
 
 const Dashboard = () => {
   const { streak, masteredWords, dailyGoal, fetchStats, isFetchingStats } = useApp();
+  const { user, setIsPremiumModalOpen } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
 
@@ -149,6 +151,37 @@ const Dashboard = () => {
                </div>
                <p className="font-body-md text-outline text-right mt-3 relative z-10 tracking-widest font-mono text-sm">{dailyGoal.current} / {dailyGoal.total}</p>
             </motion.div>
+
+            {/* Premium Promo Card */}
+            {!user?.is_premium && (
+              <motion.div 
+                variants={itemVariants} 
+                className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all duration-300 text-left"
+              >
+                <div className="absolute inset-0 bg-primary/[0.02] group-hover:bg-primary/[0.04] transition-colors pointer-events-none" />
+                <div className="absolute -right-6 -bottom-6 opacity-[0.06] pointer-events-none text-primary">
+                  <span className="material-symbols-outlined text-[100px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                </div>
+                <div className="relative z-10 flex flex-col justify-between h-full space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-primary text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                      <span className="font-label-caps text-primary tracking-widest text-[10px] font-bold">MAINICHI PREMIUM</span>
+                    </div>
+                    <h3 className="font-h3 text-on-surface tracking-tight">Unlock Premium Realms</h3>
+                    <p className="font-body-md text-on-surface-variant leading-relaxed">
+                      Get full access to premium community decks, unlimited custom study paths, and advanced stats for only **RM10/mo**!
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setIsPremiumModalOpen(true)}
+                    className="w-full py-3.5 bg-primary hover:bg-primary/95 text-on-primary font-label-caps tracking-widest text-[10px] font-bold rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                  >
+                    Upgrade Now • RM10
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
 

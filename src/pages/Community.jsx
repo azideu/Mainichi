@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Button3D from '../components/Button3D';
 import LoadingState from '../components/LoadingState';
 import HankoStamp from '../components/HankoStamp';
+import { useAuth } from '../context/AuthContext';
 
 const SYSTEM_REVIEWS = {
   1: [
@@ -21,6 +22,7 @@ const SYSTEM_REVIEWS = {
 
 const Community = () => {
   const navigate = useNavigate();
+  const { user, setIsPremiumModalOpen } = useAuth();
   const [activeTab, setActiveTab] = useState('discover'); // discover | workshop
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +78,10 @@ const Community = () => {
 
   // Download / Unlock Deck
   const handleDownload = async (deckId, isPremium) => {
+    if (isPremium && user?.is_premium !== 1) {
+      setIsPremiumModalOpen(true);
+      return;
+    }
     try {
       const token = localStorage.getItem('mainichi_token');
       const res = await fetch(`/api/decks/${deckId}/download`, {

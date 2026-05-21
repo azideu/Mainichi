@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import Button3D from '../components/Button3D';
 
 const Profile = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, setIsPremiumModalOpen } = useAuth();
   const { streak, masteredWords } = useApp();
   const [name, setName] = useState(user?.name || '');
   const [profilePicture, setProfilePicture] = useState(user?.profile_picture || '');
@@ -115,7 +115,46 @@ const Profile = () => {
           </div>
         </div>
       </motion.div>
-      
+
+      {/* Subscription Status Card */}
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-6 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left">
+        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h4 className="font-label-caps text-outline tracking-widest text-[10px] mb-1">MEMBERSHIP STATUS</h4>
+            <div className="flex items-center gap-2">
+              <h3 className="font-h3 text-on-surface">
+                {user?.is_premium === 1 ? 'Mainichi Premium' : 'Mainichi Explorer (Free Tier)'}
+              </h3>
+              {user?.is_premium === 1 && (
+                <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-label-caps font-bold px-2 py-0.5 rounded-full text-[9px] tracking-wider flex items-center gap-0.5 shadow-sm">
+                  <span className="material-symbols-outlined text-[10px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                  ACTIVE
+                </span>
+              )}
+            </div>
+            <p className="font-body-md text-on-surface-variant mt-1.5 leading-relaxed">
+              {user?.is_premium === 1 
+                ? 'Thank you for supporting our Cozy Japanese learning project! You have unlocked all premium collections and custom study tools.' 
+                : 'Unlock dynamic vocabulary paths, uncapped review queues, and all curated community decks.'}
+            </p>
+          </div>
+          
+          {user?.is_premium !== 1 ? (
+            <button
+              onClick={() => setIsPremiumModalOpen(true)}
+              className="w-full sm:w-auto px-6 py-3.5 bg-primary hover:bg-primary/95 text-on-primary font-label-caps tracking-widest text-[10px] font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] whitespace-nowrap"
+            >
+              Upgrade • RM10/mo
+            </button>
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
       <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-lg shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <h3 className="font-h3 text-on-surface mb-8 tracking-tight relative z-10">Edit Identity</h3>

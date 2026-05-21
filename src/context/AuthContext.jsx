@@ -5,6 +5,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
   useEffect(() => {
     // Check local storage for token on mount
@@ -100,6 +101,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const subscribeUser = async () => {
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const response = await fetch('/api/user/subscribe', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error('Session expired. Please log in again.');
+      }
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Subscription failed');
+
+      localStorage.setItem('mainichi_user', JSON.stringify(data.user));
+      setUser(data.user);
+      return true;
+    } catch (error) {
+      console.error("Subscription failed", error);
+      alert(error.message);
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('mainichi_token');
     localStorage.removeItem('mainichi_user');
@@ -107,7 +136,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, updateProfile, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      register, 
+      updateProfile, 
+      logout, 
+      loading,
+      isPremiumModalOpen,
+      setIsPremiumModalOpen,
+      subscribeUser
+    }}>
       {children}
     </AuthContext.Provider>
   );
