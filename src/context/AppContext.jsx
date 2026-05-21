@@ -42,10 +42,11 @@ export const AppProvider = ({ children }) => {
         setIsFetchingStats(false);
         return;
       }
-      const res = await fetch('/api/progress/stats', {
+      const tzOffset = new Date().getTimezoneOffset().toString();
+      const res = await fetch(`/api/progress/stats?tzOffset=${tzOffset}`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
-          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+          'X-Timezone-Offset': tzOffset
         }
       });
       
@@ -107,14 +108,15 @@ export const AppProvider = ({ children }) => {
   const recordReview = async (wordId, rating) => {
     try {
       const token = localStorage.getItem('mainichi_token');
-      const res = await fetch('/api/progress/review', {
+      const tzOffset = new Date().getTimezoneOffset().toString();
+      const res = await fetch(`/api/progress/review?tzOffset=${tzOffset}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+          'X-Timezone-Offset': tzOffset
         },
-        body: JSON.stringify({ vocab_id: wordId, rating })
+        body: JSON.stringify({ vocab_id: wordId, rating, tzOffset })
       });
       
       if (res.status === 401 || res.status === 403) {

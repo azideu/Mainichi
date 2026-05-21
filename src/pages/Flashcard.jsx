@@ -34,8 +34,12 @@ const Flashcard = () => {
     const fetchDue = async () => {
       try {
         const token = localStorage.getItem('mainichi_token');
-        const res = await fetch('/api/progress/due', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const tzOffset = new Date().getTimezoneOffset().toString();
+        const res = await fetch(`/api/progress/due?tzOffset=${tzOffset}`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'X-Timezone-Offset': tzOffset
+          }
         });
         if (res.ok) {
           const data = await res.json();

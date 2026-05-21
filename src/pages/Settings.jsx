@@ -37,11 +37,12 @@ const Settings = () => {
     setDemoMessage('');
     try {
       const token = localStorage.getItem('mainichi_token');
-      const res = await fetch('/api/progress/demo/reset', {
+      const tzOffset = new Date().getTimezoneOffset().toString();
+      const res = await fetch(`/api/progress/demo/reset?tzOffset=${tzOffset}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+          'X-Timezone-Offset': tzOffset
         }
       });
       if (res.ok) {
@@ -64,11 +65,12 @@ const Settings = () => {
     setDemoMessage('');
     try {
       const token = localStorage.getItem('mainichi_token');
-      const res = await fetch('/api/progress/demo/simulate-streak', {
+      const tzOffset = new Date().getTimezoneOffset().toString();
+      const res = await fetch(`/api/progress/demo/simulate-streak?tzOffset=${tzOffset}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+          'X-Timezone-Offset': tzOffset
         }
       });
       if (res.ok) {
