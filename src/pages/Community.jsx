@@ -95,6 +95,34 @@ const Community = () => {
     }
   };
 
+  // Remove / Deactivate Deck
+  const handleRemove = async (deckId) => {
+    const confirmed = window.confirm("Are you sure you want to remove this deck and all its study records from your account?");
+    if (!confirmed) return;
+    
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch(`/api/decks/${deckId}/download`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        // Refresh decks list to show unlocked status
+        await fetchDecks();
+        // If drawer is open, update selected deck unlocked state
+        if (selectedDeck && selectedDeck.id === deckId) {
+          setSelectedDeck(prev => ({ ...prev, downloaded: 0 }));
+        }
+      } else {
+        alert("Failed to remove deck. Please try again.");
+      }
+    } catch (err) {
+      console.error("Failed to remove deck", err);
+      alert("Error occurred while removing deck.");
+    }
+  };
+
   // Open Preview Drawer and fetch vocabulary list
   const handleOpenPreview = async (deck) => {
     setSelectedDeck(deck);
@@ -538,18 +566,32 @@ const Community = () => {
               </div>
 
               {/* Drawer Bottom Bar (Purchase/Study) */}
-              <div className="relative z-10 p-md border-t border-outline/10 bg-surface flex gap-3">
+              <div className="relative z-10 p-md border-t border-outline/10 bg-surface flex flex-col gap-3">
                 {selectedDeck.downloaded === 1 ? (
-                  <Button3D 
-                    variant="primary" 
-                    onClick={() => {
-                      setSelectedDeck(null);
-                      navigate(`/flashcard?deckId=${selectedDeck.id}`);
-                    }}
-                  >
-                    Study custom path now
-                    <span className="material-symbols-outlined">arrow_right_alt</span>
-                  </Button3D>
+                  <div className="flex gap-2 w-full">
+                    <Button3D 
+                      variant="primary" 
+                      onClick={() => {
+                        setSelectedDeck(null);
+                        navigate(`/flashcard?deckId=${selectedDeck.id}`);
+                      }}
+                      className="flex-1"
+                    >
+                      Study path now
+                      <span className="material-symbols-outlined ml-2">arrow_right_alt</span>
+                    </Button3D>
+                    {selectedDeck.id !== 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemove(selectedDeck.id)}
+                        className="px-4 py-3 rounded-xl bg-surface border border-error/25 text-error hover:bg-error/5 hover:border-error/45 transition-all text-xs font-label-caps tracking-wider flex items-center gap-1 active:scale-[0.98]"
+                        title="Remove Path"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <Button3D 
                     variant={selectedDeck.is_premium === 1 ? 'primary' : 'secondary'}
