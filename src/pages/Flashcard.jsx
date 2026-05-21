@@ -19,6 +19,30 @@ const getFirstReading = (readingStr) => {
   return readingStr.split(/[,、;]/)[0].trim();
 };
 
+const getActiveSteps = (card) => {
+  if (!card) return [STEPS.RECALL, STEPS.RESULT];
+  const steps = [STEPS.RECALL, STEPS.MEANING];
+  if (card.onyomi && card.onyomi.trim() !== '') {
+    steps.push(STEPS.ONYOMI);
+  }
+  if (card.kunyomi && card.kunyomi.trim() !== '') {
+    steps.push(STEPS.KUNYOMI);
+  }
+  steps.push(STEPS.RESULT);
+  return steps;
+};
+
+const getDynamicFontSize = (text) => {
+  if (!text) return 'text-[96px]';
+  const len = text.length;
+  if (len <= 1) return 'text-[96px]';
+  if (len === 2) return 'text-[64px]';
+  if (len === 3) return 'text-[48px]';
+  if (len === 4) return 'text-[36px]';
+  if (len <= 8) return 'text-[24px]';
+  return 'text-[16px] leading-normal px-4 text-center';
+};
+
 const Flashcard = () => {
   const navigate = useNavigate();
   const { recordReview, isMobileApp } = useApp();
@@ -65,36 +89,42 @@ const Flashcard = () => {
 
   const generateOptions = (index, currentDeck) => {
     const card = currentDeck[index];
-    // Pool for distractors - use all cards in deck
     const pool = currentDeck;
     
     const getDistractors = (attr, correctVal) => {
       const isReading = attr === 'onyomi' || attr === 'kunyomi';
       const cleanCorrect = isReading ? getFirstReading(correctVal) : correctVal;
 
-      // Find other values for the same attribute from the deck, cleaning them to a single reading
       const distractors = pool
         .filter(c => c.id !== card.id)
         .map(c => isReading ? getFirstReading(c[attr]) : c[attr])
         .filter(val => val && val !== cleanCorrect)
         .filter((val, idx, self) => self.indexOf(val) === idx);
       
-      // Shuffle and take 2
       const shuffled = [...distractors].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 2);
       
-      // Add correct value and shuffle again
       return [...selected, cleanCorrect].sort(() => 0.5 - Math.random());
     };
 
     setOptions({
       meaning: getDistractors('english', card.english),
-      onyomi: getDistractors('onyomi', card.onyomi),
-      kunyomi: getDistractors('kunyomi', card.kunyomi)
+      onyomi: (card.onyomi && card.onyomi.trim()) ? getDistractors('onyomi', card.onyomi) : [],
+      kunyomi: (card.kunyomi && card.kunyomi.trim()) ? getDistractors('kunyomi', card.kunyomi) : []
     });
   };
 
   const currentCard = deck[currentIndex];
+  const activeSteps = currentCard ? getActiveSteps(currentCard) : [];
+
+  const isAllCorrect = (() => {
+    if (!currentCard) return false;
+    let correct = true;
+    if (activeSteps.includes(STEPS.MEANING) && results.meaning !== true) correct = false;
+    if (activeSteps.includes(STEPS.ONYOMI) && results.onyomi !== true) correct = false;
+    if (activeSteps.includes(STEPS.KUNYOMI) && results.kunyomi !== true) correct = false;
+    return correct;
+  })();
 
   const handleForgot = () => {
     setResults({ meaning: false, onyomi: false, kunyomi: false });
@@ -115,16 +145,24 @@ const Flashcard = () => {
       sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: isCorrect ? 50 : 200 });
     }
     
-    if (type === 'meaning') setStep(STEPS.ONYOMI);
-    else if (type === 'onyomi') setStep(STEPS.KUNYOMI);
-    else if (type === 'kunyomi') setStep(STEPS.RESULT);
+    const currentIdx = activeSteps.indexOf(step);
+    if (currentIdx !== -1 && currentIdx < activeSteps.length - 1) {
+      setStep(activeSteps[currentIdx + 1]);
+    } else {
+      setStep(STEPS.RESULT);
+    }
   };
 
   const [nextReviewText, setNextReviewText] = useState('');
 
   useEffect(() => {
     if (step === STEPS.RESULT && currentCard) {
-      const allCorrect = results.meaning && results.onyomi && results.kunyomi;
+      const currentActiveSteps = getActiveSteps(currentCard);
+      let allCorrect = true;
+      if (currentActiveSteps.includes(STEPS.MEANING) && results.meaning !== true) allCorrect = false;
+      if (currentActiveSteps.includes(STEPS.ONYOMI) && results.onyomi !== true) allCorrect = false;
+      if (currentActiveSteps.includes(STEPS.KUNYOMI) && results.kunyomi !== true) allCorrect = false;
+
       const performRecord = async () => {
         const data = await recordReview(currentCard.id, allCorrect ? 'good' : 'hard');
         if (data && data.next_review_date) {
@@ -228,7 +266,7 @@ const Flashcard = () => {
           <div className="absolute inset-0 -m-8 border-4 border-dashed border-outline/10 rounded-full animate-[spin_30s_linear_infinite]"></div>
           <div className="w-44 h-44 bg-surface rounded-full flex items-center justify-center shadow-paper-layer border border-outline/5 relative z-10 overflow-hidden">
             <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply"></div>
-            <span className="text-[96px] font-bold text-on-surface relative z-10" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+            <span className={`${getDynamicFontSize(currentCard.kanji)} font-bold text-on-surface relative z-10`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
               {currentCard.kanji}
             </span>
           </div>
@@ -247,7 +285,20 @@ const Flashcard = () => {
               className="flex flex-col items-center text-center space-y-8"
             >
               <p className="font-body-lg text-outline leading-relaxed">
-                Recall the <span className="text-on-surface font-medium">meaning</span>, <span className="text-on-surface font-medium">on'yomi</span>, and <span className="text-on-surface font-medium">kun'yomi</span> for this kanji.
+                Recall the <span className="text-on-surface font-medium">meaning</span>
+                {activeSteps.includes(STEPS.ONYOMI) && (
+                  <>
+                    , <span className="text-on-surface font-medium">on'yomi</span>
+                  </>
+                )}
+                {activeSteps.includes(STEPS.KUNYOMI) && (
+                  <>
+                    , and <span className="text-on-surface font-medium">kun'yomi</span>
+                  </>
+                )}
+                {!activeSteps.includes(STEPS.ONYOMI) && !activeSteps.includes(STEPS.KUNYOMI) && (
+                  <> and <span className="text-on-surface font-medium">reading</span></>
+                )} for this item.
               </p>
               <div className="w-full space-y-4">
                 <Button3D onClick={() => setStep(STEPS.MEANING)} variant="primary" className="w-full py-6">
@@ -302,8 +353,8 @@ const Flashcard = () => {
               className="flex flex-col space-y-8"
             >
               <div className="text-center space-y-1">
-                <h2 className={`font-h2 ${results.meaning && results.onyomi && results.kunyomi ? 'text-primary' : 'text-error'}`}>
-                  {results.meaning && results.onyomi && results.kunyomi ? 'Correct!' : 'Incorrect'}
+                <h2 className={`font-h2 ${isAllCorrect ? 'text-primary' : 'text-error'}`}>
+                  {isAllCorrect ? 'Correct!' : 'Incorrect'}
                 </h2>
                 {nextReviewText && (
                   <p className="font-body-md text-outline">
@@ -315,24 +366,30 @@ const Flashcard = () => {
               <div className="bg-surface rounded-3xl p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
                 <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply"></div>
                 <div className="relative z-10 space-y-6">
-                  <div className="flex flex-col">
-                    <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
-                    <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
-                      {currentCard.english} {results.meaning === false && '✗'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
-                    <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
-                      {currentCard.onyomi} {results.onyomi === false && '✗'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
-                    <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
-                      {currentCard.kunyomi} {results.kunyomi === false && '✗'}
-                    </span>
-                  </div>
+                  {activeSteps.includes(STEPS.MEANING) && (
+                    <div className="flex flex-col">
+                      <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
+                      <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
+                        {currentCard.english} {results.meaning === false && '✗'}
+                      </span>
+                    </div>
+                  )}
+                  {activeSteps.includes(STEPS.ONYOMI) && (
+                    <div className="flex flex-col">
+                      <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
+                      <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
+                        {currentCard.onyomi} {results.onyomi === false && '✗'}
+                      </span>
+                    </div>
+                  )}
+                  {activeSteps.includes(STEPS.KUNYOMI) && (
+                    <div className="flex flex-col">
+                      <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
+                      <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
+                        {currentCard.kunyomi} {results.kunyomi === false && '✗'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
