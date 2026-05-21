@@ -279,7 +279,7 @@ app.get('/api/progress/stats', authenticateToken, async (req, res) => {
     // Calculate daily goal current progress (reviews done today in client's timezone)
     const tzOffsetStr = getTimezoneOffsetString(req);
     const [doneRows] = await pool.query(
-      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, "+00:00", ?)) = ?',
+      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, \'+00:00\', ?)) = ?',
       [user_id, tzOffsetStr, todayLocalDate.toString()]
     );
     const reviewsDoneToday = doneRows[0].count;
@@ -383,7 +383,7 @@ app.get('/api/progress/due', authenticateToken, async (req, res) => {
     const tzOffsetStr = getTimezoneOffsetString(req);
     const todayLocalDate = getUserLocalDate(req);
     const [doneRows] = await pool.query(
-      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, "+00:00", ?)) = ?',
+      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, \'+00:00\', ?)) = ?',
       [user_id, tzOffsetStr, todayLocalDate.toString()]
     );
     const reviewsDoneToday = doneRows[0].count;
