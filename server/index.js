@@ -667,6 +667,52 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
   }
 });
 
+// Override/Correct a misclicked review
+app.post('/api/progress/review/override', authenticateToken, async (req, res) => {
+  try {
+    const { vocab_id } = req.body;
+    const user_id = req.user.id;
+
+    // Get the current progress
+    const [progressRows] = await pool.query('SELECT * FROM mainichi_user_progress WHERE user_id = ? AND vocab_id = ?', [user_id, vocab_id]);
+    if (progressRows.length === 0) {
+      return res.status(404).json({ error: 'No progress found to override' });
+    }
+
+    const progress = progressRows[0];
+    
+    // Reconstruct previous SM2 state and recalculate for 'good' (quality = 4)
+    const prevRepetitions = Math.max(0, progress.repetitions - 1);
+    const prevEF = Math.max(1.3, progress.easiness_factor + 0.14); // Revert quality 3 subtraction
+
+    let newRepetitions = prevRepetitions + 1;
+    const intervals = [10, 90, 240, 1440, 4320, 10080, 20160, 43200, 129600, 259200];
+    let intervalMinutes = 0;
+    if (newRepetitions < intervals.length) {
+      intervalMinutes = intervals[newRepetitions];
+    } else {
+      const lastInterval = (progress.interval_days * 1440) || intervals[intervals.length - 1];
+      intervalMinutes = Math.round(lastInterval * prevEF);
+    }
+    const intervalDays = Math.max(1, Math.round(intervalMinutes / 1440));
+    
+    const nextReview = new Date();
+    nextReview.setMinutes(nextReview.getMinutes() + intervalMinutes);
+
+    // Update progress table
+    await pool.query(`
+      UPDATE mainichi_user_progress 
+      SET easiness_factor = ?, interval_days = ?, repetitions = ?, next_review_date = ?
+      WHERE user_id = ? AND vocab_id = ?
+    `, [prevEF, intervalDays, newRepetitions, nextReview, user_id, vocab_id]);
+
+    res.json({ success: true, next_review_date: nextReview });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
 // Handle React routing, return all requests to React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));

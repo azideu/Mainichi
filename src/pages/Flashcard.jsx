@@ -45,7 +45,7 @@ const getDynamicFontSize = (text) => {
 
 const Flashcard = () => {
   const navigate = useNavigate();
-  const { recordReview, isMobileApp } = useApp();
+  const { recordReview, recordReviewOverride, isMobileApp } = useApp();
   const [deck, setDeck] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -129,6 +129,32 @@ const Flashcard = () => {
   const handleForgot = () => {
     setResults({ meaning: false, onyomi: false, kunyomi: false });
     setStep(STEPS.RESULT);
+  };
+
+  const handleOverrideClick = async () => {
+    const correctedResults = { ...results };
+    activeSteps.forEach(s => {
+      if (s === STEPS.MEANING) correctedResults.meaning = true;
+      if (s === STEPS.ONYOMI) correctedResults.onyomi = true;
+      if (s === STEPS.KUNYOMI) correctedResults.kunyomi = true;
+    });
+    setResults(correctedResults);
+    
+    const data = await recordReviewOverride(currentCard.id);
+    if (data && data.next_review_date) {
+      const next = new Date(data.next_review_date);
+      const now = new Date();
+      const diffMs = next - now;
+      const diffMins = Math.round(diffMs / (1000 * 60));
+      
+      if (diffMins < 60) {
+        setNextReviewText(`${diffMins} minutes`);
+      } else if (diffMins < 1440) {
+        setNextReviewText(`${Math.round(diffMins / 60)} hours`);
+      } else {
+        setNextReviewText(`${Math.round(diffMins / 1440)} days`);
+      }
+    }
   };
 
   const handleChoice = (type, choice) => {
@@ -392,6 +418,17 @@ const Flashcard = () => {
                   )}
                 </div>
               </div>
+
+              {!isAllCorrect && (
+                <button
+                  type="button"
+                  onClick={handleOverrideClick}
+                  className="w-full py-4 bg-surface-variant/30 hover:bg-surface-variant/50 text-outline hover:text-primary border border-outline/10 rounded-2xl font-label-caps tracking-widest text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[16px]">undo</span>
+                  Oops! I actually knew it
+                </button>
+              )}
 
               <div className="flex gap-4">
                 <button 

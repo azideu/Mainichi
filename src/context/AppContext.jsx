@@ -138,6 +138,34 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const recordReviewOverride = async (wordId) => {
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch(`/api/progress/review/override`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ vocab_id: wordId })
+      });
+      
+      if (res.status === 401 || res.status === 403) {
+        logout();
+        return null;
+      }
+      
+      if (res.ok) {
+        const data = await res.json();
+        return data;
+      }
+      return null;
+    } catch (err) {
+      console.error("Failed to record review override", err);
+      return null;
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       streak, setStreak,
@@ -149,6 +177,7 @@ export const AppProvider = ({ children }) => {
       isMobileApp,
       handleAppInventorData,
       recordReview,
+      recordReviewOverride,
       updateSettings,
       fetchStats
     }}>
