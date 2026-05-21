@@ -66,7 +66,7 @@ const Progress = () => {
         </button>
         <button onClick={() => {
           import('../utils/appInventorBridge').then(module => {
-            module.sendToAppInventor(module.APP_INVENTOR_EVENTS.VIBRATE_PHONE);
+            module.sendToAppInventor(module.APP_INVENTOR_ACTIONS.VIBRATE, { duration: 300 });
           });
         }} className="w-full bg-primary/10 p-5 rounded-2xl border border-primary/20 flex justify-between items-center hover:bg-primary/20 transition-colors group mb-4">
           <div className="flex items-center gap-4">

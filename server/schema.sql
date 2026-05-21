@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS mainichi_vocabulary (
     deck_id INT,
     kanji VARCHAR(100) NOT NULL,
     furigana VARCHAR(100),
+    onyomi VARCHAR(255),
+    kunyomi VARCHAR(255),
     english VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (deck_id) REFERENCES mainichi_decks(id) ON DELETE CASCADE

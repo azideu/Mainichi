@@ -51,6 +51,55 @@ const authenticateToken = (req, res, next) => {
 };
 
 // ==========================================
+// DATE & TIMEZONE UTILITY FUNCTIONS
+// ==========================================
+
+// Get calendar date in user's local timezone (based on timezone offset header)
+function getUserLocalDate(req) {
+  const clientOffset = parseInt(req.headers['x-timezone-offset'] || '0', 10);
+  // clientOffset is in minutes (e.g. -480 for GMT+8, 300 for GMT-5).
+  // We subtract this offset to convert UTC server time to user local time.
+  const localTime = new Date(Date.now() - (clientOffset * 60 * 1000));
+  return {
+    year: localTime.getUTCFullYear(),
+    month: localTime.getUTCMonth(), // 0-indexed
+    day: localTime.getUTCDate(),
+    toString() {
+      return `${this.year}-${String(this.month + 1).padStart(2, '0')}-${String(this.day).padStart(2, '0')}`;
+    }
+  };
+}
+
+// Calculate difference in calendar days between user's current date and a stored date string YYYY-MM-DD
+function getCalendarDaysDiff(currentLocalDate, storedDateStr) {
+  if (!storedDateStr) return 0;
+  
+  // Stored date is formatted as YYYY-MM-DD in SQL query
+  const parts = storedDateStr.split(/[- T]/);
+  if (parts.length < 3) return 0;
+  
+  const storedYear = parseInt(parts[0], 10);
+  const storedMonth = parseInt(parts[1], 10) - 1; // 0-indexed
+  const storedDay = parseInt(parts[2], 10);
+  
+  const d1 = Date.UTC(currentLocalDate.year, currentLocalDate.month, currentLocalDate.day);
+  const d2 = Date.UTC(storedYear, storedMonth, storedDay);
+  
+  return Math.floor(Math.abs(d1 - d2) / (1000 * 60 * 60 * 24));
+}
+
+// Convert client timezone offset in minutes to SQL CONVERT_TZ offset string (e.g. '+08:00')
+function getTimezoneOffsetString(req) {
+  const clientOffset = parseInt(req.headers['x-timezone-offset'] || '0', 10);
+  const offsetMin = -clientOffset; 
+  const sign = offsetMin >= 0 ? '+' : '-';
+  const absMin = Math.abs(offsetMin);
+  const hours = Math.floor(absMin / 60);
+  const mins = absMin % 60;
+  return `${sign}${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+}
+
+// ==========================================
 // AUTHENTICATION ROUTES
 // ==========================================
 
@@ -192,25 +241,44 @@ app.delete('/api/vocab/:id', authenticateToken, async (req, res) => {
 app.get('/api/progress/stats', authenticateToken, async (req, res) => {
   try {
     const user_id = req.user.id;
-    let [statsRows] = await pool.query('SELECT * FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+    let [statsRows] = await pool.query(
+      'SELECT user_id, current_streak, longest_streak, DATE_FORMAT(last_study_date, "%Y-%m-%d") as last_study_date, words_mastered, mastery_requirement, daily_goal FROM mainichi_user_stats WHERE user_id = ?',
+      [user_id]
+    );
     
     // If stats don't exist for some reason, create defaults
     if (statsRows.length === 0) {
       await pool.query('INSERT INTO mainichi_user_stats (user_id) VALUES (?)', [user_id]);
-      [statsRows] = await pool.query('SELECT * FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+      [statsRows] = await pool.query(
+        'SELECT user_id, current_streak, longest_streak, DATE_FORMAT(last_study_date, "%Y-%m-%d") as last_study_date, words_mastered, mastery_requirement, daily_goal FROM mainichi_user_stats WHERE user_id = ?',
+        [user_id]
+      );
     }
     
     const stats = statsRows[0];
+    let currentStreak = stats.current_streak;
+    const todayLocalDate = getUserLocalDate(req);
     
-    // Calculate daily goal current progress (reviews done today)
+    // Reset streak if there's a day of inactivity (yesterday was missed)
+    if (stats.last_study_date) {
+      const diffDays = getCalendarDaysDiff(todayLocalDate, stats.last_study_date);
+      
+      if (diffDays > 1) {
+        currentStreak = 0;
+        await pool.query('UPDATE mainichi_user_stats SET current_streak = 0 WHERE user_id = ?', [user_id]);
+      }
+    }
+    
+    // Calculate daily goal current progress (reviews done today in client's timezone)
+    const tzOffsetStr = getTimezoneOffsetString(req);
     const [doneRows] = await pool.query(
-      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(updated_at) = CURRENT_DATE',
-      [user_id]
+      'SELECT COUNT(*) as count FROM mainichi_user_progress WHERE user_id = ? AND DATE(CONVERT_TZ(updated_at, "+00:00", ?)) = ?',
+      [user_id, tzOffsetStr, todayLocalDate.toString()]
     );
     const reviewsDoneToday = doneRows[0].count;
     
     res.json({
-      streak: stats.current_streak,
+      streak: currentStreak,
       longestStreak: stats.longest_streak,
       masteredWords: stats.words_mastered,
       masteryRequirement: stats.mastery_requirement,
@@ -347,24 +415,21 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
 
     // ==== Update Streak and Mastered Words ====
     // 1. Get current stats
-    const [statsRows] = await pool.query('SELECT * FROM mainichi_user_stats WHERE user_id = ?', [user_id]);
+    const [statsRows] = await pool.query(
+      'SELECT user_id, current_streak, longest_streak, DATE_FORMAT(last_study_date, "%Y-%m-%d") as last_study_date, words_mastered, mastery_requirement FROM mainichi_user_stats WHERE user_id = ?',
+      [user_id]
+    );
     const stats = statsRows[0];
     
     if (stats) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      let lastStudy = stats.last_study_date ? new Date(stats.last_study_date) : null;
-      if (lastStudy) lastStudy.setHours(0, 0, 0, 0);
-      
+      const todayLocalDate = getUserLocalDate(req);
       let newStreak = stats.current_streak;
       let newLongest = stats.longest_streak;
       
-      if (!lastStudy) {
+      if (!stats.last_study_date) {
         newStreak = 1;
       } else {
-        const diffTime = Math.abs(today - lastStudy);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffDays = getCalendarDaysDiff(todayLocalDate, stats.last_study_date);
         
         if (diffDays === 1) {
           // Studied yesterday, increment streak
@@ -388,10 +453,10 @@ app.post('/api/progress/review', authenticateToken, async (req, res) => {
       );
       const newMasteredWords = masteredRows[0].count;
 
-      // 3. Update stats table
+      // 3. Update stats table with user's local date string
       await pool.query(
         'UPDATE mainichi_user_stats SET current_streak = ?, longest_streak = ?, last_study_date = ?, words_mastered = ? WHERE user_id = ?',
-        [newStreak, newLongest, new Date(), newMasteredWords, user_id]
+        [newStreak, newLongest, todayLocalDate.toString(), newMasteredWords, user_id]
       );
 
       res.json({ success: true, next_review_date: nextReview, streak: newStreak, masteredWords: newMasteredWords });

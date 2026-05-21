@@ -34,6 +34,16 @@ async function initializeDatabase() {
     console.log("Executing schema.sql...");
     await connection.query(schema);
     
+    console.log("Executing seed_kanji.sql...");
+    const seedPath = path.join(__dirname, '../seed_kanji.sql');
+    if (fs.existsSync(seedPath)) {
+      const seedSql = fs.readFileSync(seedPath, 'utf8');
+      await connection.query(seedSql);
+      console.log("✅ Database seeded successfully!");
+    } else {
+      console.warn("⚠️ seed_kanji.sql not found, skipping seeding.");
+    }
+    
     console.log("✅ Database initialized successfully!");
   } catch (err) {
     console.error("❌ Error initializing database:", err);

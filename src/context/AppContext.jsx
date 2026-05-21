@@ -43,7 +43,10 @@ export const AppProvider = ({ children }) => {
         return;
       }
       const res = await fetch('/api/progress/stats', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+        }
       });
       
       if (res.status === 401 || res.status === 403) {
@@ -108,7 +111,8 @@ export const AppProvider = ({ children }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
         },
         body: JSON.stringify({ vocab_id: wordId, rating })
       });

@@ -13,6 +13,12 @@ const STEPS = {
   RESULT: 'RESULT'
 };
 
+const getFirstReading = (readingStr) => {
+  if (!readingStr) return '';
+  // Split by comma, Japanese comma, or semicolon and take the first reading, trimmed
+  return readingStr.split(/[,、;]/)[0].trim();
+};
+
 const Flashcard = () => {
   const navigate = useNavigate();
   const { recordReview, isMobileApp } = useApp();
@@ -51,18 +57,22 @@ const Flashcard = () => {
     const pool = currentDeck;
     
     const getDistractors = (attr, correctVal) => {
-      // Find other values for the same attribute from the deck
+      const isReading = attr === 'onyomi' || attr === 'kunyomi';
+      const cleanCorrect = isReading ? getFirstReading(correctVal) : correctVal;
+
+      // Find other values for the same attribute from the deck, cleaning them to a single reading
       const distractors = pool
-        .filter(c => c.id !== card.id && c[attr] !== correctVal)
-        .map(c => c[attr])
-        .filter((val, idx, self) => val && self.indexOf(val) === idx);
+        .filter(c => c.id !== card.id)
+        .map(c => isReading ? getFirstReading(c[attr]) : c[attr])
+        .filter(val => val && val !== cleanCorrect)
+        .filter((val, idx, self) => self.indexOf(val) === idx);
       
       // Shuffle and take 2
       const shuffled = [...distractors].sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 2);
       
       // Add correct value and shuffle again
-      return [...selected, correctVal].sort(() => 0.5 - Math.random());
+      return [...selected, cleanCorrect].sort(() => 0.5 - Math.random());
     };
 
     setOptions({
@@ -80,7 +90,13 @@ const Flashcard = () => {
   };
 
   const handleChoice = (type, choice) => {
-    const isCorrect = choice === currentCard[type === 'meaning' ? 'english' : type];
+    let isCorrect = false;
+    if (type === 'meaning') {
+      isCorrect = choice === currentCard.english;
+    } else {
+      isCorrect = choice === getFirstReading(currentCard[type]);
+    }
+    
     setResults(prev => ({ ...prev, [type]: isCorrect }));
     
     if (isMobileApp) {

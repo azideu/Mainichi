@@ -1,3 +1,8 @@
+-- Ensure default deck exists first
+INSERT INTO mainichi_decks (id, author_id, title, description, is_premium)
+VALUES (1, NULL, 'JLPT N5 Core', 'Master the essential kanji for the JLPT N5 exam.', FALSE)
+ON DUPLICATE KEY UPDATE title = VALUES(title), description = VALUES(description);
+
 DELETE FROM mainichi_vocabulary WHERE deck_id = 1;
 
 INSERT INTO mainichi_vocabulary (deck_id, kanji, onyomi, kunyomi, english) VALUES 
