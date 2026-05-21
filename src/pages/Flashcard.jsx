@@ -35,7 +35,15 @@ const Flashcard = () => {
       try {
         const token = localStorage.getItem('mainichi_token');
         const tzOffset = new Date().getTimezoneOffset().toString();
-        const res = await fetch(`/api/progress/due?tzOffset=${tzOffset}`, {
+        const searchParams = new URLSearchParams(window.location.search);
+        const deckId = searchParams.get('deckId');
+        
+        let url = `/api/progress/due?tzOffset=${tzOffset}`;
+        if (deckId) {
+          url += `&deckId=${deckId}`;
+        }
+
+        const res = await fetch(url, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'X-Timezone-Offset': tzOffset
