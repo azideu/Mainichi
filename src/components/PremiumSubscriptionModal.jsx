@@ -17,21 +17,24 @@ const BANKS = {
     name: 'Maybank2u',
     color: '#FFCC00', // Yellow
     textColor: '#000000',
-    logo: '🐯'
+    logo: '🐯',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Maybank_Logo.svg'
   },
   CIMB: {
     id: 'CIMB',
     name: 'CIMB Clicks',
     color: '#DE1C24', // Red
     textColor: '#FFFFFF',
-    logo: '🔴'
+    logo: '🔴',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/CIMB_Group_logo.svg'
   },
-  BANK_ISLAM: {
-    id: 'BANK_ISLAM',
-    name: 'Bank Islam',
-    color: '#006633', // Deep Green
+  RHB: {
+    id: 'RHB',
+    name: 'RHB Now',
+    color: '#005EA6', // Blue
     textColor: '#FFFFFF',
-    logo: '🌙'
+    logo: '🔵',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/RHB_Logo.svg'
   }
 };
 
@@ -159,7 +162,7 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
           >
             <div className="text-center space-y-2">
               <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-label-caps tracking-widest rounded-full">
-                UNIVERSITY SIMULATOR
+                BANKING PORTAL SIMULATOR
               </span>
               <h2 className="font-h2 text-on-surface tracking-tight">FPX Bank Portal</h2>
               <p className="font-body-md text-outline">Select your simulated banking gateway to proceed.</p>
@@ -175,10 +178,13 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
                   <div className="absolute inset-0 bg-washi opacity-10 mix-blend-multiply pointer-events-none"></div>
                   <div className="flex items-center gap-4 relative z-10">
                     <div 
-                      className="w-12 h-12 rounded-xl flex items-center justify-center shadow-inner font-h2 text-xl"
-                      style={{ backgroundColor: bank.color, color: bank.textColor }}
+                      className="w-12 h-12 rounded-xl flex items-center justify-center shadow-inner overflow-hidden p-1.5 bg-white border border-outline/10"
                     >
-                      {bank.logo}
+                      {bank.logoUrl ? (
+                        <img src={bank.logoUrl} alt={bank.name} className="w-full h-full object-contain" />
+                      ) : (
+                        <span className="font-h2 text-xl">{bank.logo}</span>
+                      )}
                     </div>
                     <div>
                       <h4 className="font-h3 text-on-surface group-hover:text-primary transition-colors">{bank.name}</h4>
@@ -210,11 +216,16 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
           >
             <div className="text-center space-y-2">
               <div 
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-h3 text-sm shadow-sm border border-outline/10"
-                style={{ backgroundColor: selectedBank.color, color: selectedBank.textColor }}
+                className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-full font-h3 text-sm shadow-sm border border-outline/10 bg-white text-on-surface"
               >
-                <span>{selectedBank.logo}</span>
-                <span>{selectedBank.name}</span>
+                <div className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-white p-0.5 border border-outline/10">
+                  {selectedBank.logoUrl ? (
+                    <img src={selectedBank.logoUrl} alt={selectedBank.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <span>{selectedBank.logo}</span>
+                  )}
+                </div>
+                <span className="font-semibold">{selectedBank.name}</span>
               </div>
               <h2 className="font-h2 text-on-surface tracking-tight mt-2">Secure FPX Login</h2>
               <p className="font-body-md text-amber-500 font-medium">✨ Demo Portal: Type anything to log in!</p>
@@ -277,7 +288,7 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
           >
             <div className="text-center space-y-2">
               <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-label-caps tracking-widest rounded-full">
-                UNIVERSITY SIMULATOR
+                BANKING PORTAL SIMULATOR
               </span>
               <h2 className="font-h2 text-on-surface tracking-tight">Authorize Payment</h2>
               <p className="font-body-md text-outline">Confirm details to authorize your simulated subscription.</p>
@@ -296,8 +307,14 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
                 <span className="font-body-md text-on-surface-variant font-mono text-[11px] text-right">MNCH-FPX-52901</span>
 
                 <span className="font-label-caps text-outline text-[10px] tracking-widest">SOURCE DEBIT</span>
-                <span className="font-body-md text-on-surface-variant text-right flex items-center justify-end gap-1">
-                  <span>{selectedBank.logo}</span>
+                <span className="font-body-md text-on-surface-variant text-right flex items-center justify-end gap-1.5">
+                  <div className="w-5 h-5 flex items-center justify-center overflow-hidden rounded bg-white p-0.5 border border-outline/5">
+                    {selectedBank.logoUrl ? (
+                      <img src={selectedBank.logoUrl} alt={selectedBank.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <span>{selectedBank.logo}</span>
+                    )}
+                  </div>
                   <span>{selectedBank.name} (*4019)</span>
                 </span>
               </div>
