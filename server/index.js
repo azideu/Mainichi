@@ -312,6 +312,57 @@ app.put('/api/progress/settings', authenticateToken, async (req, res) => {
   }
 });
 
+// ==========================================
+// PRESENTATION & DEMO SANDBOX ENDPOINTS
+// ==========================================
+
+// Reset user progress (refills review queue and resets stats)
+app.post('/api/progress/demo/reset', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    
+    // Delete progress records
+    await pool.query('DELETE FROM mainichi_user_progress WHERE user_id = ?', [user_id]);
+    
+    // Reset stats
+    await pool.query(
+      'UPDATE mainichi_user_stats SET current_streak = 0, longest_streak = 0, last_study_date = NULL, words_mastered = 0 WHERE user_id = ?',
+      [user_id]
+    );
+    
+    res.json({ success: true, message: 'Progress fully reset. Daily queue reloaded!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Simulate 5-day active streak (last study date = yesterday, so today reviews increment to 6!)
+app.post('/api/progress/demo/simulate-streak', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    
+    // Calculate yesterday in user's client local timezone based on offset header
+    const clientOffset = parseInt(req.headers['x-timezone-offset'] || '0', 10);
+    const yesterdayLocalTime = new Date(Date.now() - (clientOffset * 60 * 1000) - 86400000);
+    const yesterdayStr = `${yesterdayLocalTime.getUTCFullYear()}-${String(yesterdayLocalTime.getUTCMonth() + 1).padStart(2, '0')}-${String(yesterdayLocalTime.getUTCDate()).padStart(2, '0')}`;
+    
+    // Delete progress to refill queue
+    await pool.query('DELETE FROM mainichi_user_progress WHERE user_id = ?', [user_id]);
+    
+    // Set streak to 5, longest streak to 10, last study date to yesterday
+    await pool.query(
+      'UPDATE mainichi_user_stats SET current_streak = 5, longest_streak = 10, last_study_date = ?, words_mastered = 3 WHERE user_id = ?',
+      [yesterdayStr, user_id]
+    );
+    
+    res.json({ success: true, message: 'Simulated 5-day active streak! Next review will increment it to 6.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
 // Get due reviews
 app.get('/api/progress/due', authenticateToken, async (req, res) => {
   try {

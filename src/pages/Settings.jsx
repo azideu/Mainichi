@@ -14,10 +14,12 @@ const Settings = () => {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
   };
 
-  const { masteryRequirement, dailyGoal, updateSettings } = useApp();
+  const { masteryRequirement, dailyGoal, updateSettings, fetchStats } = useApp();
   const [localMastery, setLocalMastery] = useState(masteryRequirement);
   const [localGoal, setLocalGoal] = useState(dailyGoal.total);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDemoActionLoading, setIsDemoActionLoading] = useState(false);
+  const [demoMessage, setDemoMessage] = useState('');
 
   useEffect(() => {
     setLocalMastery(masteryRequirement);
@@ -28,6 +30,60 @@ const Settings = () => {
     setIsSaving(true);
     await updateSettings(localMastery, localGoal);
     setIsSaving(false);
+  };
+
+  const handleResetProgress = async () => {
+    setIsDemoActionLoading(true);
+    setDemoMessage('');
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch('/api/progress/demo/reset', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDemoMessage(data.message);
+        await fetchStats();
+      } else {
+        setDemoMessage('Error resetting progress.');
+      }
+    } catch (err) {
+      console.error(err);
+      setDemoMessage('Network error.');
+    } finally {
+      setIsDemoActionLoading(false);
+    }
+  };
+
+  const handleSimulateStreak = async () => {
+    setIsDemoActionLoading(true);
+    setDemoMessage('');
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch('/api/progress/demo/simulate-streak', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Timezone-Offset': new Date().getTimezoneOffset().toString()
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDemoMessage(data.message);
+        await fetchStats();
+      } else {
+        setDemoMessage('Error simulating streak.');
+      }
+    } catch (err) {
+      console.error(err);
+      setDemoMessage('Network error.');
+    } finally {
+      setIsDemoActionLoading(false);
+    }
   };
 
   return (
@@ -124,6 +180,47 @@ const Settings = () => {
           <div className="pt-4">
             <Button3D variant="primary" className="w-full" onClick={handleSaveSettings} disabled={isSaving}>
               {isSaving ? 'Saving...' : 'Save Preferences'}
+            </Button3D>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        <div className="absolute inset-0 bg-secondary/5 pointer-events-none"></div>
+        <h3 className="font-h3 text-on-surface mb-2 tracking-tight relative z-10 flex items-center gap-2">
+          <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>biotech</span>
+          Presentation Sandbox
+        </h3>
+        <p className="font-label-caps text-outline tracking-widest mb-6 relative z-10">PREPARE DEMONSTRATIONS INSTANTLY</p>
+        
+        <div className="space-y-4 relative z-10">
+          <p className="font-body-md text-on-surface-variant leading-relaxed">
+            Ensure you have perfect material to showcase. Reload all 80 JLPT N5 cards into your due queue or simulate a live 5-day active study streak.
+          </p>
+
+          {demoMessage && (
+            <div className="p-3 bg-secondary/10 border border-secondary/20 rounded-xl text-secondary font-body-sm text-center animate-in fade-in zoom-in-95">
+              {demoMessage}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <Button3D 
+              variant="secondary" 
+              onClick={handleResetProgress} 
+              disabled={isDemoActionLoading}
+              className="w-full text-xs font-semibold py-3"
+            >
+              Reset Queue (Fresh Start)
+            </Button3D>
+            <Button3D 
+              variant="primary" 
+              onClick={handleSimulateStreak} 
+              disabled={isDemoActionLoading}
+              className="w-full text-xs font-semibold py-3"
+            >
+              Simulate 5-Day Active Streak
             </Button3D>
           </div>
         </div>
