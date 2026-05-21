@@ -170,7 +170,7 @@ const Dashboard = () => {
                     </div>
                     <h3 className="font-h3 text-on-surface tracking-tight">Unlock Premium Realms</h3>
                     <p className="font-body-md text-on-surface-variant leading-relaxed">
-                      Get full access to premium community decks, unlimited custom study paths, and advanced stats for only **RM10/mo**!
+                      Get full access to premium community decks, unlimited custom study paths, and advanced stats for only <strong>RM10/mo</strong>!
                     </p>
                   </div>
                   <button 

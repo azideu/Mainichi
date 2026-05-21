@@ -112,19 +112,19 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
               <ul className="space-y-3 relative z-10">
                 <li className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant">**Premium Collections**: Access all premium community decks.</span>
+                  <span className="font-body-md text-on-surface-variant"><strong>Premium Collections</strong>: Access all premium community decks.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant">**Unlimited Decks**: Create as many custom flashcard decks as you want.</span>
+                  <span className="font-body-md text-on-surface-variant"><strong>Unlimited Decks</strong>: Create as many custom flashcard decks as you want.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant">**Capped-Free Study**: Review custom paths without daily limits.</span>
+                  <span className="font-body-md text-on-surface-variant"><strong>Capped-Free Study</strong>: Review custom paths without daily limits.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant">**Advanced Progress Metrics**: Full study logs & review calendars.</span>
+                  <span className="font-body-md text-on-surface-variant"><strong>Advanced Progress Metrics</strong>: Full study logs & review calendars.</span>
                 </li>
               </ul>
             </div>
