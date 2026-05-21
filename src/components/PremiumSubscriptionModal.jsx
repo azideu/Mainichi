@@ -3,6 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Button3D from './Button3D';
 
+// Import local PNG bank logos
+import maybankLogo from '../assets/maybank_logo.png';
+import cimbLogo from '../assets/cimb_logo.png';
+import rhbLogo from '../assets/rhb_logo.png';
+
 const STEPS = {
   INTRO: 1,
   BANK_SELECT: 2,
@@ -18,7 +23,7 @@ const BANKS = {
     color: '#FFCC00', // Yellow
     textColor: '#000000',
     logo: '🐯',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Maybank_Logo.svg'
+    logoUrl: maybankLogo
   },
   CIMB: {
     id: 'CIMB',
@@ -26,7 +31,7 @@ const BANKS = {
     color: '#DE1C24', // Red
     textColor: '#FFFFFF',
     logo: '🔴',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c5/CIMB_Group_logo.svg'
+    logoUrl: cimbLogo
   },
   RHB: {
     id: 'RHB',
@@ -34,7 +39,7 @@ const BANKS = {
     color: '#005EA6', // Blue
     textColor: '#FFFFFF',
     logo: '🔵',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/RHB_Logo.svg'
+    logoUrl: rhbLogo
   }
 };
 
@@ -322,7 +327,7 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
 
             <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4 text-center">
               <p className="font-body-sm text-amber-500 leading-relaxed">
-                🚀 This is a <strong>sandbox presentation simulation</strong>. Clicking approve will instantly upgrade your account to Premium without actual charges!
+                This is a <strong>sandbox presentation simulation</strong>. Clicking approve will instantly upgrade your account to Premium without actual charges!
               </p>
             </div>
 

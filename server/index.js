@@ -450,6 +450,44 @@ app.get('/api/progress/stats', authenticateToken, async (req, res) => {
   }
 });
 
+// Get progress for each downloaded deck
+app.get('/api/progress/decks', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    
+    // First get the user's mastery requirement
+    let [statsRows] = await pool.query(
+      'SELECT mastery_requirement FROM mainichi_user_stats WHERE user_id = ?',
+      [user_id]
+    );
+    let masteryReq = 10; // Default
+    if (statsRows.length > 0) {
+      masteryReq = statsRows[0].mastery_requirement;
+    }
+    
+    const query = `
+      SELECT d.id, d.title, d.description, d.is_premium,
+             (SELECT COUNT(*) FROM mainichi_vocabulary WHERE deck_id = d.id) as word_count,
+             (SELECT COUNT(*) FROM mainichi_user_progress p 
+              JOIN mainichi_vocabulary v ON p.vocab_id = v.id
+              WHERE p.user_id = ? AND v.deck_id = d.id) as studied_count,
+             (SELECT COUNT(*) FROM mainichi_user_progress p 
+              JOIN mainichi_vocabulary v ON p.vocab_id = v.id
+              WHERE p.user_id = ? AND v.deck_id = d.id AND p.repetitions >= ?) as mastered_count
+      FROM mainichi_decks d
+      JOIN mainichi_user_decks ud ON d.id = ud.deck_id
+      WHERE ud.user_id = ?
+      ORDER BY d.id ASC
+    `;
+    
+    const [decksProgress] = await pool.query(query, [user_id, user_id, masteryReq, user_id]);
+    res.json(decksProgress);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
 // Update settings
 app.put('/api/progress/settings', authenticateToken, async (req, res) => {
   try {

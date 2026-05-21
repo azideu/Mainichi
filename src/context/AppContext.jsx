@@ -7,6 +7,7 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const { user, logout } = useAuth();
   const [streak, setStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
   const [masteredWords, setMasteredWords] = useState(0);
   const [masteryRequirement, setMasteryRequirement] = useState(10);
   const [dailyGoal, setDailyGoal] = useState({ current: 0, total: 20 });
@@ -59,6 +60,7 @@ export const AppProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setStreak(data.streak);
+        setLongestStreak(data.longestStreak || 0);
         setMasteredWords(data.masteredWords);
         setMasteryRequirement(data.masteryRequirement || 10);
         setDailyGoal(prev => ({ current: data.dailyGoal.current, total: data.dailyGoal.total }));
@@ -169,6 +171,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{
       streak, setStreak,
+      longestStreak, setLongestStreak,
       masteredWords, setMasteredWords,
       masteryRequirement, setMasteryRequirement,
       dailyGoal, setDailyGoal,

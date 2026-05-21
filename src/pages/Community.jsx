@@ -298,7 +298,7 @@ const Community = () => {
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
                   <h3 className="font-h3 text-on-surface tracking-tight group-hover:text-primary transition-colors">{deck.title}</h3>
                   {deck.is_premium === 1 && (
-                    <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest">
+                    <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
                       PREMIUM
                     </span>
                   )}
@@ -382,7 +382,7 @@ const Community = () => {
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-h3 text-on-surface group-hover:text-secondary transition-colors">{deck.title}</h4>
                           {deck.is_premium === 1 && (
-                            <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[8px] font-label-caps px-2 py-0.5 rounded-full tracking-widest">
+                            <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[8px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
                               PREMIUM
                             </span>
                           )}
@@ -448,7 +448,7 @@ const Community = () => {
                   <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <h2 className="font-h2 text-on-surface tracking-tight leading-none">{selectedDeck.title}</h2>
                     {selectedDeck.is_premium === 1 && (
-                      <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest">
+                      <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
                         PREMIUM
                       </span>
                     )}

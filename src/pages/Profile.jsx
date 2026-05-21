@@ -127,9 +127,8 @@ const Profile = () => {
                 {user?.is_premium === 1 ? 'Mainichi Premium' : 'Mainichi Explorer (Free Tier)'}
               </h3>
               {user?.is_premium === 1 && (
-                <span className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-label-caps font-bold px-2 py-0.5 rounded-full text-[9px] tracking-wider flex items-center gap-0.5 shadow-sm">
-                  <span className="material-symbols-outlined text-[10px] font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  ACTIVE
+                <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
+                  PREMIUM
                 </span>
               )}
             </div>
@@ -147,11 +146,7 @@ const Profile = () => {
             >
               Upgrade • RM10/mo
             </button>
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
-              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-            </div>
-          )}
+          ) : null}
         </div>
       </motion.div>
 
