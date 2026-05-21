@@ -341,6 +341,36 @@ app.post('/api/decks/:id/download', authenticateToken, async (req, res) => {
   }
 });
 
+// Remove/Deactivate Deck from User Account
+app.delete('/api/decks/:id/download', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const deck_id = parseInt(req.params.id, 10);
+
+    if (deck_id === 1) {
+      return res.status(400).json({ error: 'Cannot remove the core N5 deck.' });
+    }
+
+    // 1. Delete user-deck link
+    await pool.query(
+      'DELETE FROM mainichi_user_decks WHERE user_id = ? AND deck_id = ?',
+      [user_id, deck_id]
+    );
+
+    // 2. Delete review progress for cards in this deck
+    await pool.query(
+      'DELETE FROM mainichi_user_progress WHERE user_id = ? AND vocab_id IN (SELECT id FROM mainichi_vocabulary WHERE deck_id = ?)',
+      [user_id, deck_id]
+    );
+
+    res.json({ success: true, message: 'Deck removed from account successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+
 // ==========================================
 // SRS & PROGRESS TRACKING ROUTES
 // ==========================================
