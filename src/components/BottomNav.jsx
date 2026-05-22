@@ -13,9 +13,56 @@ const NAV_ITEMS = [
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [touchStart, setTouchStart] = React.useState({ x: 0, y: 0, time: 0 });
+
+  const activeIndex = NAV_ITEMS.findIndex((item) => 
+    location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))
+  );
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    setTouchStart({
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now()
+    });
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!touchStart.time) return;
+
+    const touch = e.changedTouches[0];
+    const diffX = touch.clientX - touchStart.x;
+    const diffY = touch.clientY - touchStart.y;
+    const timeElapsed = Date.now() - touchStart.time;
+
+    // Swipe criteria: horizontal shift > 50px, vertical deviation < 40px, time < 300ms
+    if (Math.abs(diffX) > 50 && Math.abs(diffY) < 40 && timeElapsed < 300) {
+      if (activeIndex !== -1) {
+        if (diffX < 0) {
+          // Swipe Left -> Go to next page
+          const nextIndex = Math.min(activeIndex + 1, NAV_ITEMS.length - 1);
+          if (nextIndex !== activeIndex) {
+            navigate(NAV_ITEMS[nextIndex].path);
+          }
+        } else {
+          // Swipe Right -> Go to previous page
+          const prevIndex = Math.max(activeIndex - 1, 0);
+          if (prevIndex !== activeIndex) {
+            navigate(NAV_ITEMS[prevIndex].path);
+          }
+        }
+      }
+    }
+    setTouchStart({ x: 0, y: 0, time: 0 });
+  };
 
   return (
-    <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden">
+    <nav 
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="fixed bottom-4 left-4 right-4 z-50 md:hidden touch-none select-none"
+    >
       <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl h-16 flex justify-around items-center px-4 relative overflow-hidden">
         {/* Washi texture overlay */}
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
