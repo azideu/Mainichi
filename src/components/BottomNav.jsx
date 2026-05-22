@@ -38,11 +38,10 @@ const BottomNav = () => {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-              <div className="z-10 flex flex-col items-center justify-center">
+              <div className="z-10 flex items-center justify-center">
                 <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 300" : "'wght' 200" }}>
                   {item.icon}
                 </span>
-                <span className="font-label-caps text-[9px] mt-1 tracking-widest">{item.label}</span>
               </div>
             </button>
           );
