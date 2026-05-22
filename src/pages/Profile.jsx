@@ -89,17 +89,12 @@ const Profile = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      <div className="flex justify-between items-start mb-8 relative z-10">
-        <div>
-          <motion.h1 variants={itemVariants} className="font-h1 text-primary tracking-tighter mb-2">Profile</motion.h1>
-          <motion.p variants={itemVariants} className="font-body-md text-outline">
-            Customize your learning persona, view your stats, and manage your account details.
-          </motion.p>
-        </div>
+      {/* Mobile-only settings button */}
+      <div className="flex justify-end items-start mb-6 relative z-10 md:hidden">
         <motion.button
           variants={itemVariants}
           onClick={() => navigate('/settings')}
-          className="md:hidden w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200 shrink-0 mt-2"
+          className="w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200 shrink-0 mt-2"
           title="Settings"
         >
           <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>settings</span>
