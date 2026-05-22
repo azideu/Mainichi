@@ -25,7 +25,7 @@ const Lessons = () => {
     >
       {/* Page Header */}
       <motion.div variants={itemVariants} className="mb-8 text-center md:text-left">
-        <h1 className="font-h1 text-primary mb-2 tracking-tighter">Grammar Mastery</h1>
+        <h1 className="font-h1 text-primary mb-2 tracking-tighter">Lessons</h1>
         <p className="font-body-lg text-outline">Unlock the structure of Japanese, step by step.</p>
       </motion.div>
 

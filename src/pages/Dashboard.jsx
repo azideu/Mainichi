@@ -57,6 +57,12 @@ const Dashboard = () => {
         <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-secondary-container/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply"></div>
         <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-container/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply"></div>
 
+        {/* Page Header */}
+        <motion.div variants={itemVariants} className="mb-8 text-center md:text-left relative z-10">
+          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Home</h1>
+          <p className="font-body-md text-outline">Welcome back! Continue tending to your daily study garden.</p>
+        </motion.div>
+
         {/* Hero Section / Daily Streak - Layered Canopy */}
         <motion.section variants={itemVariants} className="relative z-10 mb-xl mt-md">
           <div className="bg-surface-bright rounded-2xl p-xl shadow-ambient border border-outline/10 relative overflow-hidden group">
