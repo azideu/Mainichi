@@ -60,7 +60,7 @@ const TopBar = () => {
             onClick={() => navigate('/')}
             className="flex items-center cursor-pointer active:scale-95 transition-transform group pointer-events-auto"
           >
-            <img src={logoNoText} alt="Mainichi" className="h-5 w-auto opacity-95 group-hover:opacity-100 transition-opacity" />
+            <img src={logoNoText} alt="Mainichi" className="h-7 md:h-8 w-auto opacity-95 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
 
