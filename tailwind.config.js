@@ -34,13 +34,13 @@ export default {
         "label-sm": ["Lexend", "Zen Kaku Gothic New", "sans-serif"]
       },
       fontSize: {
-        h1: ["28px", {lineHeight: "1.2", letterSpacing: "-0.025em", fontWeight: "700"}],
-        h2: ["20px", {lineHeight: "1.3", letterSpacing: "-0.015em", fontWeight: "600"}],
-        h3: ["16px", {lineHeight: "1.4", letterSpacing: "-0.01em", fontWeight: "600"}],
-        "body-lg": ["15px", {lineHeight: "1.5", letterSpacing: "0.005em", fontWeight: "400"}],
-        "body-md": ["13px", {lineHeight: "1.5", letterSpacing: "0.005em", fontWeight: "400"}],
-        "label-sm": ["11px", {lineHeight: "1.2", letterSpacing: "0.04em", fontWeight: "600"}],
-        "label-caps": ["10px", {lineHeight: "1.2", letterSpacing: "0.06em", fontWeight: "700"}]
+        h1: ["22px", {lineHeight: "1.2", letterSpacing: "-0.025em", fontWeight: "700"}],
+        h2: ["17px", {lineHeight: "1.3", letterSpacing: "-0.015em", fontWeight: "600"}],
+        h3: ["14px", {lineHeight: "1.4", letterSpacing: "-0.01em", fontWeight: "600"}],
+        "body-lg": ["13px", {lineHeight: "1.5", letterSpacing: "0.005em", fontWeight: "400"}],
+        "body-md": ["12px", {lineHeight: "1.5", letterSpacing: "0.005em", fontWeight: "400"}],
+        "label-sm": ["10px", {lineHeight: "1.2", letterSpacing: "0.04em", fontWeight: "600"}],
+        "label-caps": ["9px", {lineHeight: "1.2", letterSpacing: "0.06em", fontWeight: "700"}]
       }
     }
   },
