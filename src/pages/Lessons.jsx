@@ -275,8 +275,14 @@ const Lessons = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {LESSONS.map((lesson) => {
-            const isCompleted = completedLessons.includes(lesson.id);
+          {[...LESSONS]
+            .sort((a, b) => {
+              const aComp = completedLessons.includes(a.id) ? 1 : 0;
+              const bComp = completedLessons.includes(b.id) ? 1 : 0;
+              return aComp - bComp;
+            })
+            .map((lesson) => {
+              const isCompleted = completedLessons.includes(lesson.id);
             return (
               <motion.div 
                 key={lesson.id}
