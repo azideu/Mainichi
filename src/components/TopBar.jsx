@@ -1,11 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 
 import logoNoText from '../assets/logo-no-text.svg';
 
 const TopBar = () => {
   const { user } = useAuth();
+  const { streak } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,13 +52,15 @@ const TopBar = () => {
           </span>
         </div>
 
-        {/* Centered Brand Logo */}
+        {/* Centered User Streak with Fire Icon */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
           <div 
-            onClick={() => navigate('/')}
-            className="flex items-center cursor-pointer active:scale-95 transition-transform group pointer-events-auto"
+            onClick={() => navigate('/progress')}
+            className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform group pointer-events-auto bg-primary/5 hover:bg-primary/10 px-3 py-1 rounded-full border border-primary/10 shadow-sm"
+            title="Forest Path (Streak)"
           >
-            <img src={logoNoText} alt="Mainichi" className="h-7 md:h-8 w-auto opacity-95 group-hover:opacity-100 transition-opacity" />
+            <span className="material-symbols-outlined text-primary text-[20px] animate-pulse" style={{ fontVariationSettings: "'FILL' 1, 'wght' 300" }}>local_fire_department</span>
+            <span className="font-label-caps text-primary font-bold text-[12px] tracking-wider">{streak}</span>
           </div>
         </div>
 
