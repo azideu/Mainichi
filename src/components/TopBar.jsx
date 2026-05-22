@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
+import logoNoText from '../assets/logo-no-text.svg';
+
 const TopBar = () => {
   const { setIsSidebarOpen } = useApp();
   const { user, logout } = useAuth();
@@ -36,106 +38,114 @@ const TopBar = () => {
   if (location.pathname === '/login') return null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-12 md:h-14 bg-surface/85 backdrop-blur-md border-b border-outline/10 px-4 flex justify-between items-center select-none relative">
-      {/* Subtle texture overlay */}
-      <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none overflow-hidden"></div>
+    <header className="fixed top-0 left-0 right-0 z-50 px-4 pt-3 pb-2 md:px-6 md:pt-4">
+      {/* Floating Glassmorphic Capsule */}
+      <div className="bg-surface/85 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl flex justify-between items-center w-full px-4 h-14 md:h-16 relative">
+        {/* Washi texture overlay */}
+        <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none rounded-2xl overflow-hidden"></div>
 
-      {/* Left side action trigger */}
-      <div className="relative z-10 flex items-center">
-        {isRootPath ? (
-          <button 
-            onClick={() => setIsSidebarOpen(true)}
-            className="text-primary hover:bg-surface-variant p-2 rounded-xl transition-all duration-200 active:scale-95 flex items-center justify-center"
-            title="Menu"
-          >
-            <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'wght' 300" }}>menu</span>
-          </button>
-        ) : (
-          <button 
-            onClick={() => navigate(-1)}
-            className="text-outline hover:text-primary hover:bg-surface-variant p-2 rounded-xl transition-all duration-200 active:scale-95 flex items-center justify-center"
-            title="Back"
-          >
-            <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'wght' 300" }}>arrow_back</span>
-          </button>
-        )}
-      </div>
-
-      {/* Dynamic centered title */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
-        <h2 className="font-h2 text-primary font-semibold tracking-tight text-center whitespace-nowrap">
-          {getPageTitle(location.pathname)}
-        </h2>
-      </div>
-
-      {/* Right side user avatar */}
-      <div className="relative z-10 flex items-center">
-        <button 
-          onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-          className="rounded-full overflow-hidden w-8 h-8 md:w-9 md:h-9 border border-outline/20 shadow-sm bg-surface hover:border-primary/40 active:scale-95 transition-all duration-200 shrink-0"
-        >
-          <img 
-            alt="User avatar" 
-            className="w-full h-full object-cover" 
-            src={user?.profile_picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi'} 
-          />
-        </button>
-
-        <AnimatePresence>
-          {isProfileMenuOpen && (
-            <>
-              {/* Overlay backdrop to close dropdown */}
-              <div className="fixed inset-0 z-40" onClick={() => setIsProfileMenuOpen(false)} />
-              
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                transition={{ duration: 0.15, ease: 'easeOut' }}
-                className="absolute right-0 top-full mt-2 w-48 bg-surface-bright rounded-2xl shadow-ambient border border-outline/10 z-50 overflow-hidden"
-              >
-                <div className="p-3 border-b border-outline/10 bg-surface">
-                  <p className="font-body-md text-on-surface truncate font-medium text-xs tracking-wide">{user?.name || 'Wanderer'}</p>
-                  {user?.is_premium === 1 && (
-                    <span className="inline-block bg-tertiary/10 text-tertiary border border-tertiary/20 text-[7px] font-label-caps px-1.5 py-0.5 rounded-full tracking-widest mt-1">
-                      PREMIUM
-                    </span>
-                  )}
-                </div>
-                <div className="p-1 flex flex-col">
-                  <button 
-                    onClick={() => {
-                      setIsProfileMenuOpen(false);
-                      navigate('/profile');
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-on-surface-variant hover:text-primary hover:bg-surface rounded-lg transition-colors group"
-                  >
-                    <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-primary" style={{ fontVariationSettings: "'wght' 200" }}>person</span>
-                    <span className="font-body-md text-xs">Profile</span>
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setIsProfileMenuOpen(false);
-                      navigate('/settings');
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-on-surface-variant hover:text-primary hover:bg-surface rounded-lg transition-colors group"
-                  >
-                    <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-primary" style={{ fontVariationSettings: "'wght' 200" }}>settings</span>
-                    <span className="font-body-md text-xs">Settings</span>
-                  </button>
-                  <div className="h-[1px] bg-outline/10 my-1 mx-1" />
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-outline hover:text-error hover:bg-error/5 rounded-lg transition-colors group"
-                  >
-                    <span className="material-symbols-outlined text-[18px] group-hover:text-error" style={{ fontVariationSettings: "'wght' 200" }}>logout</span>
-                    <span className="font-label-caps text-[9px] tracking-widest">DEPART</span>
-                  </button>
-                </div>
-              </motion.div>
-            </>
+        {/* Left side action trigger */}
+        <div className="relative z-10 flex items-center">
+          {isRootPath ? (
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="text-primary hover:bg-surface-variant/40 p-2 rounded-xl transition-all duration-200 active:scale-95 flex items-center justify-center border border-transparent hover:border-outline/10"
+              title="Menu"
+            >
+              <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'wght' 300" }}>menu</span>
+            </button>
+          ) : (
+            <button 
+              onClick={() => navigate(-1)}
+              className="text-outline hover:text-primary hover:bg-surface-variant/40 p-2 rounded-xl transition-all duration-200 active:scale-95 flex items-center justify-center border border-transparent hover:border-outline/10"
+              title="Back"
+            >
+              <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'wght' 300" }}>arrow_back</span>
+            </button>
           )}
-        </AnimatePresence>
+        </div>
+
+        {/* Centered Dynamic Title Header */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+          <div 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-transform group pointer-events-auto"
+          >
+            <img src={logoNoText} alt="Mainichi" className="h-6 w-auto opacity-95 group-hover:opacity-100 transition-opacity" />
+            <span className="h-3.5 w-[1px] bg-outline/20"></span>
+            <span className="font-label-caps tracking-widest text-[10px] text-primary font-bold">{getPageTitle(location.pathname).toUpperCase()}</span>
+          </div>
+        </div>
+
+        {/* Right side user avatar */}
+        <div className="relative z-10 flex items-center">
+          <button 
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            className="rounded-full overflow-hidden w-8 h-8 md:w-9 md:h-9 border border-outline/20 shadow-sm bg-surface hover:border-primary/40 active:scale-95 transition-all duration-200 shrink-0"
+          >
+            <img 
+              alt="User avatar" 
+              className="w-full h-full object-cover" 
+              src={user?.profile_picture || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi'} 
+            />
+          </button>
+
+          <AnimatePresence>
+            {isProfileMenuOpen && (
+              <>
+                {/* Overlay backdrop to close dropdown */}
+                <div className="fixed inset-0 z-40" onClick={() => setIsProfileMenuOpen(false)} />
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  className="absolute right-0 top-full mt-3 w-48 bg-surface-bright rounded-2xl shadow-ambient border border-outline/10 z-50 overflow-hidden"
+                >
+                  <div className="p-3 border-b border-outline/10 bg-surface">
+                    <p className="font-body-md text-on-surface truncate font-medium text-xs tracking-wide">{user?.name || 'Wanderer'}</p>
+                    {user?.is_premium === 1 && (
+                      <span className="inline-block bg-tertiary/10 text-tertiary border border-tertiary/20 text-[7px] font-label-caps px-1.5 py-0.5 rounded-full tracking-widest mt-1">
+                        PREMIUM
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-1 flex flex-col gap-0.5">
+                    <button 
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        navigate('/profile');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-on-surface-variant hover:text-primary hover:bg-surface rounded-lg transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-primary" style={{ fontVariationSettings: "'wght' 200" }}>person</span>
+                      <span className="font-body-md text-xs">Profile</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        navigate('/settings');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-on-surface-variant hover:text-primary hover:bg-surface rounded-lg transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-[18px] text-outline group-hover:text-primary" style={{ fontVariationSettings: "'wght' 200" }}>settings</span>
+                      <span className="font-body-md text-xs">Settings</span>
+                    </button>
+                    <div className="h-[1px] bg-outline/10 my-1 mx-1" />
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-outline hover:text-error hover:bg-error/5 rounded-lg transition-colors group"
+                    >
+                      <span className="material-symbols-outlined text-[18px] group-hover:text-error" style={{ fontVariationSettings: "'wght' 200" }}>logout</span>
+                      <span className="font-label-caps text-[9px] tracking-widest">DEPART</span>
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </header>
   );
