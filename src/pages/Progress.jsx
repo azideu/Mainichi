@@ -96,7 +96,7 @@ const Progress = () => {
       <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-container/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply z-0"></div>
 
       {/* Canopy Header */}
-      <motion.div variants={itemVariants} className="mb-8 relative z-10">
+      <motion.div variants={itemVariants} className="mb-8 relative z-10 hidden md:block">
         <div className="flex items-center gap-4 mb-2">
           <button 
             onClick={() => navigate(-1)}

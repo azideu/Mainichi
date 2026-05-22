@@ -249,7 +249,7 @@ const Community = () => {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-4xl mx-auto pb-xl">
       {/* Page Header */}
-      <motion.div variants={itemVariants} className="mb-8 flex justify-between items-end">
+      <motion.div variants={itemVariants} className="mb-8 hidden md:flex justify-between items-end">
         <div>
           <h1 className="font-h1 text-primary mb-2 tracking-tighter">Community</h1>
           <p className="font-body-md text-outline tracking-wide">Share custom paths and study with standard lists.</p>

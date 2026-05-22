@@ -58,7 +58,7 @@ const Dashboard = () => {
         <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-container/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply"></div>
 
         {/* Page Header */}
-        <motion.div variants={itemVariants} className="mb-8 relative z-10">
+        <motion.div variants={itemVariants} className="mb-8 relative z-10 hidden md:block">
           <h1 className="font-h1 text-primary mb-2 tracking-tighter">Home</h1>
           <p className="font-body-md text-outline">Welcome back! Continue tending to your daily study garden.</p>
         </motion.div>

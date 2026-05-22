@@ -92,7 +92,7 @@ const Settings = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      <div className="flex items-center gap-4 mb-8 relative z-10">
+      <div className="hidden md:flex items-center gap-4 mb-8 relative z-10">
         <motion.button 
           variants={itemVariants}
           onClick={() => navigate(-1)}

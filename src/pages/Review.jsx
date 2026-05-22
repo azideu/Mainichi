@@ -113,7 +113,7 @@ const Review = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      <motion.div variants={itemVariants} className="flex justify-between items-end mb-8">
+      <motion.div variants={itemVariants} className="hidden md:flex justify-between items-end mb-8">
         <div>
           <h1 className="font-h1 text-primary mb-2 tracking-tighter">Reviews</h1>
           <p className="font-body-md text-outline tracking-wide">Your daily SRS queue</p>
