@@ -72,3 +72,5 @@ CREATE TABLE IF NOT EXISTS mainichi_user_decks (
 );
 
 
+
+

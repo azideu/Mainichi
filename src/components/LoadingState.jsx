@@ -21,7 +21,7 @@ const LoadingState = ({ message = "Loading...", fullScreen = false }) => {
         <div className="absolute inset-0 bg-primary/5"></div>
         <img src={logoNoText} alt="" className="w-10 h-10 relative z-10 opacity-80" />
       </motion.div>
-      <p className="font-label-caps tracking-[0.2em] text-outline animate-pulse">{message}</p>
+      <p className="font-label-caps tracking-[0.2em] pl-[0.2em] text-center text-outline animate-pulse">{message}</p>
     </div>
   );
 

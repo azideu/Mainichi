@@ -51,7 +51,7 @@ const Dashboard = () => {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="pb-xl relative"
+        className="max-w-4xl mx-auto pb-xl relative"
       >
         {/* Ambient background blur */}
         <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-secondary-container/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply"></div>

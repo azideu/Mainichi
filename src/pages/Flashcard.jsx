@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
+import LoadingState from '../components/LoadingState';
 import { speakText, sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
 
 const STEPS = {
@@ -224,12 +225,7 @@ const Flashcard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
-        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-        <p className="font-body-md text-outline animate-pulse">Consulting the archives...</p>
-      </div>
-    );
+    return <LoadingState message="Consulting the archives..." />;
   }
 
   if (deck.length === 0 && !isFinished) {

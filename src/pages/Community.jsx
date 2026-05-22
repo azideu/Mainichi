@@ -247,7 +247,7 @@ const Community = () => {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-4xl mx-auto pb-xl px-4">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-4xl mx-auto pb-xl">
       {/* Page Header */}
       <motion.div variants={itemVariants} className="mb-8 flex justify-between items-end">
         <div>

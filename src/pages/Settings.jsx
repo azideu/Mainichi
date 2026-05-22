@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
 
 const Settings = () => {
+  const navigate = useNavigate();
   const containerVariants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -90,7 +92,17 @@ const Settings = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      <motion.h2 variants={itemVariants} className="font-h1 text-primary mb-8 tracking-tighter">Settings</motion.h2>
+      <div className="flex items-center gap-4 mb-8 relative z-10">
+        <motion.button 
+          variants={itemVariants}
+          onClick={() => navigate(-1)}
+          className="md:hidden w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200"
+          title="Back"
+        >
+          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>arrow_back</span>
+        </motion.button>
+        <motion.h1 variants={itemVariants} className="font-h1 text-primary tracking-tighter mb-2">Settings</motion.h1>
+      </div>
       
       <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
@@ -230,10 +242,10 @@ const Settings = () => {
 
       <motion.div variants={itemVariants} className="bg-error/5 rounded-xl p-lg border border-error/20 relative overflow-hidden">
         <h3 className="font-h3 text-error mb-3 tracking-tight relative z-10">Danger Zone</h3>
-        <p className="font-body-md text-on-surface-variant mb-6 relative z-10 leading-relaxed">
+        <p className="font-body-md text-on-surface-variant mb-8 relative z-10 leading-relaxed">
           Once you delete your account, there is no going back. All your progress will be erased. Please be certain.
         </p>
-        <button className="px-6 py-3 border-2 border-error text-error font-label-caps tracking-widest rounded-xl hover:bg-error hover:text-white transition-all shadow-sm active:scale-95 relative z-10">
+        <button className="w-full px-6 py-3 border-2 border-error text-error font-label-caps tracking-widest rounded-xl hover:bg-error hover:text-white transition-all shadow-sm active:scale-95 relative z-10">
           DELETE ACCOUNT
         </button>
       </motion.div>

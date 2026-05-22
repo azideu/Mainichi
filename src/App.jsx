@@ -14,10 +14,19 @@ import Settings from './pages/Settings';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import PremiumSubscriptionModal from './components/PremiumSubscriptionModal';
+import LoadingState from './components/LoadingState';
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingState fullScreen={true} message="Checking authentication..." />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 };
@@ -33,7 +42,7 @@ const AppLayout = ({ children }) => {
     <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-x-hidden">
       <Sidebar />
       <TopBar />
-      <main className="px-4 sm:px-md pt-[88px] pb-xl">
+      <main className="px-4 sm:px-md pt-6 md:pt-[88px] pb-xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -75,6 +84,7 @@ function App() {
       <AppProvider>
         <AppGlobalListener />
         <Router>
+          <ScrollToTop />
           <Routes>
             <Route path="/login" element={<Login />} />
             

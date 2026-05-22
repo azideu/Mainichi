@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
 import LoadingState from '../components/LoadingState';
 
 const Progress = () => {
+  const navigate = useNavigate();
   const [deckProgress, setDeckProgress] = useState([]);
   const [loadingDecks, setLoadingDecks] = useState(true);
   const { streak, longestStreak, masteredWords, dailyGoal } = useApp();
@@ -87,15 +89,24 @@ const Progress = () => {
       variants={containerVariants} 
       initial="hidden" 
       animate="show" 
-      className="max-w-2xl mx-auto pb-xl px-4 mt-6"
+      className="max-w-2xl mx-auto pb-xl"
     >
       {/* Ambient background blur */}
       <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-secondary-container/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply z-0"></div>
       <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-container/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply z-0"></div>
 
       {/* Canopy Header */}
-      <motion.div variants={itemVariants} className="text-center mb-10 relative z-10">
-        <h2 className="font-h1 text-primary tracking-tighter mb-2">Your Forest Path</h2>
+      <motion.div variants={itemVariants} className="text-center mb-8 relative z-10">
+        <div className="relative flex justify-center items-center mb-2">
+          <button 
+            onClick={() => navigate(-1)}
+            className="md:hidden absolute left-0 w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200"
+            title="Back"
+          >
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>arrow_back</span>
+          </button>
+          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Your Forest Path</h1>
+        </div>
         <p className="font-body-lg text-outline italic">
           "Every day, another leaf grows. Every review, another root deepens."
         </p>

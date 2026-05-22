@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
+import LoadingState from '../components/LoadingState';
 import { sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
 
 const Review = () => {
@@ -104,12 +105,7 @@ const Review = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh]">
-        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-        <p className="font-body-md text-outline animate-pulse">Consulting the archives...</p>
-      </div>
-    );
+    return <LoadingState message="Consulting the archives..." />;
   }
 
   // Calculate total active reviews count
@@ -117,9 +113,9 @@ const Review = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      <motion.div variants={itemVariants} className="flex justify-between items-end mb-10">
+      <motion.div variants={itemVariants} className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="font-h1 text-on-surface tracking-tighter">Reviews</h1>
+          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Reviews</h1>
           <p className="font-body-md text-outline tracking-wide">Your daily SRS queue</p>
         </div>
         <div className="w-14 h-14 bg-surface-bright border border-primary/20 rounded-2xl flex items-center justify-center shadow-sm relative overflow-hidden group">

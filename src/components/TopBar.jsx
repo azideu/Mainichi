@@ -18,7 +18,7 @@ const TopBar = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+    <header className="hidden md:block fixed top-0 left-0 right-0 z-50 px-4 py-3">
       {/* Floating Glassmorphic Container */}
       <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-paper-layer rounded-2xl flex justify-between items-center w-full px-5 py-2 h-16 relative">
         {/* Subtle texture overlay */}
