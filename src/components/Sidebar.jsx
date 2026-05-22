@@ -74,7 +74,7 @@ const Sidebar = () => {
               {/* Navigation: Floating Items */}
               <nav className="flex-1 flex flex-col gap-sm">
                 {navItems.map((item) => {
-                  const isActive = location.pathname === item.path;
+                  const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
                   return (
                     <Link
                       key={item.name}
