@@ -96,16 +96,16 @@ const Progress = () => {
       <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-container/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply z-0"></div>
 
       {/* Canopy Header */}
-      <motion.div variants={itemVariants} className="text-center mb-8 relative z-10">
-        <div className="relative flex justify-center items-center mb-2">
+      <motion.div variants={itemVariants} className="mb-8 relative z-10">
+        <div className="flex items-center gap-4 mb-2">
           <button 
             onClick={() => navigate(-1)}
-            className="md:hidden absolute left-0 w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200"
+            className="md:hidden w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200 shrink-0"
             title="Back"
           >
             <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>arrow_back</span>
           </button>
-          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Your Forest Path</h1>
+          <h1 className="font-h1 text-primary mb-0 tracking-tighter">Your Forest Path</h1>
         </div>
         <p className="font-body-lg text-outline italic">
           "Every day, another leaf grows. Every review, another root deepens."
