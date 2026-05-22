@@ -19,17 +19,6 @@ const TopBar = () => {
     navigate('/login');
   };
 
-  const getPageTitle = (pathname) => {
-    if (pathname === '/') return 'Home';
-    if (pathname.startsWith('/lessons')) return 'Lessons';
-    if (pathname.startsWith('/review')) return 'Reviews';
-    if (pathname.startsWith('/community')) return 'Community';
-    if (pathname.startsWith('/profile')) return 'Profile';
-    if (pathname.startsWith('/settings')) return 'Settings';
-    if (pathname.startsWith('/progress')) return 'Forest Path';
-    if (pathname.startsWith('/flashcard')) return 'Flashcards';
-    return 'Mainichi';
-  };
 
   const rootPaths = ['/', '/lessons', '/review', '/community', '/profile'];
   const isRootPath = rootPaths.includes(location.pathname);
@@ -40,7 +29,7 @@ const TopBar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 pt-3 pb-2 md:px-6 md:pt-4">
       {/* Floating Glassmorphic Capsule */}
-      <div className="bg-surface/85 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl flex justify-between items-center w-full px-4 h-14 md:h-16 relative">
+      <div className="bg-surface/85 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl flex justify-between items-center w-full px-4 h-12 md:h-14 relative">
         {/* Washi texture overlay */}
         <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none rounded-2xl overflow-hidden"></div>
 
@@ -65,15 +54,13 @@ const TopBar = () => {
           )}
         </div>
 
-        {/* Centered Dynamic Title Header */}
+        {/* Centered Brand Logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
           <div 
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-transform group pointer-events-auto"
+            className="flex items-center cursor-pointer active:scale-95 transition-transform group pointer-events-auto"
           >
-            <img src={logoNoText} alt="Mainichi" className="h-6 w-auto opacity-95 group-hover:opacity-100 transition-opacity" />
-            <span className="h-3.5 w-[1px] bg-outline/20"></span>
-            <span className="font-label-caps tracking-widest text-[10px] text-primary font-bold">{getPageTitle(location.pathname).toUpperCase()}</span>
+            <img src={logoNoText} alt="Mainichi" className="h-5 w-auto opacity-95 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
 

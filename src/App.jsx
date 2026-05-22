@@ -39,10 +39,10 @@ const AppLayout = ({ children }) => {
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
   
   return (
-    <div className="bg-background text-on-background pb-[100px] font-body-md min-h-screen relative overflow-x-hidden">
+    <div className="bg-background text-on-background pb-[84px] font-body-md min-h-screen relative overflow-x-hidden">
       <Sidebar />
       <TopBar />
-      <main className="px-4 sm:px-md pt-[80px] md:pt-[96px] pb-xl">
+      <main className="px-4 sm:px-md pt-[72px] md:pt-[88px] pb-xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

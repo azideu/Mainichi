@@ -16,7 +16,7 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden">
-      <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl h-20 flex justify-around items-center px-4 relative overflow-hidden">
+      <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl h-16 flex justify-around items-center px-4 relative overflow-hidden">
         {/* Washi texture overlay */}
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
 
@@ -27,7 +27,7 @@ const BottomNav = () => {
             <button 
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center relative flex-1 h-14 transition-all active:scale-90 duration-200 ease-out z-10 ${
+              className={`flex flex-col items-center justify-center relative flex-1 h-12 transition-all active:scale-90 duration-200 ease-out z-10 ${
                 isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
               }`}
             >
