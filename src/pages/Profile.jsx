@@ -89,7 +89,7 @@ const Profile = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      <div className="hidden md:flex justify-between items-start mb-8 relative z-10">
+      <div className="flex justify-between items-start mb-8 relative z-10">
         <div>
           <motion.h1 variants={itemVariants} className="font-h1 text-primary tracking-tighter mb-2">Profile</motion.h1>
           <motion.p variants={itemVariants} className="font-body-md text-outline">

@@ -39,7 +39,7 @@ const AppLayout = ({ children }) => {
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
   
   return (
-    <div className="bg-background text-on-background pb-[84px] font-body-md min-h-screen relative overflow-x-hidden">
+    <div className="bg-background text-on-background pb-[84px] md:pb-xl font-body-md min-h-screen relative overflow-x-hidden md:pl-[260px]">
       <Sidebar />
       <TopBar />
       <main className="px-4 sm:px-md pt-[72px] md:pt-[88px] pb-xl">
