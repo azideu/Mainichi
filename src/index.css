@@ -39,4 +39,27 @@ html, body {
   .text-shadow-glow {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   }
+  
+  /* Global Typography Standardisation */
+  .font-h1 {
+    @apply text-h1;
+  }
+  .font-h2 {
+    @apply text-h2;
+  }
+  .font-h3 {
+    @apply text-h3;
+  }
+  .font-body-lg {
+    @apply text-body-lg;
+  }
+  .font-body-md {
+    @apply text-body-md;
+  }
+  .font-label-sm {
+    @apply text-label-sm;
+  }
+  .font-label-caps {
+    @apply text-label-caps;
+  }
 }
