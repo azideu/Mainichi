@@ -10,14 +10,14 @@ const TopBar = () => {
   const location = useLocation();
 
   const getPageTitle = (pathname) => {
-    if (pathname === '/') return 'Home';
-    if (pathname.startsWith('/lessons')) return 'Lessons';
-    if (pathname.startsWith('/review')) return 'Reviews';
-    if (pathname.startsWith('/community')) return 'Community';
-    if (pathname.startsWith('/profile')) return 'Profile';
-    if (pathname.startsWith('/settings')) return 'Settings';
-    if (pathname.startsWith('/progress')) return 'Forest Path';
-    if (pathname.startsWith('/flashcard')) return 'Flashcards';
+    if (pathname === '/') return 'ホーム';
+    if (pathname.startsWith('/lessons')) return '授業';
+    if (pathname.startsWith('/review')) return '復習';
+    if (pathname.startsWith('/community')) return '交流';
+    if (pathname.startsWith('/profile')) return 'マイ';
+    if (pathname.startsWith('/settings')) return '設定';
+    if (pathname.startsWith('/progress')) return '進捗';
+    if (pathname.startsWith('/flashcard')) return '単語カード';
     return 'Mainichi';
   };
 
