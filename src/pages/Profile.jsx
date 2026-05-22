@@ -89,20 +89,18 @@ const Profile = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
-      {/* Mobile-only settings button */}
-      <div className="flex justify-end items-start mb-6 relative z-10 md:hidden">
-        <motion.button
-          variants={itemVariants}
-          onClick={() => navigate('/settings')}
-          className="w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200 shrink-0 mt-2"
-          title="Settings"
-        >
-          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>settings</span>
-        </motion.button>
-      </div>
-
       <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+        
+        {/* Settings shortcut inside profile card */}
+        <button
+          onClick={() => navigate('/settings')}
+          className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-surface-variant/40 hover:bg-surface-variant text-outline hover:text-primary rounded-xl transition-all duration-200 active:scale-95 border border-outline/10 shadow-sm"
+          title="Settings"
+        >
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'wght' 300" }}>settings</span>
+        </button>
+
         <div className="relative z-10 w-28 h-28 mx-auto mb-6 bg-surface-bright rounded-xl p-1 border border-primary/20 shadow-sm">
           <div className="w-full h-full rounded-xl overflow-hidden relative">
             <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply z-10 pointer-events-none"></div>
