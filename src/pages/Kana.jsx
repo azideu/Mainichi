@@ -102,37 +102,26 @@ const speakText = async (text, rate = 0.8) => {
     return;
   }
 
-  // 1. Attempt local VOICEVOX integration (Speaker 2 corresponds to a highly expressive, cute Japanese voice)
+  // 1. Attempt secure same-origin backend VOICEVOX proxy (Speaker 3 is Zundamon)
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 800); // 800ms abort fallback ceiling
+    const timeoutId = setTimeout(() => controller.abort(), 1200); // 1200ms abort proxy ceiling
 
-    const queryResponse = await fetch(`http://localhost:50021/audio_query?text=${encodeURIComponent(text)}&speaker=2`, {
-      method: 'POST',
+    const response = await fetch(`/api/voicevox/speak?text=${encodeURIComponent(text)}&speaker=3`, {
       signal: controller.signal
     });
     clearTimeout(timeoutId);
 
-    if (queryResponse.ok) {
-      const queryJson = await queryResponse.json();
-      
-      const synthResponse = await fetch(`http://localhost:50021/synthesis?speaker=2`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(queryJson)
-      });
-
-      if (synthResponse.ok) {
-        const audioBlob = await synthResponse.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audio.play();
-        return; // Synthesis played successfully!
-      }
+    if (response.ok) {
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+      return; // Synthesis played successfully!
     }
   } catch (err) {
     // Fail silently, falling back to Web Speech API
-    console.log("VOICEVOX server not active or failed. Using standard system SpeechSynthesis.");
+    console.log("VOICEVOX same-origin proxy failed or server inactive. Using standard system SpeechSynthesis.");
   }
 
   // 2. Standard Web Speech API fallback
