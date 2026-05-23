@@ -89,7 +89,9 @@ const BottomNav = () => {
               <div className="z-10 flex items-center justify-center">
                 {item.icon === 'あ' ? (
                   <span 
-                    className="text-[16px] font-bold tracking-normal font-sans text-center flex items-center justify-center w-[24px] h-[24px]"
+                    className={`text-[17px] tracking-normal font-sans text-center flex items-center justify-center w-[24px] h-[24px] transition-all duration-200 ${
+                      isActive ? 'font-medium text-primary' : 'font-normal text-on-surface-variant'
+                    }`}
                     style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
                   >
                     あ

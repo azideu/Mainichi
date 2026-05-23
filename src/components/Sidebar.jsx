@@ -69,7 +69,9 @@ const Sidebar = () => {
               >
                 {item.icon === 'あ' ? (
                   <span 
-                    className={`text-[16px] font-bold z-10 leading-none tracking-normal font-sans shrink-0 w-[24px] text-center flex items-center justify-center transition-transform duration-500 ${isActive ? '' : 'group-hover:-translate-y-0.5'}`} 
+                    className={`text-[17px] z-10 leading-none tracking-normal font-sans shrink-0 w-[24px] text-center flex items-center justify-center transition-all duration-500 ${
+                      isActive ? 'font-medium text-primary' : 'font-normal text-on-surface-variant group-hover:text-primary group-hover:-translate-y-0.5'
+                    }`} 
                     style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
                   >
                     あ
