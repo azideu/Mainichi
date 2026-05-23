@@ -96,7 +96,7 @@ const ROWS = [
 import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 
 // Helper to pronounce Japanese words using native SpeechSynthesis or MIT App Inventor Bridge
-const speakText = (text, rate = 0.8) => {
+const speakText = (text, rate = 0.8, voiceURI = null) => {
   if (IS_APP_INVENTOR) {
     speakTextBridge(text);
     return;
@@ -108,14 +108,62 @@ const speakText = (text, rate = 0.8) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ja-JP';
     utterance.rate = rate;
+
+    if (voiceURI) {
+      const allVoices = window.speechSynthesis.getVoices();
+      const targetVoice = allVoices.find(v => v.voiceURI === voiceURI);
+      if (targetVoice) {
+        utterance.voice = targetVoice;
+      }
+    }
+
     window.speechSynthesis.speak(utterance);
   }
 };
 
 
+
 const Kana = () => {
   const [activeTab, setActiveTab] = useState('hiragana'); // 'hiragana' | 'katakana' | 'practice'
   const [selectedChar, setSelectedChar] = useState(KANA_DATA[0]);
+
+  // Voice selector states
+  const [voices, setVoices] = useState([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState(
+    localStorage.getItem('kana_selected_voice_uri') || ''
+  );
+
+  useEffect(() => {
+    const updateVoices = () => {
+      if ('speechSynthesis' in window) {
+        const allVoices = window.speechSynthesis.getVoices();
+        // Filter for Japanese language voices
+        const jaVoices = allVoices.filter(v => v.lang.toLowerCase().startsWith('ja'));
+        setVoices(jaVoices);
+        
+        // Default to a suitable Japanese voice if none is selected
+        const saved = localStorage.getItem('kana_selected_voice_uri');
+        if (!saved && jaVoices.length > 0) {
+          const defaultVoice = jaVoices.find(v => v.default) || jaVoices[0];
+          if (defaultVoice) {
+            setSelectedVoiceURI(defaultVoice.voiceURI);
+            localStorage.setItem('kana_selected_voice_uri', defaultVoice.voiceURI);
+          }
+        }
+      }
+    };
+
+    updateVoices();
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
 
   // Practice state
   const [selectedGroups, setSelectedGroups] = useState(['Vowels']); // Practice subsets
@@ -133,7 +181,11 @@ const Kana = () => {
   const handleCharClick = (char) => {
     setSelectedChar(char);
     // Auto-pronounce
-    speakText(activeTab === 'hiragana' ? (char.hiraganaOverride || char.hiragana) : char.katakana);
+    speakText(
+      activeTab === 'hiragana' ? (char.hiraganaOverride || char.hiragana) : char.katakana,
+      0.8,
+      selectedVoiceURI
+    );
   };
 
   // Practice deck generators
@@ -185,7 +237,7 @@ const Kana = () => {
       ? (practiceDeck[practiceIndex].hiraganaOverride || practiceDeck[practiceIndex].hiragana) 
       : practiceDeck[practiceIndex].katakana;
       
-    speakText(correctChar); // Play sounds immediately
+    speakText(correctChar, 0.8, selectedVoiceURI); // Play sounds immediately
 
     if (isCorrect) {
       setStreak(prev => prev + 1);
@@ -228,9 +280,43 @@ const Kana = () => {
       className="max-w-4xl mx-auto pb-xl text-left"
     >
       {/* Editorial Header */}
-      <div className="mb-8">
-        <h1 className="font-h1 text-primary mb-2 tracking-tighter">Kana Sanctuary</h1>
-        <p className="font-body-lg text-outline">Learn, study, and train your Hiragana (平仮名) and Katakana (片仮名) foundations.</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-outline/5 pb-6">
+        <div>
+          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Kana Sanctuary</h1>
+          <p className="font-body-lg text-outline">Learn, study, and train your Hiragana (平仮名) and Katakana (片仮名) foundations.</p>
+        </div>
+        
+        {/* Dynamic Matcha Voice Selector */}
+        {!IS_APP_INVENTOR && voices.length > 0 && (
+          <div className="flex flex-col gap-1.5 shrink-0 min-w-[240px]">
+            <label className="font-label-caps text-[9px] text-outline tracking-wider flex items-center gap-1.5 font-bold">
+              <span className="material-symbols-outlined text-[14px] text-primary">voice_over_off</span>
+              TTS Speech Voice Selection
+            </label>
+            <div className="relative">
+              <select
+                value={selectedVoiceURI}
+                onChange={(e) => {
+                  const uri = e.target.value;
+                  setSelectedVoiceURI(uri);
+                  localStorage.setItem('kana_selected_voice_uri', uri);
+                  // Quick sound check preview
+                  speakText('あ', 0.8, uri);
+                }}
+                className="w-full bg-surface text-on-surface border border-outline/15 rounded-xl px-3 py-2 text-[12px] font-medium focus:outline-none focus:border-primary/50 shadow-sm appearance-none pr-8 cursor-pointer hover:bg-surface-bright transition-colors"
+              >
+                {voices.map((voice) => (
+                  <option key={voice.voiceURI} value={voice.voiceURI}>
+                    {voice.name} {voice.localService ? '(Local)' : '(Cloud)'}
+                  </option>
+                ))}
+              </select>
+              <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">
+                unfold_more
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Segmented Controller Tab Bar */}
@@ -361,7 +447,7 @@ const Kana = () => {
 
                       {/* Play Sound Trigger */}
                       <button
-                        onClick={() => speakText(activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana, 0.75)}
+                        onClick={() => speakText(activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana, 0.75, selectedVoiceURI)}
                         className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform mb-6 shadow-sm"
                         title="Hear Sound"
                       >
@@ -396,7 +482,7 @@ const Kana = () => {
                           </div>
                           
                           <button
-                            onClick={() => speakText(activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab, 0.8)}
+                            onClick={() => speakText(activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab, 0.8, selectedVoiceURI)}
                             className="w-8 h-8 rounded-xl bg-surface border border-outline/10 text-outline hover:text-primary hover:border-primary/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                           >
                             <span className="material-symbols-outlined text-[16px]">volume_up</span>
