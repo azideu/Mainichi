@@ -18,8 +18,9 @@ const Sidebar = () => {
   const navItems = [
     { name: 'Home', icon: 'home', path: '/' },
     { name: 'Lessons', icon: 'menu_book', path: '/lessons' },
-    { name: 'Review', icon: 'auto_stories', path: '/review' },
+    { name: 'Review', icon: 'style', path: '/review' },
     { name: 'Community', icon: 'groups', path: '/community' },
+    { name: 'Profile', icon: 'person', path: '/profile' },
     { name: 'Settings', icon: 'settings', path: '/settings' },
   ];
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const NAV_ITEMS = [
   { id: 'home', path: '/', icon: 'home', label: 'ホーム' },
   { id: 'lessons', path: '/lessons', icon: 'menu_book', label: '授業' },
-  { id: 'review', path: '/review', icon: 'auto_stories', label: '復習' },
+  { id: 'review', path: '/review', icon: 'style', label: '復習' },
   { id: 'community', path: '/community', icon: 'groups', label: '交流' },
   { id: 'profile', path: '/profile', icon: 'person', label: 'マイ' },
 ];
