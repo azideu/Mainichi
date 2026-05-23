@@ -629,12 +629,20 @@ const Kana = () => {
                       <div className="relative w-36 h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-4 overflow-hidden">
                         <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none"></div>
                         <div className="absolute inset-4 border border-dashed border-outline/10 rounded-full animate-[spin_40s_linear_infinite]"></div>
-                        <span 
-                          className="text-[72px] font-bold text-primary relative z-10 leading-none"
-                          style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
-                        >
-                          {activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana}
-                        </span>
+                        {(() => {
+                          const symbol = activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana;
+                          const isCombo = symbol.length > 1;
+                          return (
+                            <span 
+                              className={`font-bold text-primary relative z-10 leading-none whitespace-nowrap tracking-tighter ${
+                                isCombo ? 'text-[44px]' : 'text-[72px]'
+                              }`}
+                              style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+                            >
+                              {symbol}
+                            </span>
+                          );
+                        })()}
                       </div>
 
                       {/* Header details */}
