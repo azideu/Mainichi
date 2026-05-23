@@ -240,11 +240,6 @@ const Lessons = () => {
         animate="show"
         className="max-w-4xl mx-auto pb-xl text-left"
       >
-        {/* Page Header */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Lessons</h1>
-          <p className="font-body-lg text-outline">Master key Japanese phrases and structures step by step.</p>
-        </motion.div>
 
         {/* Global Progress Card */}
         <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-6 mb-10 shadow-paper-layer border border-outline/10 relative overflow-hidden">

@@ -367,19 +367,39 @@ const Kana = () => {
       animate={{ opacity: 1 }}
       className="max-w-4xl mx-auto pb-xl text-left"
     >
-      {/* Editorial Header */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-outline/5 pb-6">
-        <div>
-          <h1 className="font-h1 text-primary mb-2 tracking-tighter">Kana Sanctuary</h1>
-          <p className="font-body-lg text-outline">Learn, study, and train your Hiragana (平仮名) and Katakana (片仮名) foundations.</p>
+      {/* Inline Tab & Desktop Voice Selector wrapper */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        {/* Segmented Controller Tab Bar */}
+        <div className="bg-surface rounded-2xl p-1 shadow-paper-layer border border-outline/10 flex relative w-full max-w-md">
+          <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none mix-blend-multiply rounded-2xl"></div>
+          {['hiragana', 'katakana', 'practice'].map((tab) => {
+            const isSelected = activeTab === tab;
+            let label = tab === 'hiragana' ? '平仮名 Hiragana' : tab === 'katakana' ? '片仮名 Katakana' : '仮名練習 Trainer';
+            return (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  if (tab === 'practice') {
+                    startPractice();
+                  }
+                }}
+                className={`flex-1 py-2 px-3 text-center rounded-xl font-label-caps text-[10px] tracking-wider z-10 transition-all font-bold ${
+                  isSelected ? 'text-primary bg-primary/10 border border-primary/10 shadow-sm' : 'text-outline hover:text-primary'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
-        
-        {/* Dynamic Matcha Voice Selector */}
+
+        {/* Desktop Voice Selector (shown only on md and larger viewports) */}
         {!IS_APP_INVENTOR && voices.length > 0 && (
-          <div className="flex flex-col gap-1.5 shrink-0 min-w-[240px]">
-            <label className="font-label-caps text-[9px] text-outline tracking-wider flex items-center gap-1.5 font-bold">
-              <span className="material-symbols-outlined text-[14px] text-primary">voice_over_off</span>
-              TTS Speech Voice Selection
+          <div className="hidden md:flex flex-col gap-1 min-w-[240px]">
+            <label className="font-label-caps text-[8px] text-outline tracking-wider flex items-center gap-1.5 font-bold">
+              <span className="material-symbols-outlined text-[12px] text-primary">voice_over_off</span>
+              TTS Speech Voice
             </label>
             <div className="relative">
               <select
@@ -388,10 +408,9 @@ const Kana = () => {
                   const uri = e.target.value;
                   setSelectedVoiceURI(uri);
                   localStorage.setItem('kana_selected_voice_uri', uri);
-                  // Quick sound check preview
                   speakText('あ', 0.8, uri);
                 }}
-                className="w-full bg-surface text-on-surface border border-outline/15 rounded-xl px-3 py-2 text-[12px] font-medium focus:outline-none focus:border-primary/50 shadow-sm appearance-none pr-8 cursor-pointer hover:bg-surface-bright transition-colors"
+                className="w-full bg-surface text-on-surface border border-outline/15 rounded-xl px-3 py-1.5 text-[11px] font-medium focus:outline-none focus:border-primary/50 shadow-sm appearance-none pr-8 cursor-pointer hover:bg-surface-bright transition-colors"
               >
                 {voices.map((voice) => (
                   <option key={voice.voiceURI} value={voice.voiceURI}>
@@ -399,37 +418,12 @@ const Kana = () => {
                   </option>
                 ))}
               </select>
-              <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">
+              <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[14px] text-outline pointer-events-none">
                 unfold_more
               </span>
             </div>
           </div>
         )}
-      </div>
-
-      {/* Segmented Controller Tab Bar */}
-      <div className="bg-surface rounded-2xl p-1 mb-8 shadow-paper-layer border border-outline/10 flex relative max-w-md">
-        <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none mix-blend-multiply rounded-2xl"></div>
-        {['hiragana', 'katakana', 'practice'].map((tab) => {
-          const isSelected = activeTab === tab;
-          let label = tab === 'hiragana' ? '平仮名 Hiragana' : tab === 'katakana' ? '片仮名 Katakana' : '仮名練習 Trainer';
-          return (
-            <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                if (tab === 'practice') {
-                  startPractice();
-                }
-              }}
-              className={`flex-1 py-2 px-3 text-center rounded-xl font-label-caps text-[10px] tracking-wider z-10 transition-all font-bold ${
-                isSelected ? 'text-primary bg-primary/10 border border-primary/10 shadow-sm' : 'text-outline hover:text-primary'
-              }`}
-            >
-              {label}
-            </button>
-          );
-        })}
       </div>
 
       {/* TAB CONTENT GRID OR PRACTICE */}
@@ -607,6 +601,38 @@ const Kana = () => {
             <p className="font-label-caps text-outline text-[9px] tracking-wider flex items-center gap-1.5 mt-4">
               <span className="material-symbols-outlined text-[14px]">volume_up</span> Tip: Tap any character card to study detailed calligraphy rules and mnemonics!
             </p>
+
+            {/* Mobile Voice Selector (shown only on mobile, placed at the bottom below the grids) */}
+            {!IS_APP_INVENTOR && voices.length > 0 && (
+              <div className="block md:hidden mt-6 bg-surface p-4 rounded-2xl border border-outline/10 shadow-sm relative overflow-hidden">
+                <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
+                <label className="font-label-caps text-[9px] text-outline tracking-wider flex items-center gap-1.5 font-bold mb-1.5 block">
+                  <span className="material-symbols-outlined text-[14px] text-primary">voice_over_off</span>
+                  TTS Speech Voice Selection
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedVoiceURI}
+                    onChange={(e) => {
+                      const uri = e.target.value;
+                      setSelectedVoiceURI(uri);
+                      localStorage.setItem('kana_selected_voice_uri', uri);
+                      speakText('あ', 0.8, uri);
+                    }}
+                    className="w-full bg-surface text-on-surface border border-outline/15 rounded-xl px-3 py-2 text-[12px] font-medium focus:outline-none focus:border-primary/50 shadow-sm appearance-none pr-8 cursor-pointer hover:bg-surface-bright transition-colors"
+                  >
+                    {voices.map((voice) => (
+                      <option key={voice.voiceURI} value={voice.voiceURI}>
+                        {voice.name} {voice.localService ? '(Local)' : '(Cloud)'}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[16px] text-outline pointer-events-none">
+                    unfold_more
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* RIGHT 1/3 COLUMN: CHARACTER DETAIL STUDY CARD */}
