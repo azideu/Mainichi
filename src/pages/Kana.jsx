@@ -385,7 +385,7 @@ const Kana = () => {
                   }
                 }}
                 className={`flex-1 py-2 px-3 text-center rounded-xl font-label-caps text-[10px] tracking-wider z-10 transition-all font-bold ${
-                  isSelected ? 'text-primary bg-primary/10 border border-primary/10 shadow-sm' : 'text-outline hover:text-primary'
+                  isSelected ? 'text-primary bg-primary/10 shadow-sm' : 'text-outline hover:text-primary'
                 }`}
               >
                 {label}
@@ -717,7 +717,19 @@ const Kana = () => {
                             </div>
                             
                             <button
-                              onClick={() => speakText(activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab, 0.8, selectedVoiceURI)}
+                              onClick={() => {
+                                const getVocabTTS = () => {
+                                  if (activeTab === 'hiragana') {
+                                    return selectedChar.vocabKanji || selectedChar.vocab;
+                                  } else {
+                                    if (selectedChar.katakana === 'ア') return 'アイス';
+                                    if (selectedChar.katakana === 'イ') return 'インク';
+                                    if (selectedChar.katakana === 'ウ') return 'ウサギ';
+                                    return selectedChar.vocabKanji || selectedChar.vocab;
+                                  }
+                                };
+                                speakText(getVocabTTS(), 0.8, selectedVoiceURI);
+                              }}
                               className="w-8 h-8 rounded-xl bg-surface border border-outline/10 text-outline hover:text-primary hover:border-primary/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                             >
                               <span className="material-symbols-outlined text-[16px]">volume_up</span>
