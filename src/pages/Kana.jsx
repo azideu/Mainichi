@@ -439,34 +439,6 @@ const Kana = () => {
           {/* LEFT 2/3 COLUMN: KANA TABLES CONTAINER */}
           <div className="lg:col-span-2 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-350">
             
-            {/* Let's Learn Hiragana / Katakana Banner */}
-            <div className="bg-primary/5 rounded-3xl p-6 border border-primary/10 text-left relative overflow-hidden shadow-sm">
-              <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
-              <h2 className="text-[20px] font-bold text-primary mb-1">
-                Let's learn {activeTab === 'hiragana' ? 'Hiragana' : 'Katakana'}!
-              </h2>
-              <p className="text-[12px] text-outline max-w-lg mb-4 leading-relaxed">
-                Get to know the main writing system in Japanese. Tap any card below to hear high-quality pronunciations and view memory aids.
-              </p>
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => speakText(activeTab === 'hiragana' ? 'ひらがな' : 'カタカナ', 0.8, selectedVoiceURI)}
-                  className="bg-surface text-primary border border-primary/25 rounded-xl px-4 py-2 text-[11px] font-bold shadow-sm hover:bg-surface-bright active:scale-95 transition-all flex items-center gap-1.5"
-                >
-                  <span className="material-symbols-outlined text-[14px]">volume_up</span>
-                  Hear Name
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('practice');
-                    startPractice();
-                  }}
-                  className="bg-primary text-white rounded-xl px-4 py-2 text-[11px] font-bold shadow-md hover:bg-primary/95 active:scale-95 transition-all"
-                >
-                  Start Practice Drill
-                </button>
-              </div>
-            </div>
 
             {/* Basic Vowels / Consonants Grid */}
             <div className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
