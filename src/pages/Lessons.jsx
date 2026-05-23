@@ -234,7 +234,7 @@ const Lessons = () => {
     const totalProgress = Math.round((completedLessons.length / LESSONS.length) * 100);
 
     return (
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -253,7 +253,7 @@ const Lessons = () => {
             </div>
             <div className="flex items-center gap-4 w-full sm:w-1/3">
               <div className="w-full h-2.5 bg-surface-variant rounded-full overflow-hidden border border-outline/5">
-                <div 
+                <div
                   className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
                   style={{ width: `${totalProgress}%` }}
                 ></div>
@@ -278,39 +278,39 @@ const Lessons = () => {
             })
             .map((lesson) => {
               const isCompleted = completedLessons.includes(lesson.id);
-            return (
-              <motion.div 
-                key={lesson.id}
-                variants={itemVariants} 
-                onClick={() => handleLessonStart(lesson)}
-                className="bg-surface rounded-2xl p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-                
-                <div className="flex justify-between items-start mb-6 relative z-10">
-                  <div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                    <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
+              return (
+                <motion.div
+                  key={lesson.id}
+                  variants={itemVariants}
+                  onClick={() => handleLessonStart(lesson)}
+                  className="bg-surface rounded-2xl p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+
+                  <div className="flex justify-between items-start mb-6 relative z-10">
+                    <div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                      <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
+                    </div>
+                    <span className={`font-label-caps tracking-widest text-[9px] border px-2.5 py-1 rounded-full ${isCompleted ? 'bg-primary/10 border-primary text-primary font-bold' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
+                      {isCompleted ? 'MASTERED' : 'ACTIVE'}
+                    </span>
                   </div>
-                  <span className={`font-label-caps tracking-widest text-[9px] border px-2.5 py-1 rounded-full ${isCompleted ? 'bg-primary/10 border-primary text-primary font-bold' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
-                    {isCompleted ? 'MASTERED' : 'ACTIVE'}
-                  </span>
-                </div>
 
-                <div className="flex-grow relative z-10">
-                  <span className="text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
-                  <h4 className="font-h3 text-on-surface tracking-tight">{lesson.title}</h4>
-                  <p className="font-body-md text-outline tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
-                </div>
+                  <div className="flex-grow relative z-10">
+                    <span className="text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
+                    <h4 className="font-h3 text-on-surface tracking-tight">{lesson.title}</h4>
+                    <p className="font-body-md text-outline tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
+                  </div>
 
-                <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
-                  <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
-                  <span className="font-label-caps text-primary text-[9px] tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1 font-bold">
-                    {isCompleted ? 'REVIEW' : 'STUDY'} <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
-                  </span>
-                </div>
-              </motion.div>
-            );
-          })}
+                  <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
+                    <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
+                    <span className="font-label-caps text-primary text-[9px] tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1 font-bold">
+                      {isCompleted ? 'REVIEW' : 'STUDY'} <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
         </div>
 
         {/* Future Expandable Modules */}
@@ -321,7 +321,7 @@ const Lessons = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-65">
           {FUTURE_LESSONS.map((lesson) => (
-            <motion.div 
+            <motion.div
               key={lesson.id}
               variants={itemVariants}
               className="bg-surface-bright rounded-2xl p-6 border border-outline/10 flex flex-col relative overflow-hidden"
@@ -360,7 +360,7 @@ const Lessons = () => {
     <div className="max-w-2xl mx-auto pb-xl text-left">
       {/* Lesson Header Navigation */}
       <div className="flex justify-between items-center mb-6">
-        <button 
+        <button
           onClick={handleExitLesson}
           className="flex items-center gap-2 py-2 text-outline hover:text-primary transition-colors font-label-caps tracking-widest text-[10px]"
         >
@@ -374,7 +374,7 @@ const Lessons = () => {
       {/* Interactive Screen Container */}
       <div className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-        
+
         <AnimatePresence mode="wait">
           {!isQuizSlide ? (
             <motion.div
@@ -398,8 +398,8 @@ const Lessons = () => {
               {/* Progress dots inside slide player */}
               <div className="flex items-center justify-center gap-2.5 mt-8">
                 {activeLesson.slides.map((_, idx) => (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className={`h-2 rounded-full transition-all duration-300 ${idx === currentSlide ? 'w-6 bg-primary' : 'w-2 bg-surface-variant'}`}
                   />
                 ))}
@@ -446,9 +446,9 @@ const Lessons = () => {
                   const isSelected = selectedOption === index;
                   const isCorrectIndex = index === activeLesson.quiz.correctAnswerIndex;
                   const hasAnswered = selectedOption !== null;
-                  
+
                   let buttonStyle = "w-full text-left p-4 rounded-xl border font-body-md transition-all duration-200 flex items-center justify-between outline-none ";
-                  
+
                   if (!hasAnswered) {
                     buttonStyle += "bg-surface hover:bg-surface-bright hover:border-primary/30 border-outline/10 text-on-surface-variant active:scale-[0.99]";
                   } else {
@@ -460,7 +460,7 @@ const Lessons = () => {
                       buttonStyle += "bg-surface-variant/20 border-outline/5 text-outline opacity-60";
                     }
                   }
-                  
+
                   return (
                     <button
                       key={index}
@@ -506,7 +506,7 @@ const Lessons = () => {
                 </Button3D>
                 {celebrate && (
                   <Button3D variant="primary" onClick={handleExitLesson} className="flex-grow">
-                    Complete Lesson 🎉
+                    Complete Lesson
                   </Button3D>
                 )}
               </div>

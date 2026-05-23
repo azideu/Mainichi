@@ -711,17 +711,20 @@ const Community = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button3D variant="secondary" onClick={() => setWizardStep(1)} className="w-[100px]">Back</Button3D>
-                    <Button3D 
-                      variant="primary" 
-                      onClick={() => {
-                        if (creatorFocus.length === 0) return alert("Please select at least one speciality focus.");
-                        setWizardStep(3);
-                      }}
-                      className="flex-1"
-                    >
-                      Verify Signature
-                    </Button3D>
+                    <div className="w-[120px] shrink-0">
+                      <Button3D variant="secondary" onClick={() => setWizardStep(1)}>Back</Button3D>
+                    </div>
+                    <div className="flex-1">
+                      <Button3D 
+                        variant="primary" 
+                        onClick={() => {
+                          if (creatorFocus.length === 0) return alert("Please select at least one speciality focus.");
+                          setWizardStep(3);
+                        }}
+                      >
+                        Verify Signature
+                      </Button3D>
+                    </div>
                   </div>
                 </div>
               )}
@@ -746,17 +749,20 @@ const Community = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button3D variant="secondary" onClick={() => setWizardStep(2)} className="w-[100px]">Back</Button3D>
-                    <Button3D 
-                      variant="primary" 
-                      onClick={() => {
-                        if (!signedName.trim()) return alert("Please enter your signature handle to sign.");
-                        handleCreatorApprove();
-                      }}
-                      className="flex-1"
-                    >
-                      Authorize Stamp
-                    </Button3D>
+                    <div className="w-[120px] shrink-0">
+                      <Button3D variant="secondary" onClick={() => setWizardStep(2)}>Back</Button3D>
+                    </div>
+                    <div className="flex-1">
+                      <Button3D 
+                        variant="primary" 
+                        onClick={() => {
+                          if (!signedName.trim()) return alert("Please enter your signature handle to sign.");
+                          handleCreatorApprove();
+                        }}
+                      >
+                        Authorize Stamp
+                      </Button3D>
+                    </div>
                   </div>
                 </div>
               )}
