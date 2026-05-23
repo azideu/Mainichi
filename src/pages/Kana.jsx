@@ -385,7 +385,7 @@ const Kana = () => {
                   }
                 }}
                 className={`flex-1 py-2 px-3 text-center rounded-xl font-label-caps text-[10px] tracking-wider z-10 transition-all font-bold ${
-                  isSelected ? 'text-primary bg-primary/10 shadow-sm' : 'text-outline hover:text-primary'
+                  isSelected ? 'text-primary bg-primary/10 border border-primary/10 shadow-sm' : 'text-outline hover:text-primary'
                 }`}
               >
                 {label}
@@ -471,7 +471,7 @@ const Kana = () => {
                               onClick={() => handleCharClick(char)}
                               className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
                                 isSelected 
-                                  ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold ring-2 ring-primary/20' 
+                                  ? 'bg-primary/10 border-primary/10 shadow-sm text-primary font-bold' 
                                   : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
                               }`}
                             >
@@ -521,7 +521,7 @@ const Kana = () => {
                               onClick={() => handleCharClick(char)}
                               className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
                                 isSelected 
-                                  ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold ring-2 ring-primary/20' 
+                                  ? 'bg-primary/10 border-primary/10 shadow-sm text-primary font-bold' 
                                   : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
                               }`}
                             >
@@ -577,7 +577,7 @@ const Kana = () => {
                               onClick={() => handleCharClick(char)}
                               className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
                                 isSelected 
-                                  ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold ring-2 ring-primary/20' 
+                                  ? 'bg-primary/10 border-primary/10 shadow-sm text-primary font-bold' 
                                   : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
                               }`}
                             >
