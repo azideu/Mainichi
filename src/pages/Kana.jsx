@@ -95,36 +95,14 @@ const ROWS = [
 
 import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 
-// Helper to pronounce Japanese words using native SpeechSynthesis, VOICEVOX, or MIT App Inventor Bridge
-const speakText = async (text, rate = 0.8) => {
+// Helper to pronounce Japanese words using native SpeechSynthesis or MIT App Inventor Bridge
+const speakText = (text, rate = 0.8) => {
   if (IS_APP_INVENTOR) {
     speakTextBridge(text);
     return;
   }
 
-  // 1. Attempt secure same-origin backend VOICEVOX proxy (Speaker 3 is Zundamon)
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1200); // 1200ms abort proxy ceiling
-
-    const response = await fetch(`/api/voicevox/speak?text=${encodeURIComponent(text)}&speaker=3`, {
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-
-    if (response.ok) {
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audio.play();
-      return; // Synthesis played successfully!
-    }
-  } catch (err) {
-    // Fail silently, falling back to Web Speech API
-    console.log("VOICEVOX same-origin proxy failed or server inactive. Using standard system SpeechSynthesis.");
-  }
-
-  // 2. Standard Web Speech API fallback
+  // Standard Web Speech API
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -133,6 +111,7 @@ const speakText = async (text, rate = 0.8) => {
     window.speechSynthesis.speak(utterance);
   }
 };
+
 
 const Kana = () => {
   const [activeTab, setActiveTab] = useState('hiragana'); // 'hiragana' | 'katakana' | 'practice'

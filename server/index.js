@@ -772,45 +772,6 @@ app.post('/api/progress/review/override', authenticateToken, async (req, res) =>
   }
 });
 
-// Secure same-origin VOICEVOX proxy endpoint
-app.get('/api/voicevox/speak', async (req, res) => {
-  try {
-    const { text, speaker = 3 } = req.query; // Speaker 3 is Zundamon
-    if (!text) {
-      return res.status(400).json({ error: 'Text parameter is required' });
-    }
-
-    const voicevoxUrl = process.env.VOICEVOX_URL || 'http://localhost:50021';
-
-    // 1. Fetch audio query
-    const queryResponse = await fetch(`${voicevoxUrl}/audio_query?text=${encodeURIComponent(text)}&speaker=${speaker}`, {
-      method: 'POST'
-    });
-    if (!queryResponse.ok) {
-      throw new Error(`VOICEVOX query query failed with status: ${queryResponse.status}`);
-    }
-    const queryJson = await queryResponse.json();
-
-    // 2. Fetch synthesis WAV audio
-    const synthResponse = await fetch(`${voicevoxUrl}/synthesis?speaker=${speaker}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(queryJson)
-    });
-    if (!synthResponse.ok) {
-      throw new Error(`VOICEVOX synthesis failed with status: ${synthResponse.status}`);
-    }
-
-    // 3. Pipe raw synthesized WAV audio directly to client browser
-    res.setHeader('Content-Type', 'audio/wav');
-    const buffer = await synthResponse.arrayBuffer();
-    res.send(Buffer.from(buffer));
-  } catch (err) {
-    console.error("VOICEVOX Proxy Server Error:", err.message);
-    res.status(500).json({ error: 'Voice synthesis failed: ' + err.message });
-  }
-});
-
 // Handle React routing, return all requests to React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
