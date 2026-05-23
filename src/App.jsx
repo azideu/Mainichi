@@ -4,6 +4,7 @@ import TopBar from './components/TopBar';
 import BottomNav from './components/BottomNav';
 import Dashboard from './pages/Dashboard';
 import Lessons from './pages/Lessons';
+import Kana from './pages/Kana';
 import Review from './pages/Review';
 import Progress from './pages/Progress';
 import Community from './pages/Community';
@@ -91,6 +92,7 @@ function App() {
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/lessons" element={<Lessons />} />
+              <Route path="/kana" element={<Kana />} />
               <Route path="/review" element={<Review />} />
               <Route path="/flashcard" element={<Flashcard />} />
               <Route path="/progress" element={<Progress />} />

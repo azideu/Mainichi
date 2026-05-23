@@ -14,6 +14,7 @@ const TopBar = () => {
   const getPageTitle = (pathname) => {
     if (pathname === '/') return 'ホーム';
     if (pathname.startsWith('/lessons')) return '授業';
+    if (pathname.startsWith('/kana')) return '仮名';
     if (pathname.startsWith('/review')) return '復習';
     if (pathname.startsWith('/community')) return '交流';
     if (pathname.startsWith('/profile')) return 'マイ';
@@ -23,7 +24,7 @@ const TopBar = () => {
     return 'Mainichi';
   };
 
-  const rootPaths = ['/', '/lessons', '/review', '/community', '/profile'];
+  const rootPaths = ['/', '/lessons', '/kana', '/review', '/community', '/profile'];
   const isRootPath = rootPaths.includes(location.pathname);
 
   // Don't render TopBar on login screen

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 const NAV_ITEMS = [
   { id: 'home', path: '/', icon: 'home', label: 'ホーム' },
   { id: 'lessons', path: '/lessons', icon: 'menu_book', label: '授業' },
+  { id: 'kana', path: '/kana', icon: 'あ', label: '仮名' },
   { id: 'review', path: '/review', icon: 'style', label: '復習' },
   { id: 'community', path: '/community', icon: 'groups', label: '交流' },
   { id: 'profile', path: '/profile', icon: 'person', label: 'マイ' },
@@ -86,9 +87,18 @@ const BottomNav = () => {
                 />
               )}
               <div className="z-10 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 300" : "'wght' 200" }}>
-                  {item.icon}
-                </span>
+                {item.icon === 'あ' ? (
+                  <span 
+                    className="text-[16px] font-bold tracking-normal font-sans text-center flex items-center justify-center w-[24px] h-[24px]"
+                    style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+                  >
+                    あ
+                  </span>
+                ) : (
+                  <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 300" : "'wght' 200" }}>
+                    {item.icon}
+                  </span>
+                )}
               </div>
             </button>
           );

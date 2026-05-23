@@ -18,6 +18,7 @@ const Sidebar = () => {
   const navItems = [
     { name: 'Home', icon: 'home', path: '/' },
     { name: 'Lessons', icon: 'menu_book', path: '/lessons' },
+    { name: 'Kana', icon: 'あ', path: '/kana' },
     { name: 'Review', icon: 'style', path: '/review' },
     { name: 'Community', icon: 'groups', path: '/community' },
     { name: 'Profile', icon: 'person', path: '/profile' },
@@ -66,9 +67,18 @@ const Sidebar = () => {
                   isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
                 }`}
               >
-                <span className={`material-symbols-outlined text-[24px] z-10 transition-transform duration-500 ${isActive ? '' : 'group-hover:-translate-y-0.5'}`} style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 300" : "'wght' 200" }}>
-                  {item.icon}
-                </span>
+                {item.icon === 'あ' ? (
+                  <span 
+                    className={`text-[16px] font-bold z-10 leading-none tracking-normal font-sans shrink-0 w-[24px] text-center flex items-center justify-center transition-transform duration-500 ${isActive ? '' : 'group-hover:-translate-y-0.5'}`} 
+                    style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+                  >
+                    あ
+                  </span>
+                ) : (
+                  <span className={`material-symbols-outlined text-[24px] z-10 transition-transform duration-500 ${isActive ? '' : 'group-hover:-translate-y-0.5'}`} style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 300" : "'wght' 200" }}>
+                    {item.icon}
+                  </span>
+                )}
                 <span className="font-body-lg z-10 tracking-wide text-xs">{item.name}</span>
               </Link>
             );
