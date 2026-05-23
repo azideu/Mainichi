@@ -93,9 +93,13 @@ const ROWS = [
   { idx: 4, label: 'o' }
 ];
 
-// Helper to pronounce Japanese words using native SpeechSynthesis
+import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
+
+// Helper to pronounce Japanese words using native SpeechSynthesis or MIT App Inventor Bridge
 const speakText = (text, rate = 0.8) => {
-  if ('speechSynthesis' in window) {
+  if (IS_APP_INVENTOR) {
+    speakTextBridge(text);
+  } else if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ja-JP';
