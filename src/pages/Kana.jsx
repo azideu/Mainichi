@@ -71,6 +71,70 @@ const KANA_DATA = [
   { hiragana: 'ん', katakana: 'ン', romaji: 'n', strokeCount: 1, mnemonic: '“ん” looks like the letter N!', vocab: 'にほん', vocabKanji: '日本', vocabRomaji: 'nihon', vocabMeaning: 'Japan', row: 4, col: 9 }
 ];
 
+// Voiced & Semi-voiced (Dakuon & Handakuon) Database
+const DAKUON_DATA = [
+  // G-Row
+  { hiragana: 'が', katakana: 'ガ', romaji: 'ga', strokeCount: 5, mnemonic: '“が” is か with voiced tick marks!', vocab: 'がっこう', vocabKanji: '学校', vocabRomaji: 'gakkou', vocabMeaning: 'School' },
+  { hiragana: 'ぎ', katakana: 'ギ', romaji: 'gi', strokeCount: 6, mnemonic: '“ぎ” is き with voiced tick marks!', vocab: 'ぎんこう', vocabKanji: '銀行', vocabRomaji: 'ginkou', vocabMeaning: 'Bank' },
+  { hiragana: 'ぐ', katakana: 'グ', romaji: 'gu', strokeCount: 3, mnemonic: '“ぐ” is く with voiced tick marks!', vocab: 'ぐんま', vocabKanji: '群馬', vocabRomaji: 'gunma', vocabMeaning: 'Gunma' },
+  { hiragana: 'げ', katakana: 'ゲ', romaji: 'ge', strokeCount: 5, mnemonic: '“げ” is け with voiced tick marks!', vocab: 'げんき', vocabKanji: '元気', vocabRomaji: 'genki', vocabMeaning: 'Healthy / Lively' },
+  { hiragana: 'ご', katakana: 'ゴ', romaji: 'go', strokeCount: 4, mnemonic: '“ご” is こ with voiced tick marks!', vocab: 'ごはん', vocabKanji: 'ご飯', vocabRomaji: 'gohan', vocabMeaning: 'Rice / Meal' },
+
+  // Z-Row
+  { hiragana: 'ざ', katakana: 'ザ', romaji: 'za', strokeCount: 5, mnemonic: '“ざ” is さ with voiced tick marks!', vocab: 'ざっし', vocabKanji: '雑誌', vocabRomaji: 'zasshi', vocabMeaning: 'Magazine' },
+  { hiragana: 'じ', katakana: 'ジ', romaji: 'ji', strokeCount: 3, mnemonic: '“じ” is し with voiced tick marks!', vocab: 'じてんしゃ', vocabKanji: '自転車', vocabRomaji: 'jitensha', vocabMeaning: 'Bicycle' },
+  { hiragana: 'ず', katakana: 'ズ', romaji: 'zu', strokeCount: 4, mnemonic: '“ず” is す with voiced tick marks!', vocab: 'ちず', vocabKanji: '地図', vocabRomaji: 'chizu', vocabMeaning: 'Map' },
+  { hiragana: 'ぜ', katakana: 'ゼ', romaji: 'ze', strokeCount: 5, mnemonic: '“ぜ” is せ with voiced tick marks!', vocab: 'ぜんぶ', vocabKanji: '全部', vocabRomaji: 'zenbu', vocabMeaning: 'All / Everything' },
+  { hiragana: 'ぞ', katakana: 'ゾ', romaji: 'zo', strokeCount: 3, mnemonic: '“ぞ” is そ with voiced tick marks!', vocab: 'かぞく', vocabKanji: '家族', vocabRomaji: 'kazoku', vocabMeaning: 'Family' },
+
+  // D-Row
+  { hiragana: 'だ', katakana: 'ダ', romaji: 'da', strokeCount: 6, mnemonic: '“だ” is た with voiced tick marks!', vocab: 'くだもの', vocabKanji: '果物', vocabRomaji: 'kudamono', vocabMeaning: 'Fruit' },
+  { hiragana: 'ぢ', katakana: 'ヂ', romaji: 'ji', strokeCount: 4, mnemonic: '“ぢ” is ち with voiced tick marks! (Rarely used, usually じ is used)', vocab: 'はなぢ', vocabKanji: '鼻血', vocabRomaji: 'hanaji', vocabMeaning: 'Nosebleed' },
+  { hiragana: 'づ', katakana: 'ヅ', romaji: 'zu', strokeCount: 3, mnemonic: '“づ” is つ with voiced tick marks! (Rarely used, usually ず is used)', vocab: 'つづく', vocabKanji: '続く', vocabRomaji: 'tsuzuku', vocabMeaning: 'To continue' },
+  { hiragana: 'で', katakana: 'デ', romaji: 'de', strokeCount: 3, mnemonic: '“で” is て with voiced tick marks!', vocab: 'でんしゃ', vocabKanji: '電車', vocabRomaji: 'densha', vocabMeaning: 'Train' },
+  { hiragana: 'ど', katakana: 'ド', romaji: 'do', strokeCount: 4, mnemonic: '“ど” is と with voiced tick marks!', vocab: 'まど', vocabKanji: '窓', vocabRomaji: 'mado', vocabMeaning: 'Window' },
+
+  // B-Row
+  { hiragana: 'ば', katakana: 'バ', romaji: 'ba', strokeCount: 5, mnemonic: '“ば” is は with voiced tick marks!', vocab: 'ばんごう', vocabKanji: '番号', vocabRomaji: 'bangou', vocabMeaning: 'Number' },
+  { hiragana: 'び', katakana: 'ビ', romaji: 'bi', strokeCount: 3, mnemonic: '“び” is ひ with voiced tick marks!', vocab: 'びょういん', vocabKanji: '病院', vocabRomaji: 'byouin', vocabMeaning: 'Hospital' },
+  { hiragana: 'ぶ', katakana: 'ブ', romaji: 'bu', strokeCount: 6, mnemonic: '“ぶ” is ふ with voiced tick marks!', vocab: 'どうぶつ', vocabKanji: '動物', vocabRomaji: 'doubutsu', vocabMeaning: 'Animal' },
+  { hiragana: 'べ', katakana: 'ベ', romaji: 'be', strokeCount: 3, mnemonic: '“べ” is へ with voiced tick marks!', vocab: 'べんきょう', vocabKanji: '勉強', vocabRomaji: 'benkyou', vocabMeaning: 'Study' },
+  { hiragana: 'ぼ', katakana: 'ボ', romaji: 'bo', strokeCount: 6, mnemonic: '“ぼ” is ほ with voiced tick marks!', vocab: 'ぼうし', vocabKanji: '帽子', vocabRomaji: 'boushi', vocabMeaning: 'Hat / Cap' },
+
+  // P-Row
+  { hiragana: 'ぱ', katakana: 'パ', romaji: 'pa', strokeCount: 4, mnemonic: '“ぱ” is は with a semi-voiced circle!', vocab: 'ぱん', vocabKanji: 'パン', vocabRomaji: 'pan', vocabMeaning: 'Bread' },
+  { hiragana: 'ぴ', katakana: 'ピ', romaji: 'pi', strokeCount: 2, mnemonic: '“ぴ” is ひ with a semi-voiced circle!', vocab: 'えんぴつ', vocabKanji: '鉛筆', vocabRomaji: 'enpitsu', vocabMeaning: 'Pencil' },
+  { hiragana: 'ぷ', katakana: 'プ', romaji: 'pu', strokeCount: 5, mnemonic: '“ぷ” is ふ with a semi-voiced circle!', vocab: 'きっぷ', vocabKanji: '切符', vocabRomaji: 'kippu', vocabMeaning: 'Ticket' },
+  { hiragana: 'ぺ', katakana: 'ペ', romaji: 'pe', strokeCount: 2, mnemonic: '“ぺ” is へ with a semi-voiced circle!', vocab: 'ぺらぺら', vocabKanji: 'ペラペラ', vocabRomaji: 'perapera', vocabMeaning: 'Fluent' },
+  { hiragana: 'ぽ', katakana: 'ポ', romaji: 'po', strokeCount: 5, mnemonic: '“ぽ” is ほ with a semi-voiced circle!', vocab: 'さんぽ', vocabKanji: '散歩', vocabRomaji: 'sanpo', vocabMeaning: 'Walk / Stroll' }
+];
+
+// Yoon Combos Database
+const COMBO_DATA = [
+  { hiragana: 'きゃ', katakana: 'キャ', romaji: 'kya', mnemonic: 'ki + small ya' },
+  { hiragana: 'きゅ', katakana: 'キュ', romaji: 'kyu', mnemonic: 'ki + small yu' },
+  { hiragana: 'きょ', katakana: 'キョ', romaji: 'kyo', mnemonic: 'ki + small yo' },
+  { hiragana: 'しゃ', katakana: 'シャ', romaji: 'sha', mnemonic: 'shi + small ya' },
+  { hiragana: 'しゅ', katakana: 'シュ', romaji: 'shu', mnemonic: 'shi + small yu' },
+  { hiragana: 'しょ', katakana: 'ショ', romaji: 'sho', mnemonic: 'shi + small yo' },
+  { hiragana: 'ちゃ', katakana: 'チャ', romaji: 'cha', mnemonic: 'chi + small ya' },
+  { hiragana: 'ちゅ', katakana: 'チュ', romaji: 'chu', mnemonic: 'chi + small yu' },
+  { hiragana: 'ちょ', katakana: 'チョ', romaji: 'cho', mnemonic: 'chi + small yo' },
+  { hiragana: 'にゃ', katakana: 'ニャ', romaji: 'nya', mnemonic: 'ni + small ya' },
+  { hiragana: 'にゅ', katakana: 'ニュ', romaji: 'nyu', mnemonic: 'ni + small yu' },
+  { hiragana: 'にょ', katakana: 'ニョ', romaji: 'nyo', mnemonic: 'ni + small yo' },
+  { hiragana: 'ひゃ', katakana: 'ヒャ', romaji: 'hya', mnemonic: 'hi + small ya' },
+  { hiragana: 'ひゅ', katakana: 'ヒュ', romaji: 'hyu', mnemonic: 'hi + small yu' },
+  { hiragana: 'ひょ', katakana: 'ヒョ', romaji: 'hyo', mnemonic: 'hi + small yo' },
+  { hiragana: 'みゃ', katakana: 'ミャ', romaji: 'mya', mnemonic: 'mi + small ya' },
+  { hiragana: 'みゅ', katakana: 'ミュ', romaji: 'myu', mnemonic: 'mi + small yu' },
+  { hiragana: 'みょ', katakana: 'ミョ', romaji: 'myo', mnemonic: 'mi + small yo' },
+  { hiragana: 'りゃ', katakana: 'リャ', romaji: 'rya', mnemonic: 'ri + small ya' },
+  { hiragana: 'りゅ', katakana: 'リュ', romaji: 'ryu', mnemonic: 'ri + small yu' },
+  { hiragana: 'りょ', katakana: 'リョ', romaji: 'ryo', mnemonic: 'ri + small yo' }
+];
+
+
 // Sound Columns setup
 const COLUMNS = [
   { name: 'Vowels', label: 'あ' },
@@ -85,13 +149,37 @@ const COLUMNS = [
   { name: 'W/N-Row', label: 'わ' }
 ];
 
-const ROWS = [
-  { idx: 0, label: 'a' },
-  { idx: 1, label: 'i' },
-  { idx: 2, label: 'u' },
-  { idx: 3, label: 'e' },
-  { idx: 4, label: 'o' }
+// Mobile layout Gojuon Rows & Columns transpositions
+const GRID_ROWS = [
+  { idx: 0, label: 'Vowels (あ)' },
+  { idx: 1, label: 'K-Row (か)' },
+  { idx: 2, label: 'S-Row (さ)' },
+  { idx: 3, label: 'T-Row (た)' },
+  { idx: 4, label: 'N-Row (な)' },
+  { idx: 5, label: 'H-Row (は)' },
+  { idx: 6, label: 'M-Row (ま)' },
+  { idx: 7, label: 'Y-Row (や)' },
+  { idx: 8, label: 'R-Row (ら)' },
+  { idx: 9, label: 'W-Row (わ)' },
+  { idx: 10, label: 'N-Sound (ん)' }
 ];
+const GRID_COLS = [0, 1, 2, 3, 4];
+
+const getGridPosition = (char) => {
+  const { col, row, romaji } = char;
+  if (col === 9) {
+    if (romaji === 'wa') return { gridRow: 9, gridCol: 0 };
+    if (romaji === 'wo') return { gridRow: 9, gridCol: 4 };
+    if (romaji === 'n') return { gridRow: 10, gridCol: 0 };
+  }
+  if (col === 7) {
+    if (romaji === 'ya') return { gridRow: 7, gridCol: 0 };
+    if (romaji === 'yu') return { gridRow: 7, gridCol: 2 };
+    if (romaji === 'yo') return { gridRow: 7, gridCol: 4 };
+  }
+  return { gridRow: col, gridCol: row };
+};
+
 
 import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 
@@ -348,64 +436,204 @@ const Kana = () => {
       {activeTab !== 'practice' ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* LEFT 2/3 COLUMN: KANA TABLE */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* LEFT 2/3 COLUMN: KANA TABLES CONTAINER */}
+          <div className="lg:col-span-2 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-350">
+            
+            {/* Let's Learn Hiragana / Katakana Banner */}
+            <div className="bg-primary/5 rounded-3xl p-6 border border-primary/10 text-left relative overflow-hidden shadow-sm">
+              <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
+              <h2 className="text-[20px] font-bold text-primary mb-1">
+                Let's learn {activeTab === 'hiragana' ? 'Hiragana' : 'Katakana'}!
+              </h2>
+              <p className="text-[12px] text-outline max-w-lg mb-4 leading-relaxed">
+                Get to know the main writing system in Japanese. Tap any card below to hear high-quality pronunciations and view memory aids.
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => speakText(activeTab === 'hiragana' ? 'ひらがな' : 'カタカナ', 0.8, selectedVoiceURI)}
+                  className="bg-surface text-primary border border-primary/25 rounded-xl px-4 py-2 text-[11px] font-bold shadow-sm hover:bg-surface-bright active:scale-95 transition-all flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[14px]">volume_up</span>
+                  Hear Name
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('practice');
+                    startPractice();
+                  }}
+                  className="bg-primary text-white rounded-xl px-4 py-2 text-[11px] font-bold shadow-md hover:bg-primary/95 active:scale-95 transition-all"
+                >
+                  Start Practice Drill
+                </button>
+              </div>
+            </div>
+
+            {/* Basic Vowels / Consonants Grid */}
             <div className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
               <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
               
-              <div className="relative z-10">
-                {/* Headers Consonants Row */}
-                <div className="grid grid-cols-10 gap-1.5 mb-2 pb-2 border-b border-outline/5 text-center">
-                  {COLUMNS.map((col) => (
-                    <div key={col.name} className="flex flex-col items-center">
-                      <span className="font-label-caps text-[8px] text-outline leading-none">{col.name.split('-')[0]}</span>
-                      <span className="text-[12px] font-bold text-primary leading-none mt-1">{col.label}</span>
-                    </div>
+              <div className="relative z-10 space-y-4">
+                {/* 5 Column Vowels Headers */}
+                <div className="grid grid-cols-5 gap-2 border-b border-outline/5 pb-3 text-center">
+                  {['a', 'i', 'u', 'e', 'o'].map((vowel) => (
+                    <span key={vowel} className="font-label-caps text-[11px] font-bold text-primary">{vowel}</span>
                   ))}
                 </div>
 
                 {/* Rows Grid */}
-                <div className="space-y-1.5">
-                  {ROWS.map((row) => (
-                    <div key={row.idx} className="grid grid-cols-10 gap-1.5 items-center">
-                      {COLUMNS.map((col, cIdx) => {
-                        // Find character matching row and column
-                        const char = KANA_DATA.find(k => k.row === row.idx && k.col === cIdx);
-                        
-                        if (!char) {
-                          return <div key={`${row.idx}-${cIdx}`} className="h-14"></div>; // Blank slot
-                        }
+                <div className="space-y-4">
+                  {GRID_ROWS.map((gridRowObj) => (
+                    <div key={gridRowObj.idx} className="flex flex-col gap-1.5">
+                      <span className="font-label-caps text-[8px] tracking-wider text-outline opacity-40 ml-1">{gridRowObj.label}</span>
+                      <div className="grid grid-cols-5 gap-2">
+                        {GRID_COLS.map((gridCol) => {
+                          const char = KANA_DATA.find(k => {
+                            const pos = getGridPosition(k);
+                            return pos.gridRow === gridRowObj.idx && pos.gridCol === gridCol;
+                          });
+                          
+                          if (!char) {
+                            return <div key={gridCol} className="h-16 bg-surface-container-lowest/5 rounded-2xl border border-dashed border-outline/5 opacity-30"></div>;
+                          }
 
-                        const isSelected = selectedChar?.romaji === char.romaji;
-                        const symbol = activeTab === 'hiragana' ? (char.hiraganaOverride || char.hiragana) : char.katakana;
-                        
-                        return (
-                          <button
-                            key={char.romaji}
-                            onClick={() => handleCharClick(char)}
-                            className={`h-14 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
-                              isSelected 
-                                ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold' 
-                                : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
-                            }`}
-                          >
-                            <span className="text-[18px] font-medium leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
-                              {symbol}
-                            </span>
-                            <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
-                              {char.romaji}
-                            </span>
-                          </button>
-                        );
-                      })}
+                          const isSelected = selectedChar?.romaji === char.romaji;
+                          const symbol = activeTab === 'hiragana' ? (char.hiraganaOverride || char.hiragana) : char.katakana;
+                          
+                          return (
+                            <button
+                              key={char.romaji}
+                              onClick={() => handleCharClick(char)}
+                              className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
+                                isSelected 
+                                  ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold ring-2 ring-primary/20' 
+                                  : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
+                              }`}
+                            >
+                              <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
+                              <span className="text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+                                {symbol}
+                              </span>
+                              <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
+                                {char.romaji}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-            
-            <p className="font-label-caps text-outline text-[9px] tracking-wider flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[14px]">volume_up</span> Tip: Tap any character above to hear its authentic pronunciation!
+
+            {/* Dakuon and Handakuon Section */}
+            <div className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+              <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
+              
+              <div className="relative z-10 space-y-4">
+                <div className="border-b border-outline/5 pb-3">
+                  <h3 className="text-[14px] font-bold text-primary leading-tight">Dakuon and Handakuon</h3>
+                  <p className="text-[11px] text-outline mt-0.5">Add a symbol (voiced ticks ゛ or circle ゜) to change the sound.</p>
+                </div>
+
+                <div className="space-y-4">
+                  {['G-Row', 'Z-Row', 'D-Row', 'B-Row', 'P-Row'].map((rowLabel, rIdx) => (
+                    <div key={rowLabel} className="flex flex-col gap-1.5">
+                      <span className="font-label-caps text-[8px] tracking-wider text-outline opacity-40 ml-1">{rowLabel}</span>
+                      <div className="grid grid-cols-5 gap-2">
+                        {GRID_COLS.map((cIdx) => {
+                          const charIdx = rIdx * 5 + cIdx;
+                          const char = DAKUON_DATA[charIdx];
+                          if (!char) return null;
+
+                          const isSelected = selectedChar?.romaji === char.romaji;
+                          const symbol = activeTab === 'hiragana' ? char.hiragana : char.katakana;
+
+                          return (
+                            <button
+                              key={char.romaji}
+                              onClick={() => handleCharClick(char)}
+                              className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
+                                isSelected 
+                                  ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold ring-2 ring-primary/20' 
+                                  : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
+                              }`}
+                            >
+                              <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
+                              <span className="text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+                                {symbol}
+                              </span>
+                              <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
+                                {char.romaji}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Yoon Combo Section */}
+            <div className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+              <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
+              
+              <div className="relative z-10 space-y-4">
+                <div className="border-b border-outline/5 pb-3">
+                  <h3 className="text-[14px] font-bold text-primary leading-tight">Combo Syllables</h3>
+                  <p className="text-[11px] text-outline mt-0.5">Combine primary consonants with small ya/yu/yo contractions.</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 border-b border-outline/5 pb-2 text-center">
+                  {['-ya Suffix', '-yu Suffix', '-yo Suffix'].map((suffix) => (
+                    <span key={suffix} className="font-label-caps text-[9px] font-bold text-primary">{suffix}</span>
+                  ))}
+                </div>
+
+                <div className="space-y-4">
+                  {['K-Combo', 'S-Combo', 'T-Combo', 'N-Combo', 'H-Combo', 'M-Combo', 'R-Combo'].map((rowLabel, rIdx) => (
+                    <div key={rowLabel} className="flex flex-col gap-1.5">
+                      <span className="font-label-caps text-[8px] tracking-wider text-outline opacity-40 ml-1">{rowLabel}</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[0, 1, 2].map((cIdx) => {
+                          const charIdx = rIdx * 3 + cIdx;
+                          const char = COMBO_DATA[charIdx];
+                          if (!char) return null;
+
+                          const isSelected = selectedChar?.romaji === char.romaji;
+                          const symbol = activeTab === 'hiragana' ? char.hiragana : char.katakana;
+
+                          return (
+                            <button
+                              key={char.romaji}
+                              onClick={() => handleCharClick(char)}
+                              className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
+                                isSelected 
+                                  ? 'bg-primary/10 border-primary shadow-sm text-primary font-bold ring-2 ring-primary/20' 
+                                  : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
+                              }`}
+                            >
+                              <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
+                              <span className="text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+                                {symbol}
+                              </span>
+                              <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
+                                {char.romaji}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <p className="font-label-caps text-outline text-[9px] tracking-wider flex items-center gap-1.5 mt-4">
+              <span className="material-symbols-outlined text-[14px]">volume_up</span> Tip: Tap any character card to study detailed calligraphy rules and mnemonics!
             </p>
           </div>
 
@@ -441,7 +669,7 @@ const Kana = () => {
                       <div className="mb-4">
                         <h2 className="font-h2 text-on-surface">{selectedChar.romaji.toUpperCase()} Sound</h2>
                         <span className="font-label-caps text-[9px] text-outline tracking-wider border border-outline/10 bg-surface-container-low px-2 py-0.5 rounded-full mt-1.5 inline-block">
-                          {selectedChar.strokeCount} STROKES
+                          {selectedChar.strokeCount ? `${selectedChar.strokeCount} STROKES` : 'COMBO SOUND'}
                         </span>
                       </div>
 
@@ -461,34 +689,36 @@ const Kana = () => {
                           <span className="font-label-caps text-secondary tracking-widest text-[9px] font-bold">MNEMONIC AID</span>
                         </div>
                         <p className="font-body-md text-on-surface-variant leading-relaxed">
-                          {selectedChar.mnemonic}
+                          {selectedChar.mnemonic || `“${activeTab === 'hiragana' ? selectedChar.hiragana : selectedChar.katakana}” is a combined Japanese syllable merging the sound of ${selectedChar.romaji.slice(0, -2).toUpperCase()} and the glide ${selectedChar.romaji.slice(-2).toUpperCase()}.`}
                         </p>
                       </div>
 
                       {/* Example JLPT N5 Vocabulary */}
-                      <div className="w-full text-left border-t border-outline/10 pt-4">
-                        <span className="font-label-caps text-outline text-[9px] tracking-wider mb-3 block">EXAMPLE VOCABULARY</span>
-                        <div className="bg-surface-container-low border border-outline/5 p-4 rounded-2xl flex justify-between items-center group">
-                          <div>
-                            <span 
-                              className="text-[20px] font-bold text-primary tracking-wide block"
-                              style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+                      {selectedChar.vocab && (
+                        <div className="w-full text-left border-t border-outline/10 pt-4">
+                          <span className="font-label-caps text-outline text-[9px] tracking-wider mb-3 block">EXAMPLE VOCABULARY</span>
+                          <div className="bg-surface-container-low border border-outline/5 p-4 rounded-2xl flex justify-between items-center group">
+                            <div>
+                              <span 
+                                className="text-[20px] font-bold text-primary tracking-wide block"
+                                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+                              >
+                                {activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab}
+                              </span>
+                              <span className="font-label-caps text-[9px] text-outline tracking-wider font-bold block mt-0.5">
+                                {selectedChar.vocabRomaji} • {selectedChar.vocabMeaning}
+                              </span>
+                            </div>
+                            
+                            <button
+                              onClick={() => speakText(activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab, 0.8, selectedVoiceURI)}
+                              className="w-8 h-8 rounded-xl bg-surface border border-outline/10 text-outline hover:text-primary hover:border-primary/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
                             >
-                              {activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab}
-                            </span>
-                            <span className="font-label-caps text-[9px] text-outline tracking-wider font-bold block mt-0.5">
-                              {selectedChar.vocabRomaji} • {selectedChar.vocabMeaning}
-                            </span>
+                              <span className="material-symbols-outlined text-[16px]">volume_up</span>
+                            </button>
                           </div>
-                          
-                          <button
-                            onClick={() => speakText(activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab, 0.8, selectedVoiceURI)}
-                            className="w-8 h-8 rounded-xl bg-surface border border-outline/10 text-outline hover:text-primary hover:border-primary/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">volume_up</span>
-                          </button>
                         </div>
-                      </div>
+                      )}
 
                     </div>
                   </motion.div>
