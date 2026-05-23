@@ -95,11 +95,48 @@ const ROWS = [
 
 import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 
-// Helper to pronounce Japanese words using native SpeechSynthesis or MIT App Inventor Bridge
-const speakText = (text, rate = 0.8) => {
+// Helper to pronounce Japanese words using native SpeechSynthesis, VOICEVOX, or MIT App Inventor Bridge
+const speakText = async (text, rate = 0.8) => {
   if (IS_APP_INVENTOR) {
     speakTextBridge(text);
-  } else if ('speechSynthesis' in window) {
+    return;
+  }
+
+  // 1. Attempt local VOICEVOX integration (Speaker 2 corresponds to a highly expressive, cute Japanese voice)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 800); // 800ms abort fallback ceiling
+
+    const queryResponse = await fetch(`http://localhost:50021/audio_query?text=${encodeURIComponent(text)}&speaker=2`, {
+      method: 'POST',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (queryResponse.ok) {
+      const queryJson = await queryResponse.json();
+      
+      const synthResponse = await fetch(`http://localhost:50021/synthesis?speaker=2`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(queryJson)
+      });
+
+      if (synthResponse.ok) {
+        const audioBlob = await synthResponse.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+        return; // Synthesis played successfully!
+      }
+    }
+  } catch (err) {
+    // Fail silently, falling back to Web Speech API
+    console.log("VOICEVOX server not active or failed. Using standard system SpeechSynthesis.");
+  }
+
+  // 2. Standard Web Speech API fallback
+  if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ja-JP';
