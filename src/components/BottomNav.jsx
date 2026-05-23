@@ -74,7 +74,7 @@ const BottomNav = () => {
             <button 
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center relative flex-1 h-12 transition-all active:scale-90 duration-200 ease-out z-10 ${
+              className={`flex flex-col items-center justify-center relative flex-1 h-12 transition-[color,background-color,transform] active:scale-90 duration-200 ease-out z-10 ${
                 isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
               }`}
             >

@@ -23,6 +23,10 @@ const Sidebar = () => {
     { name: 'Settings', icon: 'settings', path: '/settings' },
   ];
 
+  const activeIndex = navItems.findIndex((item) => 
+    location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))
+  );
+
   return (
     <aside className="hidden md:flex fixed top-0 left-0 bottom-0 w-[260px] bg-surface z-[40] shadow-ambient flex-col border-r border-outline/10 overflow-hidden">
       {/* Subtle Washi Texture Overlay */}
@@ -40,25 +44,27 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation: Floating Items */}
-        <nav className="flex-1 flex flex-col gap-2">
+        <nav className="flex-1 flex flex-col gap-2 relative">
+          {/* Persistent Hardware-Accelerated Active Indicator Pill */}
+          {activeIndex !== -1 && (
+            <div 
+              className="absolute left-0 right-0 h-12 bg-primary/10 rounded-2xl border border-primary/10 transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] pointer-events-none"
+              style={{
+                transform: `translateY(${activeIndex * 56}px)`
+              }}
+            />
+          )}
+
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
             return (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`relative flex items-center gap-4 px-4 py-3 transition-all duration-300 group overflow-hidden ${
+                className={`relative flex items-center gap-4 px-4 h-12 transition-colors duration-300 group rounded-2xl overflow-hidden ${
                   isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
                 }`}
               >
-                {/* Active State Ink Bleed */}
-                {isActive && (
-                  <motion.div 
-                    layoutId="activeNavIndicator"
-                    className="absolute inset-0 bg-primary/10 rounded-2xl border border-primary/10"
-                  />
-                )}
-                
                 <span className={`material-symbols-outlined text-[24px] z-10 transition-transform duration-500 ${isActive ? '' : 'group-hover:-translate-y-0.5'}`} style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 300" : "'wght' 200" }}>
                   {item.icon}
                 </span>
