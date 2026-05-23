@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import TopBar from './components/TopBar';
 import BottomNav from './components/BottomNav';
 import Dashboard from './pages/Dashboard';
@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
 import { AnimatePresence, motion } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 
-const AppLayout = ({ children }) => {
+const AppLayout = () => {
   const location = useLocation();
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
   
@@ -51,7 +51,7 @@ const AppLayout = ({ children }) => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {children}
+            <Outlet />
           </motion.div>
         </AnimatePresence>
       </main>
@@ -88,14 +88,16 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             
-            <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
-            <Route path="/lessons" element={<ProtectedRoute><AppLayout><Lessons /></AppLayout></ProtectedRoute>} />
-            <Route path="/review" element={<ProtectedRoute><AppLayout><Review /></AppLayout></ProtectedRoute>} />
-            <Route path="/flashcard" element={<ProtectedRoute><AppLayout><Flashcard /></AppLayout></ProtectedRoute>} />
-            <Route path="/progress" element={<ProtectedRoute><AppLayout><Progress /></AppLayout></ProtectedRoute>} />
-            <Route path="/community" element={<ProtectedRoute><AppLayout><Community /></AppLayout></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/lessons" element={<Lessons />} />
+              <Route path="/review" element={<Review />} />
+              <Route path="/flashcard" element={<Flashcard />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
           </Routes>
         </Router>
       </AppProvider>
