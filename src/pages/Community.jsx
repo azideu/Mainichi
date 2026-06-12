@@ -34,6 +34,34 @@ const Community = () => {
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [previewTab, setPreviewTab] = useState('words'); // words | reviews
   const [hoveredWord, setHoveredWord] = useState(null);
+
+  // Search & Sorting state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+
+  // Reviews & Ratings state
+  const [reviews, setReviews] = useState([]);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewComment, setNewReviewComment] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  // Compute filtered & sorted decks
+  const filteredDecks = decks
+    .filter(deck => {
+      const query = searchQuery.toLowerCase();
+      return (
+        deck.title.toLowerCase().includes(query) ||
+        (deck.description && deck.description.toLowerCase().includes(query)) ||
+        (deck.author && deck.author.toLowerCase().includes(query))
+      );
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') return b.id - a.id;
+      if (sortBy === 'popular') return b.word_count - a.word_count;
+      if (sortBy === 'alphabetical') return a.title.localeCompare(b.title);
+      return 0;
+    });
   
   // Creator Application Wizard State
   const [showCreatorWizard, setShowCreatorWizard] = useState(false);
@@ -129,20 +157,93 @@ const Community = () => {
     }
   };
 
+  // Fetch reviews for a deck
+  const fetchReviews = async (deckId) => {
+    try {
+      setIsReviewsLoading(true);
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch(`/api/decks/${deckId}/reviews`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(data);
+        
+        // Pre-populate if current user has already reviewed
+        const userName = user?.name;
+        const userReview = data.find(r => r.author === userName);
+        if (userReview) {
+          setNewReviewRating(userReview.rating);
+          setNewReviewComment(userReview.comment);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch reviews", err);
+    } finally {
+      setIsReviewsLoading(false);
+    }
+  };
+
+  // Submit a review for a deck
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!selectedDeck) return;
+    if (newReviewRating < 1 || newReviewRating > 5) {
+      alert("Please select a rating between 1 and 5 stars.");
+      return;
+    }
+
+    try {
+      setIsSubmittingReview(true);
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch(`/api/decks/${selectedDeck.id}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          rating: newReviewRating,
+          comment: newReviewComment
+        })
+      });
+
+      if (res.ok) {
+        setNewReviewComment('');
+        setNewReviewRating(5);
+        // Refresh reviews
+        await fetchReviews(selectedDeck.id);
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to submit review.");
+      }
+    } catch (err) {
+      console.error("Failed to submit review", err);
+      alert("Error occurred while submitting review.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
   // Open Preview Drawer and fetch vocabulary list
   const handleOpenPreview = async (deck) => {
     setSelectedDeck(deck);
     setPreviewTab('words');
     setIsPreviewLoading(true);
+    setNewReviewRating(5);
+    setNewReviewComment('');
+
     try {
       const token = localStorage.getItem('mainichi_token');
-      const res = await fetch(`/api/decks/${deck.id}/vocab`, {
+      const vocabPromise = fetch(`/api/decks/${deck.id}/vocab`, {
         headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSelectedDeckVocab(data);
-      }
+      }).then(r => r.ok ? r.json() : []);
+
+      const [vocabData] = await Promise.all([
+        vocabPromise,
+        fetchReviews(deck.id)
+      ]);
+      setSelectedDeckVocab(vocabData);
     } catch (err) {
       console.error("Failed to fetch vocabulary preview", err);
     } finally {
@@ -247,7 +348,7 @@ const Community = () => {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-4xl mx-auto pb-xl">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-6xl mx-auto pb-xl px-2 sm:px-4">
       {/* Page Header */}
       <motion.div variants={itemVariants} className="mb-8 hidden md:flex justify-between items-end">
         <div>
@@ -282,68 +383,112 @@ const Community = () => {
       {/* Discover Decks Panel */}
       {activeTab === 'discover' && (
         <div className="space-y-6 mb-16">
-          {decks.map(deck => (
-            <motion.div 
-              variants={itemVariants} 
-              key={deck.id} 
-              onClick={() => handleOpenPreview(deck)}
-              className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 group relative overflow-hidden transition-colors hover:border-primary/20 cursor-pointer"
-            >
-              {/* Washi Texture */}
-              <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-              {/* Ink wash hover */}
-              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          {/* Search & Sort Filter Bar */}
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row gap-4 bg-surface rounded-2xl p-4 shadow-paper-layer border border-outline/10 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+            
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+              <input
+                type="text"
+                placeholder="Search decks or authors..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-surface-variant/30 hover:bg-surface-variant/50 focus:bg-surface-bright border border-outline/15 rounded-xl pl-9 pr-4 py-2 text-[11px] focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+            
+            {/* Sort Dropdown */}
+            <div className="relative min-w-[160px]">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full bg-surface border border-outline/15 rounded-xl pl-3 pr-8 py-2 text-[11px] font-medium focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-bright transition-colors appearance-none"
+              >
+                <option value="newest">Newest First</option>
+                <option value="popular">Cards Count (High-Low)</option>
+                <option value="alphabetical">Alphabetical</option>
+              </select>
+              <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[14px] text-outline pointer-events-none">unfold_more</span>
+            </div>
+          </motion.div>
 
-              <div className="relative z-10 flex-1">
-                <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h3 className="font-h3 text-on-surface tracking-tight group-hover:text-primary transition-colors">{deck.title}</h3>
-                  {deck.is_premium === 1 && (
-                    <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
-                      PREMIUM
-                    </span>
-                  )}
-                  {deck.downloaded === 1 && (
-                    <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[10px]">check</span> ACTIVE
-                    </span>
-                  )}
-                </div>
-                <p className="font-body-md text-on-surface-variant text-sm mb-4 leading-relaxed line-clamp-2">{deck.description || 'No description provided.'}</p>
-                <div className="flex items-center gap-6 text-xs font-label-caps text-outline tracking-widest">
-                  <span className="flex items-center gap-1.5">
-                    Crafted by <span className="text-on-surface font-semibold">{deck.author}</span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[15px]">menu_book</span> {deck.word_count} cards
-                  </span>
-                </div>
-              </div>
-              
-              <div className="w-full sm:w-auto relative z-10 flex gap-2">
-                {deck.downloaded === 1 ? (
-                  <Button3D 
-                    variant="primary" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/flashcard?deckId=${deck.id}`);
-                    }}
-                  >
-                    Study Now
-                  </Button3D>
-                ) : (
-                  <Button3D 
-                    variant={deck.is_premium === 1 ? 'primary' : 'secondary'}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDownload(deck.id, deck.is_premium === 1);
-                    }}
-                  >
-                    {deck.is_premium === 1 ? 'Unlock Deck' : 'Download'}
-                  </Button3D>
-                )}
-              </div>
-            </motion.div>
-          ))}
+          {filteredDecks.length === 0 ? (
+            <div className="bg-surface rounded-2xl p-10 border border-outline/10 text-center relative overflow-hidden shadow-sm">
+              <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+              <span className="material-symbols-outlined text-[48px] text-outline opacity-50 mb-2">import_contacts</span>
+              <p className="font-body-md text-outline">No matching decks found. Try a different query.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredDecks.map(deck => (
+                <motion.div 
+                  variants={itemVariants} 
+                  key={deck.id} 
+                  onClick={() => handleOpenPreview(deck)}
+                  className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 group relative overflow-hidden transition-colors hover:border-primary/20 cursor-pointer"
+                >
+                  {/* Washi Texture */}
+                  <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+                  {/* Ink wash hover */}
+                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                  <div className="relative z-10 flex-1">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <h3 className="font-h3 text-on-surface tracking-tight group-hover:text-primary transition-colors">{deck.title}</h3>
+                      {deck.is_premium === 1 && (
+                        <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
+                          PREMIUM
+                        </span>
+                      )}
+                      {deck.downloaded === 1 && (
+                        <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[10px]">check</span> ACTIVE
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-body-md text-on-surface-variant text-sm mb-4 leading-relaxed line-clamp-2">{deck.description || 'No description provided.'}</p>
+                    <div className="flex items-center gap-6 text-xs font-label-caps text-outline tracking-widest">
+                      <span className="flex items-center gap-1.5">
+                        Crafted by <span className="text-on-surface font-semibold">{deck.author}</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[15px]">menu_book</span> {deck.word_count} cards
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="w-full sm:w-auto relative z-10 flex gap-2">
+                    {deck.downloaded === 1 ? (
+                      <Button3D 
+                        variant="primary" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/flashcard?deckId=${deck.id}`);
+                        }}
+                      >
+                        Study Now
+                      </Button3D>
+                    ) : (
+                      <Button3D 
+                        variant={deck.is_premium === 1 ? 'primary' : 'secondary'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(deck.id, deck.is_premium === 1);
+                        }}
+                      >
+                        {deck.is_premium === 1 ? 'Unlock Deck' : 'Download'}
+                      </Button3D>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -374,8 +519,8 @@ const Community = () => {
 
               <div>
                 <h2 className="font-label-caps text-outline tracking-widest mb-4">YOUR HANDCRAFTED DECKS</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                  {decks.filter(d => d.author === creatorHandle || d.author === localStorage.getItem('mainichi_user_name') || d.author === 'Admin').map(deck => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+                  {decks.filter(d => d.author === creatorHandle || d.author === user?.name || d.author === 'Admin').map(deck => (
                     <div key={deck.id} onClick={() => handleOpenPreview(deck)} className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col justify-between cursor-pointer hover:border-secondary/30 transition-colors relative overflow-hidden group">
                       <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
                       <div>
@@ -544,29 +689,101 @@ const Community = () => {
                 {/* Scholarly Reviews Tab */}
                 {previewTab === 'reviews' && (
                   <div className="space-y-4">
-                    {(SYSTEM_REVIEWS[selectedDeck.id] || SYSTEM_REVIEWS.default).map(rev => (
-                      <div key={rev.id} className="bg-surface rounded-2xl p-4 border border-outline/10 shadow-sm relative overflow-hidden">
-                        <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-                        <div className="flex justify-between items-start mb-2 relative z-10">
-                          <div>
-                            <span className="font-body-md font-semibold text-on-surface text-sm">{rev.author}</span>
-                            <span className="bg-secondary/10 text-secondary border border-secondary/20 text-[7px] font-label-caps px-1.5 py-0.5 rounded-full tracking-wider ml-2">SCHOLAR</span>
+                    {/* Write Review Form */}
+                    {selectedDeck.downloaded === 1 && (() => {
+                      const hasExistingReview = reviews.some(r => r.author === user?.name);
+                      return (
+                        <form onSubmit={handleSubmitReview} className="bg-surface rounded-2xl p-4 border border-outline/10 shadow-sm relative overflow-hidden mb-6">
+                          <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+                          <h4 className="font-label-caps text-on-surface text-xs tracking-wider font-semibold mb-3 relative z-10 flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[16px] text-secondary">rate_review</span>
+                            {hasExistingReview ? "Edit Your Scholar Review" : "Write a Scholar Review"}
+                          </h4>
+                          
+                          <div className="flex items-center gap-1 mb-3 relative z-10">
+                            <span className="font-label-caps text-outline text-[10px] tracking-wider font-semibold mr-2">YOUR RATING:</span>
+                            {[1, 2, 3, 4, 5].map((starValue) => (
+                              <button
+                                key={starValue}
+                                type="button"
+                                onClick={() => setNewReviewRating(starValue)}
+                                className="text-secondary hover:scale-110 transition-transform focus:outline-none"
+                              >
+                                <span 
+                                  className="material-symbols-outlined text-[20px]" 
+                                  style={{ fontVariationSettings: `'FILL' ${newReviewRating >= starValue ? 1 : 0}` }}
+                                >
+                                  star
+                                </span>
+                              </button>
+                            ))}
                           </div>
-                          <span className="text-[10px] text-outline font-mono">{rev.date}</span>
-                        </div>
-                        <div className="flex gap-0.5 text-secondary text-[12px] mb-2 relative z-10">
-                          {[...Array(rev.rating)].map((_, i) => (
-                            <span key={i} className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                          ))}
-                        </div>
-                        <p 
-                          className="text-on-surface-variant leading-relaxed text-sm relative z-10"
-                          style={{ fontFamily: "'Georgia', 'Noto Serif JP', serif", fontStyle: "italic" }}
-                        >
-                          "{rev.comment}"
-                        </p>
+
+                          <div className="mb-4 relative z-10">
+                            <textarea
+                              value={newReviewComment}
+                              onChange={(e) => setNewReviewComment(e.target.value)}
+                              placeholder="Share your thoughts about this custom path..."
+                              rows={3}
+                              maxLength={500}
+                              className="w-full bg-surface-bright border border-outline/25 rounded-xl px-4 py-3 text-on-surface text-sm focus:border-secondary focus:outline-none transition-colors shadow-sm resize-none"
+                            />
+                          </div>
+
+                          <div className="flex justify-end relative z-10">
+                            <Button3D
+                              type="submit"
+                              variant="secondary"
+                              disabled={isSubmittingReview}
+                              className="py-2.5 px-4 text-xs font-semibold w-full sm:w-auto"
+                            >
+                              {isSubmittingReview ? "Submitting..." : (hasExistingReview ? "Update Review" : "Submit Review")}
+                            </Button3D>
+                          </div>
+                        </form>
+                      );
+                    })()}
+
+                    {/* Loader */}
+                    {isReviewsLoading && (
+                      <div className="flex justify-center items-center py-4">
+                        <div className="w-5 h-5 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin"></div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* Reviews List */}
+                    {(!isReviewsLoading || reviews.length > 0) && (
+                      <div className="space-y-4">
+                        {(reviews.length > 0 ? reviews : (SYSTEM_REVIEWS[selectedDeck.id] || SYSTEM_REVIEWS.default)).map(rev => (
+                          <div key={rev.id} className="bg-surface rounded-2xl p-4 border border-outline/10 shadow-sm relative overflow-hidden">
+                            <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+                            <div className="flex justify-between items-start mb-2 relative z-10">
+                              <div>
+                                <span className="font-body-md font-semibold text-on-surface text-sm">{rev.author}</span>
+                                <span className="bg-secondary/10 text-secondary border border-secondary/20 text-[7px] font-label-caps px-1.5 py-0.5 rounded-full tracking-wider ml-2 font-semibold font-semibold">SCHOLAR</span>
+                              </div>
+                              <span className="text-[10px] text-outline font-mono">
+                                {rev.date || new Date(rev.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </span>
+                            </div>
+                            <div className="flex gap-0.5 text-secondary text-[12px] mb-2 relative z-10">
+                              {[...Array(rev.rating)].map((_, i) => (
+                                <span key={i} className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                              ))}
+                              {[...Array(5 - rev.rating)].map((_, i) => (
+                                <span key={i} className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>star</span>
+                              ))}
+                            </div>
+                            <p 
+                              className="text-on-surface-variant leading-relaxed text-sm relative z-10"
+                              style={{ fontFamily: "'Georgia', 'Noto Serif JP', serif", fontStyle: "italic" }}
+                            >
+                              "{rev.comment}"
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

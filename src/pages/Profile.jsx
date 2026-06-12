@@ -88,7 +88,7 @@ const Profile = () => {
   };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl mx-auto pb-xl px-2 sm:px-4">
       <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         
@@ -160,11 +160,11 @@ const Profile = () => {
         </div>
       </motion.div>
 
-      {/* Mobile-only Study Progress Link */}
+      {/* Study Progress Link */}
       <motion.div
         variants={itemVariants}
         onClick={() => navigate('/progress')}
-        className="md:hidden bg-surface rounded-2xl p-5 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left group hover:border-primary/20 cursor-pointer transition-all duration-300"
+        className="bg-surface rounded-2xl p-5 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left group hover:border-primary/20 cursor-pointer transition-all duration-300"
       >
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <div className="relative z-10 flex justify-between items-center">

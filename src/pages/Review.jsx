@@ -112,7 +112,7 @@ const Review = () => {
   const totalReviewsCount = dueCount + customDecks.reduce((sum, d) => sum + d.dueCount, 0);
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-4xl mx-auto pb-xl px-2 sm:px-4">
       <motion.div variants={itemVariants} className="hidden md:flex justify-between items-end mb-8">
         <div>
           <h1 className="font-h1 text-primary mb-2 tracking-tighter">Reviews</h1>

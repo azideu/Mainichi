@@ -238,7 +238,7 @@ const Lessons = () => {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="max-w-4xl mx-auto pb-xl text-left"
+        className="max-w-6xl mx-auto pb-xl text-left px-2 sm:px-4"
       >
 
         {/* Global Progress Card */}

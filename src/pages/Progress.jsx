@@ -89,7 +89,7 @@ const Progress = () => {
       variants={containerVariants} 
       initial="hidden" 
       animate="show" 
-      className="max-w-2xl mx-auto pb-xl"
+      className="max-w-4xl mx-auto pb-xl px-2 sm:px-4"
     >
       {/* Ambient background blur */}
       <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-secondary-container/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply z-0"></div>

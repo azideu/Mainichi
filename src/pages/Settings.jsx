@@ -19,6 +19,8 @@ const Settings = () => {
   const { masteryRequirement, dailyGoal, updateSettings, fetchStats } = useApp();
   const [localMastery, setLocalMastery] = useState(masteryRequirement);
   const [localGoal, setLocalGoal] = useState(dailyGoal.total);
+  const [dailyReminders, setDailyReminders] = useState(localStorage.getItem('mainichi_daily_reminders') !== 'false');
+  const [communityUpdates, setCommunityUpdates] = useState(localStorage.getItem('mainichi_community_updates') === 'true');
   const [isSaving, setIsSaving] = useState(false);
   const [isDemoActionLoading, setIsDemoActionLoading] = useState(false);
   const [demoMessage, setDemoMessage] = useState('');
@@ -31,6 +33,8 @@ const Settings = () => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     await updateSettings(localMastery, localGoal);
+    localStorage.setItem('mainichi_daily_reminders', dailyReminders.toString());
+    localStorage.setItem('mainichi_community_updates', communityUpdates.toString());
     setIsSaving(false);
   };
 
@@ -91,7 +95,7 @@ const Settings = () => {
   };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto pb-xl">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl mx-auto pb-xl px-2 sm:px-4">
       <div className="hidden md:flex items-center gap-4 mb-8 relative z-10">
         <motion.button 
           variants={itemVariants}
@@ -115,8 +119,13 @@ const Settings = () => {
               <p className="font-label-caps text-outline tracking-widest mt-1">MAINTAIN YOUR STREAK</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer group">
-              <input type="checkbox" className="sr-only peer" defaultChecked />
-              <div className="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-outline/10 group-hover:shadow-sm"></div>
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={dailyReminders} 
+                onChange={(e) => setDailyReminders(e.target.checked)} 
+              />
+              <div className="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-outline/10 group-hover:shadow-sm transition-colors duration-300"></div>
             </label>
           </div>
           
@@ -128,8 +137,13 @@ const Settings = () => {
               <p className="font-label-caps text-outline tracking-widest mt-1">NOTES FROM FELLOW WANDERERS</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer group">
-              <input type="checkbox" className="sr-only peer" />
-              <div className="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-outline/10 group-hover:shadow-sm"></div>
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={communityUpdates} 
+                onChange={(e) => setCommunityUpdates(e.target.checked)} 
+              />
+              <div className="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-outline/10 group-hover:shadow-sm transition-colors duration-300"></div>
             </label>
           </div>
         </div>

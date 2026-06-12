@@ -71,6 +71,19 @@ CREATE TABLE IF NOT EXISTS mainichi_user_decks (
     FOREIGN KEY (deck_id) REFERENCES mainichi_decks(id) ON DELETE CASCADE
 );
 
+-- Deck Reviews/Comments table
+CREATE TABLE IF NOT EXISTS mainichi_deck_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    deck_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_deck_user (deck_id, user_id),
+    FOREIGN KEY (deck_id) REFERENCES mainichi_decks(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
+);
+
 
 
 

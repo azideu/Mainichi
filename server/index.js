@@ -36,6 +36,129 @@ const pool = mysql.createPool({
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
+// Ensure tables exist on startup
+async function ensureTablesExist() {
+  try {
+    // 1. Create table if not exists (old schema might not have unique key)
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS mainichi_deck_reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        deck_id INT NOT NULL,
+        user_id INT NOT NULL,
+        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        comment TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (deck_id) REFERENCES mainichi_decks(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
+      )
+    `);
+
+    // 2. Clean up duplicate reviews (keep the latest one)
+    await pool.query(`
+      DELETE r1 FROM mainichi_deck_reviews r1
+      INNER JOIN mainichi_deck_reviews r2 
+      ON r1.deck_id = r2.deck_id 
+      AND r1.user_id = r2.user_id 
+      AND r1.id < r2.id
+    `);
+
+    // 3. Add unique constraint if it doesn't exist
+    try {
+      await pool.query(`
+        ALTER TABLE mainichi_deck_reviews 
+        ADD UNIQUE KEY unique_deck_user (deck_id, user_id)
+      `);
+      console.log("✅ Added unique key constraint to mainichi_deck_reviews table.");
+    } catch (indexErr) {
+      // If it already exists, indexErr.code is usually 'ER_DUP_KEYNAME' or similar
+      if (indexErr.code !== 'ER_DUP_KEYNAME') {
+        console.log("ℹ️ unique_deck_user constraint already exists or failed to add:", indexErr.message);
+      }
+    }
+
+    // 4. Seed sample decks (survival phrases, basic adjectives, dining vocab)
+    const [existingDecks] = await pool.query('SELECT id FROM mainichi_decks WHERE id IN (2, 3, 4)');
+    if (existingDecks.length < 3) {
+      console.log("🌱 Seeding sample Kana decks...");
+      
+      // Seed Deck 2 (Essential Survival Phrases)
+      await pool.query(`
+        INSERT INTO mainichi_decks (id, author_id, title, description, is_premium)
+        VALUES (2, NULL, 'Survival Japanese', 'Useful conversational phrases and greetings in Kana for navigating daily situations.', FALSE)
+        ON DUPLICATE KEY UPDATE title = VALUES(title), description = VALUES(description)
+      `);
+      await pool.query('DELETE FROM mainichi_vocabulary WHERE deck_id = 2');
+      await pool.query(`
+        INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, onyomi, kunyomi, english) VALUES
+        (2, 'こんにちは', '', '', '', 'hello / good afternoon'),
+        (2, 'すみません', '', '', '', 'excuse me / I am sorry'),
+        (2, 'ありがとう', '', '', '', 'thank you'),
+        (2, 'おねがいします', '', '', '', 'please (requesting)'),
+        (2, 'はい', '', '', '', 'yes'),
+        (2, 'いいえ', '', '', '', 'no'),
+        (2, 'おかいけい、おねがいします', '', '', '', 'the bill, please'),
+        (2, 'トイレはどこですか', '', '', '', 'where is the toilet?'),
+        (2, 'おいしいです', '', '', '', 'it is delicious'),
+        (2, 'ごちそうさまでした', '', '', '', 'thank you for the meal (after eating)'),
+        (2, 'いただきます', '', '', '', 'thank you for the meal (before eating)')
+      `);
+
+      // Seed Deck 3 (Basic Japanese Adjectives)
+      await pool.query(`
+        INSERT INTO mainichi_decks (id, author_id, title, description, is_premium)
+        VALUES (3, NULL, 'Everyday Adjectives', 'Essential adjectives in Hiragana for describing things, feelings, and places.', FALSE)
+        ON DUPLICATE KEY UPDATE title = VALUES(title), description = VALUES(description)
+      `);
+      await pool.query('DELETE FROM mainichi_vocabulary WHERE deck_id = 3');
+      await pool.query(`
+        INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, onyomi, kunyomi, english) VALUES
+        (3, 'たのしい', '', '', '', 'fun / enjoyable'),
+        (3, 'おいしい', '', '', '', 'delicious'),
+        (3, 'おもしろい', '', '', '', 'interesting / funny'),
+        (3, 'むずかしい', '', '', '', 'difficult'),
+        (3, 'やさしい', '', '', '', 'easy / kind'),
+        (3, 'あつい', '', '', '', 'hot'),
+        (3, 'さむい', '', '', '', 'cold (weather)'),
+        (3, 'ちいさい', '', '', '', 'small'),
+        (3, 'おおきい', '', '', '', 'big'),
+        (3, 'いい', '', '', '', 'good'),
+        (3, 'わるい', '', '', '', 'bad'),
+        (3, 'いそがしい', '', '', '', 'busy')
+      `);
+
+      // Seed Deck 4 (Restaurant & Dining Vocab)
+      await pool.query(`
+        INSERT INTO mainichi_decks (id, author_id, title, description, is_premium)
+        VALUES (4, NULL, 'Restaurant & Dining', 'Useful words in Hiragana/Katakana for ordering food and dining out.', FALSE)
+        ON DUPLICATE KEY UPDATE title = VALUES(title), description = VALUES(description)
+      `);
+      await pool.query('DELETE FROM mainichi_vocabulary WHERE deck_id = 4');
+      await pool.query(`
+        INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, onyomi, kunyomi, english) VALUES
+        (4, 'おみず', '', '', '', 'water'),
+        (4, 'おちゃ', '', '', '', 'tea'),
+        (4, 'メニュー', '', '', '', 'menu'),
+        (4, 'ごはん', '', '', '', 'rice / meal'),
+        (4, 'ラーメン', '', '', '', 'ramen'),
+        (4, 'すし', '', '', '', 'sushi'),
+        (4, 'やきとり', '', '', '', 'yakitori'),
+        (4, 'ビール', '', '', '', 'beer'),
+        (4, 'さかな', '', '', '', 'fish'),
+        (4, 'にく', '', '', '', 'meat'),
+        (4, 'おさら', '', '', '', 'plate'),
+        (4, 'スプーン', '', '', '', 'spoon')
+      `);
+      
+      console.log("🌱 Seeded sample Kana decks successfully.");
+    }
+
+    console.log("✅ Database table mainichi_deck_reviews verified/created.");
+  } catch (err) {
+    console.error("❌ Error initializing mainichi_deck_reviews table:", err);
+  }
+}
+ensureTablesExist();
+
 // Auth Middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -385,6 +508,63 @@ app.delete('/api/decks/:id/download', authenticateToken, async (req, res) => {
     );
 
     res.json({ success: true, message: 'Deck removed from account successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Get all reviews for a deck
+app.get('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
+  try {
+    const deck_id = parseInt(req.params.deck_id, 10);
+    const [reviews] = await pool.query(`
+      SELECT r.id, r.rating, r.comment, r.created_at, u.name as author
+      FROM mainichi_deck_reviews r
+      JOIN mainichi_users u ON r.user_id = u.id
+      WHERE r.deck_id = ?
+      ORDER BY r.created_at DESC
+    `, [deck_id]);
+    res.json(reviews);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Post a review for a deck
+app.post('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
+  try {
+    const deck_id = parseInt(req.params.deck_id, 10);
+    const { rating, comment } = req.body;
+    const user_id = req.user.id;
+
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+
+    // Check if user has already reviewed this deck
+    const [existing] = await pool.query(
+      'SELECT id FROM mainichi_deck_reviews WHERE deck_id = ? AND user_id = ?',
+      [deck_id, user_id]
+    );
+
+    if (existing.length > 0) {
+      // Update existing review
+      await pool.query(`
+        UPDATE mainichi_deck_reviews
+        SET rating = ?, comment = ?, created_at = CURRENT_TIMESTAMP
+        WHERE deck_id = ? AND user_id = ?
+      `, [rating, comment || '', deck_id, user_id]);
+      res.json({ success: true, message: 'Review updated successfully.' });
+    } else {
+      // Insert new review
+      await pool.query(`
+        INSERT INTO mainichi_deck_reviews (deck_id, user_id, rating, comment)
+        VALUES (?, ?, ?, ?)
+      `, [deck_id, user_id, rating, comment || '']);
+      res.json({ success: true, message: 'Review submitted successfully.' });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });

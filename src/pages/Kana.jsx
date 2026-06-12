@@ -365,7 +365,7 @@ const Kana = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-4xl mx-auto pb-xl text-left"
+      className="max-w-6xl mx-auto pb-xl text-left px-2 sm:px-4"
     >
       {/* Inline Tab & Desktop Voice Selector wrapper */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
