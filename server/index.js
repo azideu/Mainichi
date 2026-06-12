@@ -53,6 +53,17 @@ async function ensureTablesExist() {
       )
     `);
 
+    // Create user completed lessons table if not exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS mainichi_user_lessons (
+        user_id INT NOT NULL,
+        lesson_id VARCHAR(100) NOT NULL,
+        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, lesson_id),
+        FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
+      )
+    `);
+
     // 2. Clean up duplicate reviews (keep the latest one)
     await pool.query(`
       DELETE r1 FROM mainichi_deck_reviews r1
@@ -76,9 +87,9 @@ async function ensureTablesExist() {
       }
     }
 
-    // 4. Seed sample decks (survival phrases, basic adjectives, dining vocab)
-    const [existingDecks] = await pool.query('SELECT id FROM mainichi_decks WHERE id IN (2, 3, 4)');
-    if (existingDecks.length < 3) {
+    // 4. Seed sample decks (survival phrases, basic adjectives, dining vocab, polite business)
+    const [existingDecks] = await pool.query('SELECT id FROM mainichi_decks WHERE id IN (2, 3, 4, 5)');
+    if (existingDecks.length < 4) {
       console.log("🌱 Seeding sample Kana decks...");
       
       // Seed Deck 2 (Essential Survival Phrases)
@@ -147,6 +158,26 @@ async function ensureTablesExist() {
         (4, 'にく', '', '', '', 'meat'),
         (4, 'おさら', '', '', '', 'plate'),
         (4, 'スプーン', '', '', '', 'spoon')
+      `);
+
+      // Seed Deck 5 (Business & Polite Japanese)
+      await pool.query(`
+        INSERT INTO mainichi_decks (id, author_id, title, description, is_premium)
+        VALUES (5, NULL, 'Polite Japanese', 'Useful formal phrases in Hiragana for polite daily interactions and business.', FALSE)
+        ON DUPLICATE KEY UPDATE title = VALUES(title), description = VALUES(description)
+      `);
+      await pool.query('DELETE FROM mainichi_vocabulary WHERE deck_id = 5');
+      await pool.query(`
+        INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, onyomi, kunyomi, english) VALUES
+        (5, 'よろしくおねがいします', '', '', '', 'nice to meet you / please favor me'),
+        (5, 'おつかれさまでした', '', '', '', 'thank you for your hard work'),
+        (5, 'しつれいします', '', '', '', 'excuse me (entering / leaving)'),
+        (5, 'おまたせしました', '', '', '', 'sorry to keep you waiting'),
+        (5, 'かしこまりました', '', '', '', 'certainly / understood'),
+        (5, 'しょうしょうおまちください', '', '', '', 'please wait a moment'),
+        (5, 'おげんきですか', '', '', '', 'how are you?'),
+        (5, 'おめでとうございます', '', '', '', 'congratulations'),
+        (5, 'はじめまして', '', '', '', 'nice to meet you')
       `);
       
       console.log("🌱 Seeded sample Kana decks successfully.");
@@ -687,6 +718,97 @@ app.put('/api/progress/settings', authenticateToken, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// ==========================================
+// LESSONS SYNC ENDPOINTS
+// ==========================================
+
+// Get completed lessons list
+app.get('/api/lessons/completed', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const [rows] = await pool.query(
+      'SELECT lesson_id FROM mainichi_user_lessons WHERE user_id = ?',
+      [user_id]
+    );
+    const completedLessonIds = rows.map(r => r.lesson_id);
+    res.json(completedLessonIds);
+  } catch (err) {
+    console.error("Error fetching completed lessons:", err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Map lesson IDs to target vocabulary words and parent deck IDs
+const LESSON_VOCAB_MAPPING = {
+  greetings: { deckId: 2, words: ['こんにちは', 'はい', 'いいえ'] },
+  gratitude: { deckId: 2, words: ['ありがとう', 'おねがいします'] },
+  first_meeting: { deckId: 5, words: ['はじめまして', 'よろしくおねがいします'] },
+  directions: { deckId: 2, words: ['トイレはどこですか', 'すみません'] },
+  food: { deckId: 4, words: ['おみず', 'メニュー', 'ラーメン', 'おさら', 'スプーン'] },
+  shopping: { deckId: 2, words: ['おかいけい、おねがいします'] },
+  time: { deckId: 5, words: ['しょうしょうおまちください', 'おまたせしました'] }
+};
+
+// Record a completed lesson and add its vocabulary to reviews
+app.post('/api/lessons/complete', authenticateToken, async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    const user_id = req.user.id;
+    const { lessonId } = req.body;
+
+    if (!lessonId) {
+      return res.status(400).json({ error: 'lessonId is required' });
+    }
+
+    await connection.beginTransaction();
+
+    // 1. Log completion in user completed lessons
+    await connection.query(
+      'INSERT IGNORE INTO mainichi_user_lessons (user_id, lesson_id) VALUES (?, ?)',
+      [user_id, lessonId]
+    );
+
+    // 2. Fetch mapping and add matching vocab words to the user's progress list
+    const mapping = LESSON_VOCAB_MAPPING[lessonId];
+    if (mapping) {
+      const { deckId, words } = mapping;
+
+      // Unlock/download the parent deck automatically for the user
+      await connection.query(
+        'INSERT IGNORE INTO mainichi_user_decks (user_id, deck_id) VALUES (?, ?)',
+        [user_id, deckId]
+      );
+
+      // Find the corresponding vocabulary IDs
+      const placeholders = words.map(() => '?').join(',');
+      const [vocabRows] = await connection.query(
+        `SELECT id FROM mainichi_vocabulary WHERE deck_id = ? AND kanji IN (${placeholders})`,
+        [deckId, ...words]
+      );
+
+      if (vocabRows.length > 0) {
+        // Mark each as immediately due for review
+        for (const vocab of vocabRows) {
+          await connection.query(`
+            INSERT INTO mainichi_user_progress (user_id, vocab_id, easiness_factor, interval_days, repetitions, next_review_date)
+            VALUES (?, ?, 2.5, 0, 0, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE next_review_date = CURRENT_TIMESTAMP
+          `, [user_id, vocab.id]);
+        }
+      }
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Lesson completed and review vocabulary unlocked.' });
+  } catch (err) {
+    await connection.rollback();
+    console.error("Error completing lesson:", err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  } finally {
+    connection.release();
   }
 });
 

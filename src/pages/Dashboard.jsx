@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import MasteryRing from '../components/MasteryRing';
@@ -10,11 +10,49 @@ import { useAuth } from '../context/AuthContext';
 
 import logoNoText from '../assets/logo-no-text.svg';
 
+import { LESSONS } from '../constants/lessons';
+
 const Dashboard = () => {
   const { streak, masteredWords, dailyGoal, fetchStats, isFetchingStats } = useApp();
   const { user, setIsPremiumModalOpen } = useAuth();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const navigate = useNavigate();
+
+  const [completedLessons, setCompletedLessons] = useState([]);
+
+  useEffect(() => {
+    const loadCompletedLessons = async () => {
+      // First load from localStorage for instant display
+      const saved = localStorage.getItem('mainichi_completed_lessons');
+      if (saved) {
+        try {
+          setCompletedLessons(JSON.parse(saved));
+        } catch (e) {
+          console.error("Failed to parse completed lessons", e);
+        }
+      }
+
+      // Then fetch from server to sync/override
+      try {
+        const token = localStorage.getItem('mainichi_token');
+        if (!token) return;
+        const res = await fetch('/api/lessons/completed', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCompletedLessons(data);
+          localStorage.setItem('mainichi_completed_lessons', JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error("Failed to fetch completed lessons from backend", err);
+      }
+    };
+
+    loadCompletedLessons();
+  }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -30,15 +68,14 @@ const Dashboard = () => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.1,
+        staggerChildren: 0.08,
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
   };
 
   if (isFetchingStats && !isRefreshing) {
@@ -58,7 +95,7 @@ const Dashboard = () => {
 
         <div className="relative z-10 text-left">
           <motion.p 
-            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
+            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
             className="font-label-caps text-outline mb-4 tracking-widest text-[9px]"
           >
             DAILY STREAK
@@ -154,29 +191,64 @@ const Dashboard = () => {
             </motion.section>
 
             {/* Resume Lesson Card */}
-            <motion.div variants={itemVariants} className="bg-surface rounded-xl p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[220px]">
-              <div className="absolute -right-12 -top-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110">
-                 <img src={logoNoText} alt="" className="w-[200px] h-auto" />
-              </div>
+            {(() => {
+              const currentIncomplete = LESSONS.find(l => !completedLessons.includes(l.id));
               
-              <div className="relative z-10 mb-xl">
-                <div className="flex justify-between items-start mb-md">
-                  <div className="w-14 h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-surface-bright shadow-sm">
-                    <span className="material-symbols-outlined text-on-surface-variant text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>menu_book</span>
-                  </div>
-                  <span className="font-label-caps tracking-widest text-secondary px-4 py-2 border border-secondary/20 rounded-full bg-secondary/5">UNIT 3</span>
-                </div>
-                <h2 className="font-h2 text-on-surface mb-xs tracking-tight">Food & Dining</h2>
-                <p className="font-body-lg text-on-surface-variant max-w-md">Master the art of ordering sushi and expressing your subtle preferences.</p>
-              </div>
-              
-              <div className="relative z-10">
-                <Button3D variant="primary" onClick={() => navigate('/lessons')}>
-                  Resume Path
-                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>arrow_right_alt</span>
-                </Button3D>
-              </div>
-            </motion.div>
+              if (currentIncomplete) {
+                return (
+                  <motion.div variants={itemVariants} className="bg-surface rounded-xl p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[220px]">
+                    <div className="absolute -right-12 -top-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110">
+                       <img src={logoNoText} alt="" className="w-[200px] h-auto" />
+                    </div>
+                    
+                    <div className="relative z-10 mb-xl">
+                      <div className="flex justify-between items-start mb-md">
+                        <div className="w-14 h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-surface-bright shadow-sm">
+                          <span className="material-symbols-outlined text-on-surface-variant text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>{currentIncomplete.icon}</span>
+                        </div>
+                        <span className="font-label-caps tracking-widest text-secondary px-4 py-2 border border-secondary/20 rounded-full bg-secondary/5">{currentIncomplete.unit}</span>
+                      </div>
+                      <h2 className="font-h2 text-on-surface mb-xs tracking-tight">{currentIncomplete.title}</h2>
+                      <p className="font-body-md text-primary font-bold mb-1">{currentIncomplete.phrase} ({currentIncomplete.meaning})</p>
+                      <p className="font-body-lg text-on-surface-variant max-w-md leading-relaxed">{currentIncomplete.description}</p>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <Button3D variant="primary" onClick={() => navigate('/lessons')}>
+                        Study Lesson
+                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>arrow_right_alt</span>
+                      </Button3D>
+                    </div>
+                  </motion.div>
+                );
+              } else {
+                return (
+                  <motion.div variants={itemVariants} className="bg-surface rounded-xl p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[220px]">
+                    <div className="absolute -right-12 -top-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110">
+                       <img src={logoNoText} alt="" className="w-[200px] h-auto" />
+                    </div>
+                    
+                    <div className="relative z-10 mb-xl">
+                      <div className="flex justify-between items-start mb-md">
+                        <div className="w-14 h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-primary/10 text-primary shadow-sm">
+                          <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>stars</span>
+                        </div>
+                        <span className="font-label-caps tracking-widest text-primary px-4 py-2 border border-primary/20 rounded-full bg-primary/5">COMPLETED</span>
+                      </div>
+                      <h2 className="font-h2 text-on-surface mb-xs tracking-tight">All Foundations Mastered!</h2>
+                      <p className="font-body-lg text-on-surface-variant max-w-md leading-relaxed">You have completed all standard daily foundations lessons. Your path to mastery continues!</p>
+                    </div>
+                    
+                    <div className="relative z-10">
+                      <Button3D variant="primary" onClick={() => navigate('/lessons')}>
+                        Review Lessons
+                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>arrow_right_alt</span>
+                      </Button3D>
+                    </div>
+                  </motion.div>
+                );
+              }
+            })()}
 
             {/* Milestones Section */}
             <motion.section variants={itemVariants} className="relative z-10">
@@ -203,12 +275,12 @@ const Dashboard = () => {
                           : 'bg-surface-bright border-outline/10 opacity-50 mix-blend-luminosity'
                       }`}
                     >
-                      <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-md relative border ${
+                      <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center mb-md relative border ${
                         isUnlocked 
                           ? 'bg-primary-container/20 border-primary/30 text-primary shadow-sm' 
                           : 'bg-surface border-outline/20 text-outline'
                       }`}>
-                        {isUnlocked && <div className="absolute inset-0 bg-primary/5 rounded-inherit"></div>}
+                        {isUnlocked && <div className="absolute inset-0 bg-primary/5 rounded-full"></div>}
                         <span 
                           className="material-symbols-outlined text-[32px] relative z-10" 
                           style={{ fontVariationSettings: `'FILL' ${isUnlocked ? 1 : 0}, 'wght' 200` }}
@@ -259,7 +331,7 @@ const Dashboard = () => {
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${(dailyGoal.current / dailyGoal.total) * 100}%` }}
-                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                    transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
                     className="h-full bg-secondary rounded-full"
                   />
                </div>

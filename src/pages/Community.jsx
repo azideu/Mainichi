@@ -20,6 +20,16 @@ const SYSTEM_REVIEWS = {
   ]
 };
 
+const getPreviewFontSize = (text) => {
+  if (!text) return 'text-[24px]';
+  const len = text.length;
+  if (len <= 2) return 'text-[24px]';
+  if (len === 3) return 'text-[18px]';
+  if (len === 4) return 'text-[15px]';
+  if (len === 5) return 'text-[13px]';
+  return 'text-[11px] px-1 text-center leading-tight';
+};
+
 const Community = () => {
   const navigate = useNavigate();
   const { user, setIsPremiumModalOpen } = useAuth();
@@ -638,7 +648,7 @@ const Community = () => {
                               className={`aspect-square bg-surface border rounded-xl flex items-center justify-center font-h2 text-on-surface shadow-paper-layer transition-all hover:scale-105 cursor-pointer relative overflow-hidden group select-none ${hoveredWord?.id === word.id ? 'border-primary bg-primary/5' : 'border-outline/10'}`}
                             >
                               <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-                              <span className="text-[26px]" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>{word.kanji}</span>
+                              <span className={`${getPreviewFontSize(word.kanji)} font-bold text-on-surface`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>{word.kanji}</span>
                             </div>
                           ))}
                         </div>

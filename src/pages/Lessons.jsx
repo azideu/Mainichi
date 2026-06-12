@@ -1,162 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
-
-// Extensible lessons database
-const LESSONS = [
-  {
-    id: 'greetings',
-    title: 'Common Greetings',
-    japaneseTitle: 'あいさつ',
-    phrase: 'こんにちは',
-    romaji: 'Konnichiwa',
-    meaning: 'Hello / Good afternoon',
-    icon: 'chat_bubble',
-    difficulty: 'N5 (Beginner)',
-    duration: '2 mins',
-    slides: [
-      {
-        title: 'The Versatile Greeting',
-        japaneseContent: 'こんにちは',
-        romaji: 'Konnichiwa',
-        content: '“Konnichiwa” is the most famous and widely used Japanese greeting. It is the go-to phrase for saying "Hello" or "Good afternoon" to friends, coworkers, and strangers alike.'
-      },
-      {
-        title: 'Pronunciation & Spelling',
-        japaneseContent: 'こんにち は',
-        romaji: 'Konnichi wa',
-        content: 'Although it is pronounced "Konnichi-wa", the final character is written as は (ha), not わ (wa). This is because historically, the greeting was short for "Konnichi wa gokigen ikaga desu ka?" (As for today, how are you feeling?). The "は" remains as the topic marker particle!'
-      },
-      {
-        title: 'Time of Day Guidelines',
-        japaneseContent: 'おはよう vs こんにちは vs こんばんは',
-        romaji: 'Ohayou vs Konnichiwa vs Konbanwa',
-        content: 'Use “Konnichiwa” primarily from late morning (around 10:30 AM) until dusk. For early mornings, use “Ohayou” (おはよう - Good morning), and for nighttime, use “Konbanwa” (こんばんは - Good evening).'
-      }
-    ],
-    quiz: {
-      question: 'Why is the final character in “こんにちは” written as は (ha) instead of わ (wa)?',
-      options: [
-        'It is a spelling mistake.',
-        'It historically acted as the grammatical topic marker particle "wa".',
-        'It is easier to write in Hiragana.',
-        'It changes the meaning to goodbye.'
-      ],
-      correctAnswerIndex: 1,
-      explanation: 'Historically, the greeting was short for a longer phrase starting with "Konnichi wa..." (As for today...). The "は" (ha) represents the grammatical topic marker particle, which is pronounced as "wa".'
-    }
-  },
-  {
-    id: 'gratitude',
-    title: 'Expressing Gratitude',
-    japaneseTitle: '感謝',
-    phrase: 'ありがとう',
-    romaji: 'Arigatou',
-    meaning: 'Thank you',
-    icon: 'favorite',
-    difficulty: 'N5 (Beginner)',
-    duration: '2 mins',
-    slides: [
-      {
-        title: 'The Warm Thank You',
-        japaneseContent: 'ありがとう',
-        romaji: 'Arigatou',
-        content: '“Arigatou” is a warm, casual way to express thanks. It is perfect for close friends, family members, or peers.'
-      },
-      {
-        title: 'Politeness Matters',
-        japaneseContent: 'ありがとうございます',
-        romaji: 'Arigatou gozaimasu',
-        content: 'To express gratitude to superiors, teachers, or strangers, append "gozaimasu" to make it "Arigatou gozaimasu". This elevates it to a formal, polite level of respect.'
-      },
-      {
-        title: 'Deep Gratitude Origin',
-        japaneseContent: '有り難う',
-        romaji: 'Arigatou (Kanji origin)',
-        content: 'Historically, "Arigatou" comes from "ari-gatai", which literally means "difficult to exist" or "rare/precious". When someone does a favor, you are saying it is a rare and precious occurrence!'
-      }
-    ],
-    quiz: {
-      question: 'What should you append to “ありがとう” to make it formal and polite?',
-      options: [
-        'です (desu)',
-        'ございます (gozaimasu)',
-        'ます (masu)',
-        'だよ (dayo)'
-      ],
-      correctAnswerIndex: 1,
-      explanation: 'Appending "gozaimasu" makes it "Arigatou gozaimasu", which is the standard polite form of thank you in Japanese.'
-    }
-  },
-  {
-    id: 'first_meeting',
-    title: 'First Impressions',
-    japaneseTitle: '自己紹介',
-    phrase: 'はじめまして',
-    romaji: 'Hajimemashite',
-    meaning: 'Nice to meet you',
-    icon: 'sentiment_satisfied',
-    difficulty: 'N5 (Beginner)',
-    duration: '3 mins',
-    slides: [
-      {
-        title: 'Meeting for the First Time',
-        japaneseContent: 'はじめまして',
-        romaji: 'Hajimemashite',
-        content: '“Hajimemashite” is said when meeting someone for the very first time. It translates to "Nice to meet you" or "How do you do?".'
-      },
-      {
-        title: 'The Beginning of a Journey',
-        japaneseContent: '始める',
-        romaji: 'Hajimeru (To begin)',
-        content: 'The phrase comes from the verb "hajimeru" (始める) meaning "to begin" or "to start". By saying "Hajimemashite", you are literally declaring: "We are beginning our relationship."'
-      },
-      {
-        title: 'Polite Follow-up',
-        japaneseContent: 'よろしくおねがいします',
-        romaji: 'Yoroshiku onegaishimasu',
-        content: 'After introducing yourself, always finish with "Yoroshiku onegaishimasu". This humble phrase translates to "Please favor me" or "Please treat me kindly".'
-      }
-    ],
-    quiz: {
-      question: 'What verb does the phrase “はじめまして” stem from?',
-      options: [
-        'おわる (To end)',
-        'はじめる (To begin)',
-        'あそぶ (To play)',
-        'はなす (To speak)'
-      ],
-      correctAnswerIndex: 1,
-      explanation: '“Hajimemashite” stems from the verb "hajimeru" (始める), meaning "to begin", symbolizing the start of a new connection.'
-    }
-  }
-];
-
-// Locked future lessons
-const FUTURE_LESSONS = [
-  {
-    id: 'directions',
-    title: 'Asking for Directions',
-    japaneseTitle: '道案内',
-    phrase: '〜はどこですか',
-    romaji: '... wa doko desu ka?',
-    meaning: 'Where is...?',
-    icon: 'map',
-    difficulty: 'N5 (Beginner)',
-    duration: '4 mins'
-  },
-  {
-    id: 'food',
-    title: 'Ordering Food',
-    japaneseTitle: '注文',
-    phrase: '〜をください',
-    romaji: '... o kudasai',
-    meaning: 'Please give me...',
-    icon: 'restaurant',
-    difficulty: 'N5 (Beginner)',
-    duration: '3 mins'
-  }
-];
+import { LESSONS, FUTURE_LESSONS } from '../constants/lessons';
 
 const Lessons = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
@@ -166,13 +11,55 @@ const Lessons = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
 
-  // Load progress
   useEffect(() => {
-    const saved = localStorage.getItem('mainichi_completed_lessons');
-    if (saved) {
-      setCompletedLessons(JSON.parse(saved));
-    }
+    const loadCompletedLessons = async () => {
+      // First load from localStorage for instant display
+      const saved = localStorage.getItem('mainichi_completed_lessons');
+      if (saved) {
+        try {
+          setCompletedLessons(JSON.parse(saved));
+        } catch (e) {
+          console.error("Failed to parse completed lessons", e);
+        }
+      }
+
+      // Then fetch from server to sync/override
+      try {
+        const token = localStorage.getItem('mainichi_token');
+        if (!token) return;
+        const res = await fetch('/api/lessons/completed', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCompletedLessons(data);
+          localStorage.setItem('mainichi_completed_lessons', JSON.stringify(data));
+        }
+      } catch (err) {
+        console.error("Failed to fetch completed lessons from backend", err);
+      }
+    };
+
+    loadCompletedLessons();
   }, []);
+
+  const syncLessonCompletion = async (lessonId) => {
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      await fetch('/api/lessons/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ lessonId })
+      });
+    } catch (err) {
+      console.error("Failed to sync lesson completion with backend", err);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -217,6 +104,8 @@ const Lessons = () => {
         updated.push(activeLesson.id);
         localStorage.setItem('mainichi_completed_lessons', JSON.stringify(updated));
         setCompletedLessons(updated);
+        // Sync with backend
+        syncLessonCompletion(activeLesson.id);
       }
       setCelebrate(true);
     }
@@ -270,14 +159,8 @@ const Lessons = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {[...LESSONS]
-            .sort((a, b) => {
-              const aComp = completedLessons.includes(a.id) ? 1 : 0;
-              const bComp = completedLessons.includes(b.id) ? 1 : 0;
-              return aComp - bComp;
-            })
-            .map((lesson) => {
-              const isCompleted = completedLessons.includes(lesson.id);
+          {LESSONS.map((lesson) => {
+            const isCompleted = completedLessons.includes(lesson.id);
               return (
                 <motion.div
                   key={lesson.id}

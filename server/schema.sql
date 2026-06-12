@@ -84,6 +84,16 @@ CREATE TABLE IF NOT EXISTS mainichi_deck_reviews (
     FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
 );
 
+-- User completed lessons table
+CREATE TABLE IF NOT EXISTS mainichi_user_lessons (
+    user_id INT NOT NULL,
+    lesson_id VARCHAR(100) NOT NULL,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, lesson_id),
+    FOREIGN KEY (user_id) REFERENCES mainichi_users(id) ON DELETE CASCADE
+);
+
+
 
 
 
