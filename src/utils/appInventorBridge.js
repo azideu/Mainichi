@@ -15,7 +15,8 @@ export const IS_APP_INVENTOR = !!window.AppInventor;
  * @param {any} data - The payload for the action
  */
 export const sendToAppInventor = (action, data = null) => {
-  const message = JSON.stringify({ action, data, timestamp: Date.now() });
+  const isSandbox = window.location.pathname === '/sandbox';
+  const message = JSON.stringify({ action, data, isSandbox, timestamp: Date.now() });
   
   // Dispatch a custom event to update the hidden Developer Sandbox Console logger
   window.dispatchEvent(new CustomEvent('app-bridge-log', {
