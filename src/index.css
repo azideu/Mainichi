@@ -18,7 +18,7 @@ html, body {
     /* Prevent all browser native overscroll/bounce effects */
     overscroll-behavior: none; 
     overflow-x: hidden;
-    min-height: max(884px, 100dvh);
+    min-height: 100dvh;
     
     @apply bg-background text-on-background font-body-md;
     /* Apply subtle washi paper texture globally */
