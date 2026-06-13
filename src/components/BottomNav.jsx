@@ -1,6 +1,13 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { 
+  sendToAppInventor, 
+  speakText, 
+  saveToTinyDB, 
+  getFromTinyDB, 
+  playMedia 
+} from '../utils/appInventorBridge';
 
 const NAV_ITEMS = [
   { id: 'home', path: '/', icon: 'home', label: 'ホーム' },
@@ -15,6 +22,25 @@ const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [touchStart, setTouchStart] = React.useState({ x: 0, y: 0, time: 0 });
+  const [clickPattern, setClickPattern] = React.useState([]);
+
+  const handleItemClick = (itemId, path) => {
+    navigate(path);
+    setClickPattern(prev => {
+      const nextPattern = [...prev, itemId].slice(-4);
+      if (
+        nextPattern.length === 4 &&
+        nextPattern[0] === 'profile' &&
+        nextPattern[1] === 'kana' &&
+        nextPattern[2] === 'profile' &&
+        nextPattern[3] === 'kana'
+      ) {
+        navigate('/sandbox');
+        return [];
+      }
+      return nextPattern;
+    });
+  };
 
   const activeIndex = NAV_ITEMS.findIndex((item) => 
     location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))
@@ -74,7 +100,7 @@ const BottomNav = () => {
           return (
             <button 
               key={item.id}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleItemClick(item.id, item.path)}
               className={`flex flex-col items-center justify-center relative flex-1 h-12 transition-[color,background-color,transform] active:scale-90 duration-200 ease-out z-10 ${
                 isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
               }`}

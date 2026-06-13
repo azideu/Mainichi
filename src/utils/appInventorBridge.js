@@ -17,6 +17,11 @@ export const IS_APP_INVENTOR = !!window.AppInventor;
 export const sendToAppInventor = (action, data = null) => {
   const message = JSON.stringify({ action, data, timestamp: Date.now() });
   
+  // Dispatch a custom event to update the hidden Developer Sandbox Console logger
+  window.dispatchEvent(new CustomEvent('app-bridge-log', {
+    detail: { action, data, timestamp: new Date().toLocaleTimeString() }
+  }));
+  
   if (window.AppInventor) {
     window.AppInventor.setWebViewString(message);
     console.log("Sent to App Inventor:", message);

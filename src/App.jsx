@@ -12,6 +12,7 @@ import Flashcard from './pages/Flashcard';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import DevSandbox from './pages/DevSandbox';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import PremiumSubscriptionModal from './components/PremiumSubscriptionModal';
@@ -106,6 +107,7 @@ function App() {
               <Route path="/community" element={<Community />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/sandbox" element={<DevSandbox />} />
             </Route>
           </Routes>
         </Router>
