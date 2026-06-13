@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
-import { 
-  sendToAppInventor, 
-  speakText, 
-  saveToTinyDB, 
-  getFromTinyDB, 
-  playMedia 
+import {
+  sendToAppInventor,
+  speakText,
+  saveToTinyDB,
+  getFromTinyDB,
+  playMedia
 } from '../utils/appInventorBridge';
 
 const DevSandbox = () => {
@@ -60,15 +60,15 @@ const DevSandbox = () => {
   };
 
   return (
-    <motion.div 
-      variants={containerVariants} 
-      initial="hidden" 
-      animate="show" 
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
       className="max-w-4xl mx-auto pb-xl px-2 sm:px-4"
     >
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <motion.button 
+        <motion.button
           variants={itemVariants}
           onClick={() => navigate(-1)}
           className="w-11 h-11 flex items-center justify-center bg-surface hover:bg-surface-variant text-outline hover:text-primary rounded-xl border border-outline/10 shadow-sm active:scale-95 transition-all duration-200"
@@ -88,23 +88,23 @@ const DevSandbox = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         {/* Left Column: Mocks & Inputs */}
         <div className="space-y-6">
-          
+
           {/* Section 1: Inputs & Sensors */}
           <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
             <h3 className="font-h3 text-on-surface mb-4 tracking-tight relative z-10">1. Client-Side Input Mocks</h3>
-            
+
             <div className="space-y-4 relative z-10">
               {/* Speech simulator */}
               <div className="bg-surface-container-low border border-outline/5 rounded-xl p-3 flex flex-col gap-2">
                 <label className="font-body-md text-on-surface-variant">Speech Recognition Output</label>
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Type words like: ねこ, いぬ" 
+                  <input
+                    type="text"
+                    placeholder="Type words like: ねこ, いぬ"
                     value={speechInput}
                     onChange={(e) => setSpeechInput(e.target.value)}
                     className="flex-1 px-4 py-2 text-xs rounded-xl bg-surface-variant/40 border border-outline/10 focus:border-primary/50 focus:outline-none text-on-surface font-body-md"
@@ -117,7 +117,7 @@ const DevSandbox = () => {
 
               {/* Shaking & Network Mocks */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button 
+                <button
                   onClick={triggerShakeMock}
                   className="bg-secondary text-on-secondary text-xs font-semibold py-3 rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-1.5 shadow-sm border border-secondary/10"
                 >
@@ -126,13 +126,13 @@ const DevSandbox = () => {
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <button 
+                  <button
                     onClick={triggerOfflineMock}
                     className="bg-error text-on-error text-xs font-semibold py-3 rounded-xl active:scale-95 transition-transform shadow-sm"
                   >
                     Go Offline
                   </button>
-                  <button 
+                  <button
                     onClick={triggerOnlineMock}
                     className="bg-primary text-on-primary text-xs font-semibold py-3 rounded-xl active:scale-95 transition-transform shadow-sm"
                   >
@@ -147,16 +147,16 @@ const DevSandbox = () => {
           <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
             <h3 className="font-h3 text-on-surface mb-4 tracking-tight relative z-10">2. Incoming Mobile Payloads</h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
-              <button 
+              <button
                 type="button"
                 onClick={() => injectIncomingPayload('SPEECH_RESULT', 'ねこ')}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 transition-colors text-center font-semibold"
               >
                 Inject Speech ("ねこ")
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => injectIncomingPayload('SENSOR_DATA', 'SHAKE')}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 transition-colors text-center font-semibold"
@@ -170,49 +170,49 @@ const DevSandbox = () => {
           <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden">
             <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
             <h3 className="font-h3 text-on-surface mb-4 tracking-tight relative z-10">3. Outgoing Trigger Tests</h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
-              <button 
+              <button
                 type="button"
                 onClick={() => speakText("日本語")}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 active:scale-95 transition-all text-center font-semibold"
               >
-                🔊 Test SPEAK
+                Test SPEAK
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => sendToAppInventor("VIBRATE", { duration: 150 })}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 active:scale-95 transition-all text-center font-semibold"
               >
-                📳 Test VIBRATE
+                Test VIBRATE
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => playMedia("correct.mp3")}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 active:scale-95 transition-all text-center font-semibold"
               >
-                🎵 Test PLAY_MEDIA
+                Test PLAY_MEDIA
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => saveToTinyDB("test_tag", "test_value")}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 active:scale-95 transition-all text-center font-semibold"
               >
-                💾 Test SAVE_TINYDB
+                Test SAVE_TINYDB
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => getFromTinyDB("test_tag")}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 active:scale-95 transition-all text-center font-semibold"
               >
-                📂 Test GET_TINYDB
+                Test GET_TINYDB
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => sendToAppInventor("SET_REMINDER", { enabled: true, time: "12:34" })}
                 className="border border-outline/10 text-on-surface text-[11px] py-2.5 rounded-xl hover:bg-surface-variant/40 active:scale-95 transition-all text-center font-semibold"
               >
-                ⏰ Test SET_REMINDER
+                Test SET_REMINDER
               </button>
             </div>
           </motion.div>
@@ -223,10 +223,10 @@ const DevSandbox = () => {
         <div className="flex flex-col h-full">
           <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/10 flex-1 relative overflow-hidden flex flex-col min-h-[400px]">
             <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-            
+
             <div className="flex justify-between items-center mb-4 relative z-10">
               <h3 className="font-h3 text-on-surface tracking-tight">4. Outgoing Bridge Log</h3>
-              <button 
+              <button
                 type="button"
                 onClick={() => setLogs([])}
                 className="text-[9px] text-primary hover:underline font-label-caps tracking-widest"
