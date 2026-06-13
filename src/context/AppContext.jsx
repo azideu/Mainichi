@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { IS_APP_INVENTOR, getFromTinyDB } from '../utils/appInventorBridge';
+import { IS_APP_INVENTOR, getFromTinyDB, sendToAppInventor } from '../utils/appInventorBridge';
 
 const AppContext = createContext();
 
@@ -14,6 +14,7 @@ export const AppProvider = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFetchingStats, setIsFetchingStats] = useState(true);
   const [isMobileApp] = useState(IS_APP_INVENTOR);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   const handleAppInventorData = React.useCallback((payload) => {
     switch (payload.action) {
@@ -26,6 +27,10 @@ export const AppProvider = ({ children }) => {
         if (payload.data === 'SHAKE') {
           window.dispatchEvent(new CustomEvent('app-shake-event'));
         }
+        break;
+      case 'SPEECH_RESULT':
+        console.log('Received speech recognition result:', payload.data);
+        window.dispatchEvent(new CustomEvent('app-speech-result', { detail: payload.data }));
         break;
       default:
         console.log('Unhandled App Inventor action:', payload.action);
@@ -80,6 +85,33 @@ export const AppProvider = ({ children }) => {
       fetchStats();
     }
   }, [user]);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      if (isMobileApp) {
+        sendToAppInventor("CONNECTION_STATUS", { online: true });
+      }
+    };
+    const handleOffline = () => {
+      setIsOffline(true);
+      if (isMobileApp) {
+        sendToAppInventor("CONNECTION_STATUS", { online: false });
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    if (isMobileApp && !navigator.onLine) {
+      sendToAppInventor("CONNECTION_STATUS", { online: false });
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [isMobileApp]);
 
   const updateSettings = async (newMasteryReq, newDailyGoal) => {
     try {
@@ -181,6 +213,7 @@ export const AppProvider = ({ children }) => {
       isSidebarOpen, setIsSidebarOpen,
       isFetchingStats,
       isMobileApp,
+      isOffline,
       handleAppInventorData,
       recordReview,
       recordReviewOverride,

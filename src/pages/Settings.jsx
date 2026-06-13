@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
+import { sendToAppInventor } from '../utils/appInventorBridge';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -16,11 +17,12 @@ const Settings = () => {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
   };
 
-  const { masteryRequirement, dailyGoal, updateSettings, fetchStats } = useApp();
+  const { masteryRequirement, dailyGoal, updateSettings, fetchStats, isMobileApp } = useApp();
   const [localMastery, setLocalMastery] = useState(masteryRequirement);
   const [localGoal, setLocalGoal] = useState(dailyGoal.total);
   const [dailyReminders, setDailyReminders] = useState(localStorage.getItem('mainichi_daily_reminders') !== 'false');
   const [communityUpdates, setCommunityUpdates] = useState(localStorage.getItem('mainichi_community_updates') === 'true');
+  const [reminderTime, setReminderTime] = useState(localStorage.getItem('mainichi_reminder_time') || '20:00');
   const [isSaving, setIsSaving] = useState(false);
   const [isDemoActionLoading, setIsDemoActionLoading] = useState(false);
   const [demoMessage, setDemoMessage] = useState('');
@@ -35,6 +37,12 @@ const Settings = () => {
     await updateSettings(localMastery, localGoal);
     localStorage.setItem('mainichi_daily_reminders', dailyReminders.toString());
     localStorage.setItem('mainichi_community_updates', communityUpdates.toString());
+    localStorage.setItem('mainichi_reminder_time', reminderTime);
+    
+    if (isMobileApp) {
+      sendToAppInventor("SET_REMINDER", { enabled: dailyReminders, time: reminderTime });
+    }
+    
     setIsSaving(false);
   };
 
@@ -113,20 +121,49 @@ const Settings = () => {
         <h3 className="font-h3 text-on-surface mb-6 tracking-tight relative z-10">Notifications</h3>
         
         <div className="space-y-6 relative z-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-body-md text-on-surface tracking-wide">Daily Reminders</p>
-              <p className="font-label-caps text-outline tracking-widest mt-1">MAINTAIN YOUR STREAK</p>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-body-md text-on-surface tracking-wide">Daily Reminders</p>
+                <p className="font-label-caps text-outline tracking-widest mt-1">MAINTAIN YOUR STREAK</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={dailyReminders} 
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setDailyReminders(checked);
+                    if (isMobileApp) {
+                      sendToAppInventor("SET_REMINDER", { enabled: checked, time: reminderTime });
+                    }
+                  }} 
+                />
+                <div className="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-outline/10 group-hover:shadow-sm transition-colors duration-300"></div>
+              </label>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer group">
-              <input 
-                type="checkbox" 
-                className="sr-only peer" 
-                checked={dailyReminders} 
-                onChange={(e) => setDailyReminders(e.target.checked)} 
-              />
-              <div className="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-surface-variant after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-outline/10 group-hover:shadow-sm transition-colors duration-300"></div>
-            </label>
+
+            {dailyReminders && (
+              <div className="pl-4 border-l-2 border-primary/20 flex flex-row items-center justify-between gap-4 py-2 animate-in fade-in slide-in-from-top-2">
+                <div>
+                  <p className="font-body-md text-on-surface tracking-wide">Reminder Time</p>
+                  <p className="font-label-caps text-outline tracking-widest mt-1">DAILY PRACTICE ALARM</p>
+                </div>
+                <input 
+                  type="time" 
+                  value={reminderTime} 
+                  onChange={(e) => {
+                    const newTime = e.target.value;
+                    setReminderTime(newTime);
+                    if (isMobileApp) {
+                      sendToAppInventor("SET_REMINDER", { enabled: dailyReminders, time: newTime });
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-surface-variant/40 border border-outline/10 focus:border-primary/50 focus:outline-none text-on-surface font-body-md tracking-wider shadow-inner"
+                />
+              </div>
+            )}
           </div>
           
           <div className="h-[1px] bg-outline/10 w-full" />

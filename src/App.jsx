@@ -38,12 +38,19 @@ import Sidebar from './components/Sidebar';
 const AppLayout = () => {
   const location = useLocation();
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
+  const { isOffline } = useApp();
   
   return (
     <div className="bg-background text-on-background pb-[84px] md:pb-xl font-body-md min-h-screen relative overflow-x-hidden md:pl-[260px]">
       <Sidebar />
       <TopBar />
-      <main className="px-4 sm:px-md pt-[72px] md:pt-[88px] pb-xl">
+      {isOffline && (
+        <div className="fixed top-0 left-0 right-0 md:left-[260px] z-[9999] bg-error text-on-error py-2 px-4 text-center font-label-caps tracking-widest text-[9px] flex items-center justify-center gap-2 shadow-md animate-in slide-in-from-top duration-300">
+          <span className="material-symbols-outlined text-[14px] animate-pulse">wifi_off</span>
+          Offline Mode — Progress will sync when connection returns
+        </div>
+      )}
+      <main className={`px-4 sm:px-md ${isOffline ? 'pt-[96px] md:pt-[116px]' : 'pt-[72px] md:pt-[88px]'} pb-xl transition-all duration-300`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

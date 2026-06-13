@@ -54,6 +54,8 @@ const Flashcard = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [results, setResults] = useState({ meaning: null, onyomi: null, kunyomi: null });
   const [options, setOptions] = useState({ meaning: [], onyomi: [], kunyomi: [] });
+  const [isListening, setIsListening] = useState(false);
+  const [speechFeedback, setSpeechFeedback] = useState('');
 
   useEffect(() => {
     const fetchDue = async () => {
@@ -146,6 +148,77 @@ const Flashcard = () => {
       window.removeEventListener('app-shake-event', handleShake);
     };
   }, [shuffleDeck]);
+
+  const handleSpeechRecognitionStart = () => {
+    setIsListening(true);
+    setSpeechFeedback('');
+    sendToAppInventor("START_SPEECH_RECOGNITION");
+    
+    // Safety timeout in case speech recognizer is dismissed without returning anything
+    setTimeout(() => {
+      setIsListening(false);
+    }, 8000);
+  };
+
+  useEffect(() => {
+    const handleSpeechResult = (event) => {
+      setIsListening(false);
+      const spokenText = event.detail;
+      if (!spokenText) return;
+      
+      console.log("Speech recognition result received:", spokenText);
+      setSpeechFeedback(`Heard: "${spokenText}"`);
+
+      // Clean the string (remove spaces, punctuation, convert to lowercase)
+      const clean = (str) => {
+        if (!str) return '';
+        return str.replace(/[\s\s、。,.?？!！]/g, '').toLowerCase();
+      };
+      
+      if (!currentCard) return;
+
+      const targetKanji = clean(currentCard.kanji);
+      const targetFurigana = clean(currentCard.furigana);
+      
+      const spokenClean = clean(spokenText);
+      
+      const cleanList = (raw) => {
+        if (!raw) return [];
+        return raw.split(/[,、;]/).map(r => clean(r)).filter(Boolean);
+      };
+      
+      const targetList = [
+        targetKanji,
+        targetFurigana,
+        ...cleanList(currentCard.onyomi),
+        ...cleanList(currentCard.kunyomi)
+      ].filter(Boolean);
+      
+      const isMatch = targetList.some(target => {
+        return spokenClean === target || spokenClean.includes(target) || target.includes(spokenClean);
+      });
+      
+      if (isMatch) {
+        setResults({ meaning: true, onyomi: true, kunyomi: true });
+        setStep(STEPS.RESULT);
+        if (isMobileApp) {
+          sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
+        }
+      } else {
+        if (isMobileApp) {
+          sendToAppInventor("VIBRATE", { duration: 200 });
+        }
+        setTimeout(() => {
+          setSpeechFeedback('');
+        }, 4000);
+      }
+    };
+
+    window.addEventListener('app-speech-result', handleSpeechResult);
+    return () => {
+      window.removeEventListener('app-speech-result', handleSpeechResult);
+    };
+  }, [currentCard, isMobileApp]);
 
   const currentCard = deck[currentIndex];
   const activeSteps = currentCard ? getActiveSteps(currentCard) : [];
@@ -358,6 +431,24 @@ const Flashcard = () => {
                 <Button3D onClick={() => setStep(STEPS.MEANING)} variant="primary" className="w-full py-6">
                   Recall readings
                 </Button3D>
+                {isMobileApp && (
+                  <Button3D 
+                    onClick={handleSpeechRecognitionStart} 
+                    variant="secondary" 
+                    className="w-full py-6 border-primary/20"
+                    disabled={isListening}
+                  >
+                    <span className="material-symbols-outlined text-primary text-[20px] animate-pulse">
+                      {isListening ? 'graphic_eq' : 'mic'}
+                    </span>
+                    {isListening ? 'Listening...' : 'Speak Answer'}
+                  </Button3D>
+                )}
+                {speechFeedback && (
+                  <div className="text-center font-body-md text-error-container bg-error-container/10 border border-error-container/20 rounded-xl py-3 px-4 animate-in fade-in zoom-in-95">
+                    <span className="text-error font-medium">{speechFeedback}</span>
+                  </div>
+                )}
                 <button 
                   onClick={handleForgot}
                   className="w-full py-4 bg-surface-variant/30 rounded-2xl text-outline font-label-caps tracking-widest hover:bg-surface-variant/50 transition-all border border-outline/5"
