@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { LESSONS, FUTURE_LESSONS } from '../constants/lessons';
 import { sendToAppInventor, APP_INVENTOR_ACTIONS, IS_APP_INVENTOR } from '../utils/appInventorBridge';
+
+const CATEGORIES = [
+  { id: 'all', title: 'All Modules', icon: 'subject' },
+  { id: 'basics', title: 'Basics & Essentials', icon: 'school' },
+  { id: 'dining', title: 'Dining Out', icon: 'restaurant' },
+  { id: 'travel', title: 'Travel & Transit', icon: 'train' },
+  { id: 'shopping', title: 'Shopping', icon: 'shopping_bag' }
+];
 
 const Lessons = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
@@ -11,6 +19,38 @@ const Lessons = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const containerRef = useRef(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, top: 0, height: 0, opacity: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const updateIndicator = () => {
+      const activeButton = containerRef.current.querySelector('[data-active="true"]');
+      if (activeButton) {
+        setIndicatorStyle({
+          left: activeButton.offsetLeft,
+          width: activeButton.offsetWidth,
+          top: activeButton.offsetTop,
+          height: activeButton.offsetHeight,
+          opacity: 1
+        });
+      } else {
+        setIndicatorStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    };
+
+    updateIndicator();
+    const timer = setTimeout(updateIndicator, 100);
+
+    window.addEventListener('resize', updateIndicator);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [selectedCategory]);
 
   useEffect(() => {
     const loadCompletedLessons = async () => {
@@ -71,8 +111,8 @@ const Lessons = () => {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { type: "tween", duration: 0.25, ease: "easeOut" } }
   };
 
   const handleLessonStart = (lesson) => {
@@ -127,6 +167,8 @@ const Lessons = () => {
   // Main Dashboard View
   if (!activeLesson) {
     const totalProgress = Math.round((completedLessons.length / LESSONS.length) * 100);
+    const filteredLessons = LESSONS.filter(lesson => selectedCategory === 'all' || lesson.category === selectedCategory);
+    const filteredFutureLessons = FUTURE_LESSONS.filter(lesson => selectedCategory === 'all' || lesson.category === selectedCategory);
 
     return (
       <motion.div
@@ -158,85 +200,166 @@ const Lessons = () => {
           </div>
         </motion.div>
 
-        {/* Active Foundations Modules */}
-        <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
-          <h3 className="font-h3 text-on-surface tracking-tight">Active Lessons</h3>
-          <div className="h-[1px] flex-1 bg-outline/20"></div>
+        {/* Category Tabs Selector */}
+        <motion.div 
+          variants={itemVariants} 
+          className="flex gap-2 overflow-x-auto pb-4 mb-8 -mx-4 px-4 scrollbar-none relative"
+          ref={containerRef}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {/* Custom absolute active tab indicator to avoid stretch distortion on long transitions */}
+          <motion.div
+            className="absolute bg-primary rounded-xl shadow-md border border-primary/20 pointer-events-none"
+            animate={{
+              left: indicatorStyle.left,
+              width: indicatorStyle.width,
+              top: indicatorStyle.top,
+              height: indicatorStyle.height,
+              opacity: indicatorStyle.opacity
+            }}
+            transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+          />
+
+          {CATEGORIES.map((cat) => {
+            const isActive = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                data-active={isActive}
+                onClick={() => setSelectedCategory(cat.id)}
+                className="relative py-2.5 px-4 rounded-xl font-label-caps text-[10px] tracking-wider font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap active:scale-[0.97] shrink-0 z-10"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
+                <span className={`material-symbols-outlined text-[15px] relative z-10 transition-colors duration-300 ${isActive ? 'text-on-primary' : 'text-outline'}`}>{cat.icon}</span>
+                <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-on-primary' : 'text-outline'}`}>
+                  {cat.title}
+                </span>
+                {!isActive && (
+                  <div className="absolute inset-0 border border-outline/10 bg-surface/40 hover:bg-surface-bright/80 rounded-xl transition-all duration-300 pointer-events-none -z-10" />
+                )}
+              </button>
+            );
+          })}
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {LESSONS.map((lesson) => {
-            const isCompleted = completedLessons.includes(lesson.id);
-              return (
+        {/* Active Foundations Modules */}
+        {filteredLessons.length > 0 && (
+          <div className="mb-12">
+            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
+              <h3 className="font-h3 text-on-surface tracking-tight">Active Lessons</h3>
+              <div className="h-[1px] flex-1 bg-outline/20"></div>
+            </motion.div>
+
+            <motion.div 
+              key={`active-${selectedCategory}`}
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              {[...filteredLessons].sort((a, b) => {
+                const aCompleted = completedLessons.includes(a.id);
+                const bCompleted = completedLessons.includes(b.id);
+                if (aCompleted && !bCompleted) return 1;
+                if (!aCompleted && bCompleted) return -1;
+                return 0;
+              }).map((lesson) => {
+                const isCompleted = completedLessons.includes(lesson.id);
+                return (
+                  <motion.div
+                    key={lesson.id}
+                    variants={itemVariants}
+                      onClick={() => handleLessonStart(lesson)}
+                      className="bg-surface rounded-2xl p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
+                    >
+                      <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+
+                      <div className="flex justify-between items-start mb-6 relative z-10">
+                        <div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
+                        </div>
+                        <span className={`font-label-caps tracking-widest text-[9px] border px-2.5 py-1 rounded-full ${isCompleted ? 'bg-primary/10 border-primary text-primary font-bold' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
+                          {isCompleted ? 'MASTERED' : 'ACTIVE'}
+                        </span>
+                      </div>
+
+                      <div className="flex-grow relative z-10">
+                        <span className="text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
+                        <h4 className="font-h3 text-on-surface tracking-tight">{lesson.title}</h4>
+                        <p className="font-body-md text-outline tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
+                      </div>
+
+                      <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
+                        <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
+                        <span className="font-label-caps text-primary text-[9px] tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1 font-bold">
+                          {isCompleted ? 'REVIEW' : 'STUDY'} <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+            </motion.div>
+          </div>
+        )}
+
+        {/* Future Expandable Modules */}
+        {filteredFutureLessons.length > 0 && (
+          <div>
+            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
+              <h3 className="font-h3 text-outline tracking-tight">Locked Foundations</h3>
+              <div className="h-[1px] flex-1 bg-outline/20"></div>
+            </motion.div>
+
+            <motion.div 
+              key={`locked-${selectedCategory}`}
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-65"
+            >
+              {filteredFutureLessons.map((lesson) => (
                 <motion.div
                   key={lesson.id}
                   variants={itemVariants}
-                  onClick={() => handleLessonStart(lesson)}
-                  className="bg-surface rounded-2xl p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-
-                  <div className="flex justify-between items-start mb-6 relative z-10">
-                    <div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                      <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
+                    className="bg-surface-bright rounded-2xl p-6 border border-outline/10 flex flex-col relative overflow-hidden"
+                  >
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-surface border border-outline/20 flex items-center justify-center text-outline">
+                        <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>{lesson.icon}</span>
+                      </div>
+                      <span className="font-label-caps tracking-widest text-[9px] border border-outline/20 bg-surface/50 text-outline px-2.5 py-1 rounded-full flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[11px]">lock</span> LOCKED
+                      </span>
                     </div>
-                    <span className={`font-label-caps tracking-widest text-[9px] border px-2.5 py-1 rounded-full ${isCompleted ? 'bg-primary/10 border-primary text-primary font-bold' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
-                      {isCompleted ? 'MASTERED' : 'ACTIVE'}
-                    </span>
-                  </div>
 
-                  <div className="flex-grow relative z-10">
-                    <span className="text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
-                    <h4 className="font-h3 text-on-surface tracking-tight">{lesson.title}</h4>
-                    <p className="font-body-md text-outline tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
-                  </div>
+                    <div className="flex-grow">
+                      <span className="text-[20px] font-bold text-outline/65 tracking-wide block mb-1">{lesson.phrase}</span>
+                      <h4 className="font-h3 text-outline tracking-tight">{lesson.title}</h4>
+                      <p className="font-body-md text-outline/60 tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
+                    </div>
 
-                  <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
-                    <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
-                    <span className="font-label-caps text-primary text-[9px] tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1 font-bold">
-                      {isCompleted ? 'REVIEW' : 'STUDY'} <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
-                    </span>
-                  </div>
-                </motion.div>
-              );
-            })}
-        </div>
-
-        {/* Future Expandable Modules */}
-        <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
-          <h3 className="font-h3 text-outline tracking-tight">Locked Foundations</h3>
-          <div className="h-[1px] flex-1 bg-outline/20"></div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-65">
-          {FUTURE_LESSONS.map((lesson) => (
-            <motion.div
-              key={lesson.id}
-              variants={itemVariants}
-              className="bg-surface-bright rounded-2xl p-6 border border-outline/10 flex flex-col relative overflow-hidden"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div className="w-12 h-12 rounded-xl bg-surface border border-outline/20 flex items-center justify-center text-outline">
-                  <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>{lesson.icon}</span>
-                </div>
-                <span className="font-label-caps tracking-widest text-[9px] border border-outline/20 bg-surface/50 text-outline px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[11px]">lock</span> LOCKED
-                </span>
-              </div>
-
-              <div className="flex-grow">
-                <span className="text-[20px] font-bold text-outline/65 tracking-wide block mb-1">{lesson.phrase}</span>
-                <h4 className="font-h3 text-outline tracking-tight">{lesson.title}</h4>
-                <p className="font-body-md text-outline/60 tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
-              </div>
-
-              <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center">
-                <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
-                <span className="font-label-caps text-outline text-[9px] tracking-widest font-bold">PREMIUM LOCK</span>
-              </div>
+                    <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center">
+                      <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
+                      <span className="font-label-caps text-outline text-[9px] tracking-widest font-bold">PREMIUM LOCK</span>
+                    </div>
+                  </motion.div>
+                ))}
             </motion.div>
-          ))}
-        </div>
+          </div>
+        )}
+
+        {/* Empty State when no lessons found in category */}
+        {filteredLessons.length === 0 && filteredFutureLessons.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center py-20 text-center text-outline"
+          >
+            <span className="material-symbols-outlined text-[48px] mb-4 opacity-40">find_in_page</span>
+            <p className="font-body-lg">No lessons available in this category yet.</p>
+          </motion.div>
+        )}
+
       </motion.div>
     );
   }

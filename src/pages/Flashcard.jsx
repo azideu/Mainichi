@@ -57,6 +57,9 @@ const Flashcard = () => {
   const [isListening, setIsListening] = useState(false);
   const [speechFeedback, setSpeechFeedback] = useState('');
 
+  const currentCard = deck[currentIndex];
+  const activeSteps = currentCard ? getActiveSteps(currentCard) : [];
+
   useEffect(() => {
     const fetchDue = async () => {
       try {
@@ -219,9 +222,6 @@ const Flashcard = () => {
       window.removeEventListener('app-speech-result', handleSpeechResult);
     };
   }, [currentCard, isMobileApp]);
-
-  const currentCard = deck[currentIndex];
-  const activeSteps = currentCard ? getActiveSteps(currentCard) : [];
 
   const isAllCorrect = (() => {
     if (!currentCard) return false;

@@ -11,6 +11,7 @@ export const LESSONS = [
     difficulty: 'N5 (Beginner)',
     duration: '2 mins',
     unit: 'UNIT 1',
+    category: 'basics',
     description: 'Start your Japanese foundations with standard greetings and everyday etiquette.',
     slides: [
       {
@@ -55,6 +56,7 @@ export const LESSONS = [
     difficulty: 'N5 (Beginner)',
     duration: '2 mins',
     unit: 'UNIT 2',
+    category: 'basics',
     description: 'Learn how to thank friends and formal superiors politely in various social scenarios.',
     slides: [
       {
@@ -99,6 +101,7 @@ export const LESSONS = [
     difficulty: 'N5 (Beginner)',
     duration: '3 mins',
     unit: 'UNIT 3',
+    category: 'basics',
     description: 'Master first-meeting self-introductions, name signing, and basic polite follow-ups.',
     slides: [
       {
@@ -143,6 +146,7 @@ export const LESSONS = [
     difficulty: 'N5 (Beginner)',
     duration: '3 mins',
     unit: 'UNIT 4',
+    category: 'travel',
     description: 'Master the essential phrase for finding stations, restrooms, hotels, and convenience stores.',
     slides: [
       {
@@ -187,6 +191,7 @@ export const LESSONS = [
     difficulty: 'N5 (Beginner)',
     duration: '3 mins',
     unit: 'UNIT 5',
+    category: 'dining',
     description: 'Learn to confidently request water, menus, and order dishes in dining venues.',
     slides: [
       {
@@ -231,6 +236,7 @@ export const LESSONS = [
     difficulty: 'N5 (Beginner)',
     duration: '3 mins',
     unit: 'UNIT 6',
+    category: 'shopping',
     description: 'Learn to ask the price of items when shopping and identify Japanese Yen rates.',
     slides: [
       {
@@ -268,19 +274,20 @@ export const LESSONS = [
     id: 'time',
     title: 'Telling Time',
     japaneseTitle: '時間',
-    phrase: 'いまなんじですか',
+    phrase: 'いまはなんじですか',
     romaji: 'Ima nan-ji desu ka?',
     meaning: 'What time is it now?',
     icon: 'schedule',
     difficulty: 'N5 (Beginner)',
     duration: '3 mins',
     unit: 'UNIT 7',
+    category: 'basics',
     description: 'Master time asking and basic hours counting (PM/AM) for scheduling appointments.',
     slides: [
       {
         title: 'Asking the Time',
-        japaneseContent: 'いまなんじですか',
-        romaji: 'Ima nan-ji desu ka?',
+        japaneseContent: 'いまはなんじですか',
+        romaji: 'Ima wa nan-ji desu ka?',
         content: 'To ask for the current time, use this phrase. "いま (ima)" means "now", and "なんじ (nan-ji)" means "what hour".'
       },
       {
@@ -320,7 +327,8 @@ export const FUTURE_LESSONS = [
     meaning: 'It is hot today, isn\'t it?',
     icon: 'wb_sunny',
     difficulty: 'N5 (Beginner)',
-    duration: '4 mins'
+    duration: '4 mins',
+    category: 'basics'
   },
   {
     id: 'hobbies',
@@ -331,7 +339,8 @@ export const FUTURE_LESSONS = [
     meaning: 'What is your hobby?',
     icon: 'sports_esports',
     difficulty: 'N5 (Beginner)',
-    duration: '5 mins'
+    duration: '5 mins',
+    category: 'basics'
   },
   {
     id: 'numbers',
@@ -342,7 +351,8 @@ export const FUTURE_LESSONS = [
     meaning: 'One, two, three (items)',
     icon: 'pin',
     difficulty: 'N5 (Beginner)',
-    duration: '4 mins'
+    duration: '4 mins',
+    category: 'basics'
   },
   {
     id: 'emergency',
@@ -353,6 +363,31 @@ export const FUTURE_LESSONS = [
     meaning: 'Please help me',
     icon: 'emergency',
     difficulty: 'N5 (Beginner)',
-    duration: '3 mins'
+    duration: '3 mins',
+    category: 'travel'
+  },
+  {
+    id: 'subway',
+    title: 'Using the Subway',
+    japaneseTitle: '地下鉄',
+    phrase: 'きっぷはどこですか',
+    romaji: 'Kippu wa doko desu ka?',
+    meaning: 'Where is the ticket?',
+    icon: 'train',
+    difficulty: 'N5 (Beginner)',
+    duration: '4 mins',
+    category: 'travel'
+  },
+  {
+    id: 'restaurant_reservations',
+    title: 'Table for Two',
+    japaneseTitle: '予約',
+    phrase: 'にめいです',
+    romaji: 'Ni-mei desu',
+    meaning: 'Two people',
+    icon: 'restaurant_menu',
+    difficulty: 'N5 (Beginner)',
+    duration: '3 mins',
+    category: 'dining'
   }
 ];

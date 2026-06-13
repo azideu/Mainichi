@@ -330,10 +330,7 @@ const Progress = () => {
                     {m.desc}
                   </p>
                   
-                  {/* Sticker unlock effect */}
-                  {isUnlocked && (
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-amber-400 to-yellow-500 rotate-45 transform origin-top-right shadow-sm"></div>
-                  )}
+
                 </motion.div>
               );
             })}

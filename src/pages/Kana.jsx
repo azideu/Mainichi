@@ -183,6 +183,24 @@ const getGridPosition = (char) => {
 
 import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 
+// Safe localStorage helper functions to prevent exceptions in private mode or custom webviews
+const getSafeLocalStorage = (key, fallback = '') => {
+  try {
+    return localStorage.getItem(key) || fallback;
+  } catch (e) {
+    console.warn('localStorage is not accessible:', e);
+    return fallback;
+  }
+};
+
+const setSafeLocalStorage = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn('localStorage is not writable:', e);
+  }
+};
+
 // Helper to pronounce Japanese words using native SpeechSynthesis or MIT App Inventor Bridge
 const speakText = (text, rate = 0.8, voiceURI = null) => {
   if (IS_APP_INVENTOR) {
@@ -191,21 +209,25 @@ const speakText = (text, rate = 0.8, voiceURI = null) => {
   }
 
   // Standard Web Speech API
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ja-JP';
-    utterance.rate = rate;
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = rate;
 
-    if (voiceURI) {
-      const allVoices = window.speechSynthesis.getVoices();
-      const targetVoice = allVoices.find(v => v.voiceURI === voiceURI);
-      if (targetVoice) {
-        utterance.voice = targetVoice;
+      if (voiceURI && typeof window.speechSynthesis.getVoices === 'function') {
+        const allVoices = window.speechSynthesis.getVoices() || [];
+        const targetVoice = allVoices.find(v => v && v.voiceURI === voiceURI);
+        if (targetVoice) {
+          utterance.voice = targetVoice;
+        }
       }
-    }
 
-    window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('SpeechSynthesis failed:', e);
+    }
   }
 };
 
@@ -217,38 +239,50 @@ const Kana = () => {
 
   // Voice selector states
   const [voices, setVoices] = useState([]);
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState(
-    localStorage.getItem('kana_selected_voice_uri') || ''
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState(() =>
+    getSafeLocalStorage('kana_selected_voice_uri', '')
   );
 
   useEffect(() => {
     const updateVoices = () => {
-      if ('speechSynthesis' in window) {
-        const allVoices = window.speechSynthesis.getVoices();
-        // Filter for Japanese language voices
-        const jaVoices = allVoices.filter(v => v.lang.toLowerCase().startsWith('ja'));
-        setVoices(jaVoices);
-        
-        // Default to a suitable Japanese voice if none is selected
-        const saved = localStorage.getItem('kana_selected_voice_uri');
-        if (!saved && jaVoices.length > 0) {
-          const defaultVoice = jaVoices.find(v => v.default) || jaVoices[0];
-          if (defaultVoice) {
-            setSelectedVoiceURI(defaultVoice.voiceURI);
-            localStorage.setItem('kana_selected_voice_uri', defaultVoice.voiceURI);
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window && typeof window.speechSynthesis.getVoices === 'function') {
+        try {
+          const allVoices = window.speechSynthesis.getVoices() || [];
+          // Filter for Japanese language voices, with robust null/type checks
+          const jaVoices = allVoices.filter(v => v && typeof v.lang === 'string' && v.lang.toLowerCase().startsWith('ja'));
+          setVoices(jaVoices);
+          
+          // Default to a suitable Japanese voice if none is selected
+          const saved = getSafeLocalStorage('kana_selected_voice_uri');
+          if (!saved && jaVoices.length > 0) {
+            const defaultVoice = jaVoices.find(v => v.default) || jaVoices[0];
+            if (defaultVoice) {
+              setSelectedVoiceURI(defaultVoice.voiceURI);
+              setSafeLocalStorage('kana_selected_voice_uri', defaultVoice.voiceURI);
+            }
           }
+        } catch (e) {
+          console.warn('Failed to retrieve or filter SpeechSynthesis voices:', e);
         }
       }
     };
 
     updateVoices();
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = updateVoices;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && typeof window.speechSynthesis.getVoices === 'function') {
+      try {
+        window.speechSynthesis.onvoiceschanged = updateVoices;
+      } catch (e) {
+        console.warn('Failed to bind onvoiceschanged:', e);
+      }
     }
 
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = null;
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window && typeof window.speechSynthesis.getVoices === 'function') {
+        try {
+          window.speechSynthesis.onvoiceschanged = null;
+        } catch (e) {
+          console.warn('Failed to unbind onvoiceschanged:', e);
+        }
       }
     };
   }, []);
@@ -407,7 +441,7 @@ const Kana = () => {
                 onChange={(e) => {
                   const uri = e.target.value;
                   setSelectedVoiceURI(uri);
-                  localStorage.setItem('kana_selected_voice_uri', uri);
+                  setSafeLocalStorage('kana_selected_voice_uri', uri);
                   speakText('あ', 0.8, uri);
                 }}
                 className="w-full bg-surface text-on-surface border border-outline/15 rounded-xl px-3 py-1.5 text-[11px] font-medium focus:outline-none focus:border-primary/50 shadow-sm appearance-none pr-8 cursor-pointer hover:bg-surface-bright transition-colors"
@@ -616,7 +650,7 @@ const Kana = () => {
                     onChange={(e) => {
                       const uri = e.target.value;
                       setSelectedVoiceURI(uri);
-                      localStorage.setItem('kana_selected_voice_uri', uri);
+                      setSafeLocalStorage('kana_selected_voice_uri', uri);
                       speakText('あ', 0.8, uri);
                     }}
                     className="w-full bg-surface text-on-surface border border-outline/15 rounded-xl px-3 py-2 text-[12px] font-medium focus:outline-none focus:border-primary/50 shadow-sm appearance-none pr-8 cursor-pointer hover:bg-surface-bright transition-colors"
