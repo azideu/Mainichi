@@ -115,6 +115,38 @@ const Flashcard = () => {
     });
   };
 
+  const shuffleDeck = React.useCallback(() => {
+    if (deck.length <= 1) return;
+    
+    // Shuffle the items starting from the current index to the end
+    const unstudied = deck.slice(currentIndex);
+    if (unstudied.length <= 1) return;
+    
+    const shuffledUnstudied = [...unstudied].sort(() => 0.5 - Math.random());
+    const newDeck = [
+      ...deck.slice(0, currentIndex),
+      ...shuffledUnstudied
+    ];
+    
+    setDeck(newDeck);
+    generateOptions(currentIndex, newDeck);
+    
+    // Vibrate device to confirm haptic shuffle action
+    sendToAppInventor("VIBRATE");
+  }, [deck, currentIndex]);
+
+  useEffect(() => {
+    const handleShake = () => {
+      console.log("Device shake detected: Shuffling deck...");
+      shuffleDeck();
+    };
+
+    window.addEventListener('app-shake-event', handleShake);
+    return () => {
+      window.removeEventListener('app-shake-event', handleShake);
+    };
+  }, [shuffleDeck]);
+
   const currentCard = deck[currentIndex];
   const activeSteps = currentCard ? getActiveSteps(currentCard) : [];
 
@@ -168,8 +200,8 @@ const Flashcard = () => {
     
     setResults(prev => ({ ...prev, [type]: isCorrect }));
     
-    if (isMobileApp) {
-      sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: isCorrect ? 50 : 200 });
+    if (isMobileApp && !isCorrect) {
+      sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 200 });
     }
     
     const currentIdx = activeSteps.indexOf(step);

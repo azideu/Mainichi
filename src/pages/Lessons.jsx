@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { LESSONS, FUTURE_LESSONS } from '../constants/lessons';
+import { sendToAppInventor, APP_INVENTOR_ACTIONS, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 
 const Lessons = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
@@ -108,6 +109,11 @@ const Lessons = () => {
         syncLessonCompletion(activeLesson.id);
       }
       setCelebrate(true);
+    } else {
+      // Vibrate only on incorrect choices
+      if (IS_APP_INVENTOR) {
+        sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 200 });
+      }
     }
   };
 

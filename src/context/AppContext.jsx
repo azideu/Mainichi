@@ -23,6 +23,9 @@ export const AppProvider = ({ children }) => {
         break;
       case 'SENSOR_DATA':
         console.log('Received sensor data (e.g. shake to shuffle):', payload.data);
+        if (payload.data === 'SHAKE') {
+          window.dispatchEvent(new CustomEvent('app-shake-event'));
+        }
         break;
       default:
         console.log('Unhandled App Inventor action:', payload.action);
