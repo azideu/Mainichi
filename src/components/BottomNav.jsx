@@ -10,12 +10,11 @@ import {
 } from '../utils/appInventorBridge';
 
 const NAV_ITEMS = [
-  { id: 'home', path: '/', icon: 'home', label: 'ホーム' },
   { id: 'lessons', path: '/lessons', icon: 'menu_book', label: '授業' },
   { id: 'kana', path: '/kana', icon: 'あ', label: '仮名' },
+  { id: 'home', path: '/', icon: 'home', label: 'ホーム' },
   { id: 'review', path: '/review', icon: 'style', label: '復習' },
   { id: 'community', path: '/community', icon: 'groups', label: '交流' },
-  { id: 'profile', path: '/profile', icon: 'person', label: 'マイ' },
 ];
 
 const BottomNav = () => {
@@ -30,9 +29,9 @@ const BottomNav = () => {
       const nextPattern = [...prev, itemId].slice(-4);
       if (
         nextPattern.length === 4 &&
-        nextPattern[0] === 'profile' &&
+        nextPattern[0] === 'home' &&
         nextPattern[1] === 'kana' &&
-        nextPattern[2] === 'profile' &&
+        nextPattern[2] === 'home' &&
         nextPattern[3] === 'kana'
       ) {
         navigate('/sandbox');

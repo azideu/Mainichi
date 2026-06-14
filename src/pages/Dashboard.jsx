@@ -19,6 +19,44 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [dueCount, setDueCount] = useState(0);
+  const [isDueLoading, setIsDueLoading] = useState(true);
+  const [deckTitle, setDeckTitle] = useState('Main Deck');
+
+  const fetchDueCount = async () => {
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      if (!token) return;
+
+      // Fetch all decks to get the actual name of the main deck (id = 1)
+      const decksRes = await fetch('/api/decks', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (decksRes.ok) {
+        const allDecks = await decksRes.json();
+        const mainDeck = allDecks.find(d => d.id === 1);
+        if (mainDeck && mainDeck.title) {
+          setDeckTitle(mainDeck.title);
+        }
+      }
+
+      const tzOffset = new Date().getTimezoneOffset().toString();
+      const res = await fetch(`/api/progress/due?tzOffset=${tzOffset}&deckId=1`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Timezone-Offset': tzOffset
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDueCount(data.length);
+      }
+    } catch (err) {
+      console.error("Failed to fetch due count on dashboard", err);
+    } finally {
+      setIsDueLoading(false);
+    }
+  };
 
   useEffect(() => {
     const loadCompletedLessons = async () => {
@@ -52,11 +90,12 @@ const Dashboard = () => {
     };
 
     loadCompletedLessons();
+    fetchDueCount();
   }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await fetchStats();
+    await Promise.all([fetchStats(), fetchDueCount()]);
     // Simulate extra visual weight for the refresh
     await new Promise(resolve => setTimeout(resolve, 800));
     setIsRefreshing(false);
@@ -78,7 +117,7 @@ const Dashboard = () => {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
   };
 
-  if (isFetchingStats && !isRefreshing) {
+  if ((isFetchingStats || isDueLoading) && !isRefreshing) {
     return <LoadingState />;
   }
 
@@ -189,6 +228,57 @@ const Dashboard = () => {
             <motion.section variants={itemVariants} className="relative z-10 lg:hidden">
               {renderStreakCard(false)}
             </motion.section>
+
+            <motion.div 
+              variants={itemVariants} 
+              className={`bg-surface rounded-xl p-4 md:p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[160px] md:min-h-[220px]`}
+            >
+              {/* Decorative Watermark "習" */}
+              <div className="absolute -right-4 -bottom-6 md:-right-6 md:-bottom-8 opacity-[0.05] pointer-events-none select-none text-primary transition-transform duration-700 group-hover:scale-110">
+                <span className="text-[100px] md:text-[140px] leading-none font-bold" style={{ fontFamily: "serif" }}>習</span>
+              </div>
+
+              <div className="relative z-10 mb-4 md:mb-xl">
+                <div className="flex justify-between items-start mb-3 md:mb-md">
+                  <div className={`w-10 h-10 md:w-14 md:h-14 rounded-2xl border flex items-center justify-center bg-surface-bright shadow-sm ${dueCount > 0 ? 'border-primary/20 text-primary bg-primary/5' : 'border-outline/20 text-outline'}`}>
+                    <span className="material-symbols-outlined text-[20px] md:text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>
+                      {dueCount > 0 ? 'cached' : 'task_alt'}
+                    </span>
+                  </div>
+                  <span className={`font-label-caps tracking-widest px-3 py-1.5 md:px-4 md:py-2 border rounded-full text-[10px] md:text-xs font-semibold ${dueCount > 0 ? 'bg-primary/5 border-primary/20 text-primary' : 'bg-surface-variant/30 border-outline/10 text-outline'}`}>
+                    {dueCount > 0 ? `${dueCount} DUE` : 'ALL CLEAR'}
+                  </span>
+                </div>
+                
+                <h2 className="font-h2 text-on-surface mb-xs tracking-tight">{deckTitle} Reviews</h2>
+                <p className="font-body-lg text-on-surface-variant max-w-md leading-relaxed mt-2">
+                  {dueCount > 0 
+                    ? `You have ${dueCount} cards waiting for recall. Solidify your Japanese retention.`
+                    : "The review garden is clear! No reviews due at this moment."
+                  }
+                </p>
+              </div>
+
+              <div className="relative z-10 flex gap-3">
+                {dueCount > 0 ? (
+                  <Button3D variant="primary" onClick={() => navigate('/flashcard?deckId=1')}>
+                    Start Reviews
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>play_arrow</span>
+                  </Button3D>
+                ) : (
+                  <Button3D variant="secondary" onClick={() => navigate('/flashcard?deckId=1')}>
+                    Review Anyway
+                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'wght' 300" }}>refresh</span>
+                  </Button3D>
+                )}
+                <button 
+                  onClick={() => navigate('/review')}
+                  className="px-4 py-3 text-xs font-label-caps text-outline hover:text-primary tracking-widest transition-colors font-semibold flex items-center gap-1"
+                >
+                  ALL DECKS <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                </button>
+              </div>
+            </motion.div>
 
             {/* Resume Lesson Card */}
             {(() => {
