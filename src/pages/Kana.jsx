@@ -638,13 +638,6 @@ const Kana = () => {
               />
             );
           })()}
-          
-          {/* Replay Overlay Badge */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 w-8 h-8 rounded-full bg-surface/90 border border-outline/10 shadow-sm flex items-center justify-center text-outline/70 transition-all duration-200 pointer-events-none group-hover/circle:text-primary group-hover/circle:border-primary/20 group-hover/circle:bg-surface-container-lowest">
-            <span className="material-symbols-outlined text-[15px]">
-              replay
-            </span>
-          </div>
         </div>
 
         {/* Header details */}
