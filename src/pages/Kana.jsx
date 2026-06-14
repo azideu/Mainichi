@@ -231,12 +231,190 @@ const speakText = (text, rate = 0.8, voiceURI = null) => {
     }
   }
 };
+// Dynamic Japanese Kana Stroke Order Animator Component using KanjiVG dataset
+const KanaStrokeAnimator = ({ char, replayKey }) => {
+  const [svgContent, setSvgContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+  const svgRef = useRef(null);
+
+  // Restart animation when char or replayKey changes
+  useEffect(() => {
+    setAnimationKey(prev => prev + 1);
+  }, [char, replayKey]);
+
+  useEffect(() => {
+    if (!char) return;
+    
+    // Fallback for combo syllables (e.g. きゃ, キャ) which don't have individual stroke SVGs
+    const isCombo = char.length > 1;
+    if (isCombo) {
+      setSvgContent('');
+      return;
+    }
+
+    setLoading(true);
+    setError(false);
+    
+    // Calculate Unicode hex code point
+    const codePoint = char.charCodeAt(0).toString(16).toLowerCase();
+    const paddedHex = codePoint.padStart(5, '0');
+    
+    // Fetch KanjiVG SVG from high-availability jsDelivr CDN
+    const url = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/0${paddedHex}.svg`;
+    let active = true;
+
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch SVG');
+        return res.text();
+      })
+      .then(text => {
+        if (active) {
+          setSvgContent(text);
+          setLoading(false);
+        }
+      })
+      .catch(err => {
+        if (active) {
+          console.warn(`Failed to retrieve stroke order SVG for ${char}:`, err);
+          setError(true);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [char]);
+
+  useEffect(() => {
+    if (loading || error || !svgContent || !svgRef.current) return;
+
+    const svgElement = svgRef.current.querySelector('svg');
+    if (svgElement) {
+      svgElement.setAttribute('width', '100%');
+      svgElement.setAttribute('height', '100%');
+      svgElement.style.display = 'block';
+    }
+
+    // Clone the group of paths to act as a light gray guide underneath
+    const strokePathsGroup = svgRef.current.querySelector('g[id^="kvg:StrokePaths_"]');
+    if (strokePathsGroup && !svgRef.current.querySelector('.stroke-guide-group')) {
+      const guideGroup = strokePathsGroup.cloneNode(true);
+      guideGroup.classList.add('stroke-guide-group');
+      guideGroup.removeAttribute('id');
+      
+      // Style guide group paths to be light gray and static
+      guideGroup.querySelectorAll('path').forEach(path => {
+        path.removeAttribute('id');
+        path.style.stroke = 'var(--guide-color, #e9ede2)';
+        path.style.strokeWidth = '4.5px';
+        path.style.strokeDasharray = 'none';
+        path.style.strokeDashoffset = 'none';
+        path.style.transition = 'none';
+        path.style.opacity = '0.65';
+      });
+      
+      // Insert the guide group right before the original animated strokePathsGroup
+      strokePathsGroup.parentNode.insertBefore(guideGroup, strokePathsGroup);
+    }
+
+    // Get all paths in the active strokePaths group
+    const paths = svgRef.current.querySelectorAll('g[id^="kvg:StrokePaths_"] path');
+    const numbers = svgRef.current.querySelectorAll('g[id^="kvg:StrokeNumbers_"] text');
+
+    let currentDelay = 0.2; // brief delay before drawing begins
+
+    paths.forEach((path, index) => {
+      const length = path.getTotalLength();
+      
+      // Visual adjustments for drawing stroke
+      path.style.stroke = 'var(--stroke-color, #567d46)';
+      path.style.strokeWidth = '4.5px';
+      path.style.strokeDasharray = `${length} ${length}`;
+      path.style.strokeDashoffset = length;
+      path.style.transition = 'none';
+
+      const duration = 0.45 + (length / 120); // dynamic duration based on stroke length
+      path.style.transition = `stroke-dashoffset ${duration}s cubic-bezier(0.4, 0, 0.2, 1) ${currentDelay}s`;
+
+      // Animate corresponding stroke number label
+      if (numbers[index]) {
+        const num = numbers[index];
+        num.style.fill = 'var(--number-color, #7a8a64)';
+        num.style.opacity = '0';
+        num.style.fontSize = '10px';
+        num.style.fontWeight = 'bold';
+        num.style.fontFamily = 'Lexend, sans-serif';
+        num.style.transition = `opacity 0.25s ease-in-out ${currentDelay}s`;
+      }
+
+      currentDelay += duration + 0.15; // timing gap between strokes
+    });
+
+    // Trigger reflow and start stroke drawing animation
+    const timer = setTimeout(() => {
+      if (svgRef.current) {
+        paths.forEach((path) => {
+          path.style.strokeDashoffset = '0';
+        });
+        numbers.forEach((num) => {
+          num.style.opacity = '0.6';
+        });
+      }
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [svgContent, animationKey, loading, error]);
+
+  if (loading) {
+    return (
+      <div className="w-16 h-16 flex items-center justify-center">
+        <span className="material-symbols-outlined text-[28px] text-primary animate-spin">
+          progress_activity
+        </span>
+      </div>
+    );
+  }
+
+  if (error || !svgContent) {
+    // Fallback to static text representation
+    const isCombo = char.length > 1;
+    return (
+      <span 
+        className={`font-bold text-primary relative z-10 leading-none whitespace-nowrap tracking-tighter ${
+          isCombo ? 'text-[44px]' : 'text-[72px]'
+        }`}
+        style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+      >
+        {char}
+      </span>
+    );
+  }
+
+  return (
+    <div 
+      ref={svgRef}
+      key={animationKey}
+      className="w-28 h-28 text-primary relative z-10 flex items-center justify-center select-none"
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+      style={{
+        '--stroke-color': '#567d46', // Primary theme green
+        '--guide-color': '#e3e8db', // surface-container-highest
+        '--number-color': '#74796e', // outline gray
+      }}
+    />
+  );
+};
 
 
 
 const Kana = () => {
   const [activeTab, setActiveTab] = useState('hiragana'); // 'hiragana' | 'katakana' | 'practice'
   const [selectedChar, setSelectedChar] = useState(null);
+  const [replayKey, setReplayKey] = useState(0);
   const [isMobile, setIsMobile] = useState(() => 
     typeof window !== 'undefined' ? window.innerWidth < 1024 : false
   );
@@ -313,6 +491,7 @@ const Kana = () => {
   // Set active selected character when switching Hiragana/Katakana grids
   const handleCharClick = (char) => {
     setSelectedChar(char);
+    setReplayKey(prev => prev + 1);
     // Auto-pronounce
     speakText(
       activeTab === 'hiragana' ? (char.hiraganaOverride || char.hiragana) : char.katakana,
@@ -418,23 +597,27 @@ const Kana = () => {
       <div className="relative z-10 flex flex-col items-center text-center">
         
         {/* Big Japanese calligraph cell */}
-        <div className="relative w-36 h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-4 overflow-hidden">
+        <div 
+          onClick={() => setReplayKey(prev => prev + 1)}
+          className="relative w-36 h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-4 overflow-hidden cursor-pointer hover:bg-surface-container-low transition-colors group/circle"
+          title="Click to replay stroke order animation"
+        >
           <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none"></div>
           <div className="absolute inset-4 border border-dashed border-outline/10 rounded-full animate-[spin_40s_linear_infinite]"></div>
           {(() => {
             const symbol = activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana;
-            const isCombo = symbol.length > 1;
             return (
-              <span 
-                className={`font-bold text-primary relative z-10 leading-none whitespace-nowrap tracking-tighter ${
-                  isCombo ? 'text-[44px]' : 'text-[72px]'
-                }`}
-                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
-              >
-                {symbol}
-              </span>
+              <KanaStrokeAnimator 
+                char={symbol} 
+                replayKey={replayKey}
+              />
             );
           })()}
+          
+          {/* Replay Overlay Icon */}
+          <span className="material-symbols-outlined absolute right-3.5 bottom-3.5 text-[14px] text-outline opacity-0 group-hover/circle:opacity-60 transition-opacity select-none z-20">
+            replay
+          </span>
         </div>
 
         {/* Header details */}
