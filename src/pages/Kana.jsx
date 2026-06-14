@@ -624,7 +624,7 @@ const Kana = () => {
         {/* Big Japanese calligraph cell */}
         <div 
           onClick={() => setReplayKey(prev => prev + 1)}
-          className="relative w-36 h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-4 overflow-hidden cursor-pointer hover:bg-surface-container-low transition-colors group/circle"
+          className="relative w-24 h-24 md:w-36 md:h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-3 md:mb-4 overflow-hidden cursor-pointer hover:bg-surface-container-low transition-colors group/circle"
           title="Click to replay stroke order animation"
         >
           <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none"></div>
@@ -641,9 +641,9 @@ const Kana = () => {
         </div>
 
         {/* Header details */}
-        <div className="mb-4">
+        <div className="mb-3 md:mb-4">
           <h2 className="font-h2 text-on-surface">{selectedChar.romaji.toUpperCase()} Sound</h2>
-          <span className="font-label-caps text-[9px] text-outline tracking-wider border border-outline/10 bg-surface-container-low px-2 py-0.5 rounded-full mt-1.5 inline-block">
+          <span className="font-label-caps text-[9px] text-outline tracking-wider border border-outline/10 bg-surface-container-low px-2 py-0.5 rounded-full mt-1 md:mt-1.5 inline-block">
             {selectedChar.strokeCount ? `${selectedChar.strokeCount} STROKES` : 'COMBO SOUND'}
           </span>
         </div>
@@ -651,14 +651,14 @@ const Kana = () => {
         {/* Play Sound Trigger */}
         <button
           onClick={() => speakText(activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana, 0.75, selectedVoiceURI)}
-          className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform mb-6 shadow-sm"
+          className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform mb-4 md:mb-6 shadow-sm"
           title="Hear Sound"
         >
-          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>volume_up</span>
+          <span className="material-symbols-outlined text-[18px] md:text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>volume_up</span>
         </button>
 
         {/* Mnemonic Memory Aid */}
-        <div className="w-full text-left bg-secondary/5 border border-secondary/15 rounded-2xl p-4 mb-6">
+        <div className="w-full text-left bg-secondary/5 border border-secondary/15 rounded-2xl p-3 md:p-4 mb-4 md:mb-6">
           <div className="flex items-center gap-1.5 mb-2">
             <span className="material-symbols-outlined text-secondary text-[18px]">lightbulb</span>
             <span className="font-label-caps text-secondary tracking-widest text-[9px] font-bold">MNEMONIC AID</span>
@@ -670,9 +670,9 @@ const Kana = () => {
 
         {/* Example JLPT N5 Vocabulary */}
         {selectedChar.vocab && (
-          <div className="w-full text-left border-t border-outline/10 pt-4">
-            <span className="font-label-caps text-outline text-[9px] tracking-wider mb-3 block">EXAMPLE VOCABULARY</span>
-            <div className="bg-surface-container-low border border-outline/5 p-4 rounded-2xl flex justify-between items-center group">
+          <div className="w-full text-left border-t border-outline/10 pt-3 md:pt-4">
+            <span className="font-label-caps text-outline text-[9px] tracking-wider mb-2 md:mb-3 block">EXAMPLE VOCABULARY</span>
+            <div className="bg-surface-container-low border border-outline/5 p-3 md:p-4 rounded-2xl flex justify-between items-center group">
               <div>
                 <span 
                   className="text-[20px] font-bold text-primary tracking-wide block"
@@ -713,10 +713,10 @@ const Kana = () => {
 
   return (
     <motion.div 
-      className="max-w-6xl mx-auto pb-xl text-left px-2 sm:px-4"
+      className="max-w-6xl mx-auto pb-6 md:pb-xl text-left px-2 sm:px-4"
     >
       {/* Inline Tab & Desktop Voice Selector wrapper */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 md:mb-8">
         {/* Segmented Controller Tab Bar */}
         <div className="bg-surface rounded-2xl p-1 shadow-paper-layer border border-outline/10 flex relative w-full max-w-md">
           <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none mix-blend-multiply rounded-2xl"></div>
@@ -792,9 +792,9 @@ const Kana = () => {
                 </div>
 
                 {/* Rows Grid */}
-                <div className="space-y-4">
+                <div className="space-y-2.5 md:space-y-4">
                   {GRID_ROWS.map((gridRowObj) => (
-                    <div key={gridRowObj.idx} className="flex flex-col gap-1.5">
+                    <div key={gridRowObj.idx} className="flex flex-col gap-1 md:gap-1.5">
                       <span className="font-label-caps text-[8px] tracking-wider text-outline opacity-40 ml-1">{gridRowObj.label}</span>
                       <div className="grid grid-cols-5 gap-2">
                         {GRID_COLS.map((gridCol) => {
@@ -804,7 +804,7 @@ const Kana = () => {
                           });
                           
                           if (!char) {
-                            return <div key={gridCol} className="h-16 bg-surface-container-lowest/5 rounded-2xl border border-dashed border-outline/5 opacity-30"></div>;
+                            return <div key={gridCol} className="h-12 md:h-16 bg-surface-container-lowest/5 rounded-xl md:rounded-2xl border border-dashed border-outline/5 opacity-30"></div>;
                           }
 
                           const isSelected = selectedChar?.romaji === char.romaji;
@@ -814,14 +814,14 @@ const Kana = () => {
                             <button
                               key={char.romaji}
                               onClick={() => handleCharClick(char)}
-                              className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
+                              className={`h-12 md:h-16 rounded-xl md:rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
                                 isSelected 
                                   ? 'bg-primary/10 border-primary/10 shadow-sm text-primary font-bold' 
                                   : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
                               }`}
                             >
                               <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
-                              <span className="text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+                              <span className="text-[16px] md:text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
                                 {symbol}
                               </span>
                               <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
@@ -838,18 +838,18 @@ const Kana = () => {
             </div>
 
             {/* Dakuon and Handakuon Section */}
-            <div className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+            <div className="bg-surface rounded-3xl p-3.5 md:p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
               <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
               
-              <div className="relative z-10 space-y-4">
+              <div className="relative z-10 space-y-2.5 md:space-y-4">
                 <div className="border-b border-outline/5 pb-3">
                   <h3 className="text-[14px] font-bold text-primary leading-tight">Dakuon and Handakuon</h3>
                   <p className="text-[11px] text-outline mt-0.5">Add a symbol (voiced ticks ゛ or circle ゜) to change the sound.</p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-2.5 md:space-y-4">
                   {['G-Row', 'Z-Row', 'D-Row', 'B-Row', 'P-Row'].map((rowLabel, rIdx) => (
-                    <div key={rowLabel} className="flex flex-col gap-1.5">
+                    <div key={rowLabel} className="flex flex-col gap-1 md:gap-1.5">
                       <span className="font-label-caps text-[8px] tracking-wider text-outline opacity-40 ml-1">{rowLabel}</span>
                       <div className="grid grid-cols-5 gap-2">
                         {GRID_COLS.map((cIdx) => {
@@ -864,14 +864,14 @@ const Kana = () => {
                             <button
                               key={char.romaji}
                               onClick={() => handleCharClick(char)}
-                              className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
+                              className={`h-12 md:h-16 rounded-xl md:rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
                                 isSelected 
                                   ? 'bg-primary/10 border-primary/10 shadow-sm text-primary font-bold' 
                                   : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
                               }`}
                             >
                               <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
-                              <span className="text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+                              <span className="text-[16px] md:text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
                                 {symbol}
                               </span>
                               <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
@@ -888,10 +888,10 @@ const Kana = () => {
             </div>
 
             {/* Yoon Combo Section */}
-            <div className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+            <div className="bg-surface rounded-3xl p-3.5 md:p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden">
               <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
               
-              <div className="relative z-10 space-y-4">
+              <div className="relative z-10 space-y-2.5 md:space-y-4">
                 <div className="border-b border-outline/5 pb-3">
                   <h3 className="text-[14px] font-bold text-primary leading-tight">Combo Syllables</h3>
                   <p className="text-[11px] text-outline mt-0.5">Combine primary consonants with small ya/yu/yo contractions.</p>
@@ -903,9 +903,9 @@ const Kana = () => {
                   ))}
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-2.5 md:space-y-4">
                   {['K-Combo', 'S-Combo', 'T-Combo', 'N-Combo', 'H-Combo', 'M-Combo', 'R-Combo'].map((rowLabel, rIdx) => (
-                    <div key={rowLabel} className="flex flex-col gap-1.5">
+                    <div key={rowLabel} className="flex flex-col gap-1 md:gap-1.5">
                       <span className="font-label-caps text-[8px] tracking-wider text-outline opacity-40 ml-1">{rowLabel}</span>
                       <div className="grid grid-cols-3 gap-2">
                         {[0, 1, 2].map((cIdx) => {
@@ -920,14 +920,14 @@ const Kana = () => {
                             <button
                               key={char.romaji}
                               onClick={() => handleCharClick(char)}
-                              className={`h-16 rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
+                              className={`h-12 md:h-16 rounded-xl md:rounded-2xl border transition-all duration-200 flex flex-col items-center justify-center relative overflow-hidden group ${
                                 isSelected 
                                   ? 'bg-primary/10 border-primary/10 shadow-sm text-primary font-bold' 
                                   : 'bg-surface border-outline/5 hover:border-primary/20 hover:bg-surface-bright text-on-surface'
                               }`}
                             >
                               <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
-                              <span className="text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+                              <span className="text-[16px] md:text-[20px] font-bold leading-none z-10" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
                                 {symbol}
                               </span>
                               <span className="font-label-caps text-[8px] text-outline opacity-60 group-hover:opacity-100 mt-1 leading-none z-10">
@@ -1002,7 +1002,7 @@ const Kana = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 100 }}
                     transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                    className="bg-surface rounded-t-3xl p-6 shadow-2xl border-t border-outline/10 fixed bottom-0 left-0 right-0 z-50 max-h-[82vh] overflow-y-auto"
+                    className="bg-surface rounded-t-3xl p-4 md:p-6 shadow-2xl border-t border-outline/10 fixed bottom-0 left-0 right-0 z-50 max-h-[82vh] overflow-y-auto"
                   >
                     <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-t-3xl"></div>
                     
@@ -1030,7 +1030,7 @@ const Kana = () => {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
-                    className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden"
+                    className="bg-surface rounded-3xl p-4 md:p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
                     {renderCardContent()}
@@ -1052,14 +1052,14 @@ const Kana = () => {
         <div className="max-w-2xl mx-auto">
           {!practiceDeck.length || sessionCompleted ? (
             /* CONFIGURATION OR COMPLETE SCREEN */
-            <div className="bg-surface rounded-3xl p-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-center">
+            <div className="bg-surface rounded-3xl p-4 md:p-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-center">
               <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
               
               {!sessionCompleted ? (
                 /* SETUP PANEL */
-                <div className="relative z-10 space-y-8">
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto border border-primary/20 shadow-sm">
-                    <span className="material-symbols-outlined text-[32px] text-primary" style={{ fontVariationSettings: "'wght' 300" }}>school</span>
+                <div className="relative z-10 space-y-4 md:space-y-8">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto border border-primary/20 shadow-sm">
+                    <span className="material-symbols-outlined text-[24px] md:text-[32px] text-primary" style={{ fontVariationSettings: "'wght' 300" }}>school</span>
                   </div>
                   <div>
                     <h2 className="font-h1 text-on-surface mb-2 tracking-tighter">Trainer Sanctuary</h2>
@@ -1067,7 +1067,7 @@ const Kana = () => {
                   </div>
 
                   {/* Vowel or Katakana Toggle */}
-                  <div className="flex gap-4 justify-center border-t border-b border-outline/5 py-4">
+                  <div className="flex gap-4 justify-center border-t border-b border-outline/5 py-3 md:py-4">
                     <button
                       onClick={() => setPracticeMode('hiragana')}
                       className={`px-4 py-2 rounded-xl font-label-caps text-[9px] tracking-widest font-bold border transition-all ${
@@ -1088,8 +1088,8 @@ const Kana = () => {
 
                   {/* Character Column Grid selects */}
                   <div>
-                    <span className="font-label-caps text-outline text-[9px] tracking-widest mb-4 block">SELECT STUDY ROWS</span>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <span className="font-label-caps text-outline text-[9px] tracking-widest mb-2 md:mb-4 block">SELECT STUDY ROWS</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 md:gap-3">
                       {COLUMNS.map((col) => {
                         const isIncluded = selectedGroups.includes(col.name);
                         return (
@@ -1181,14 +1181,14 @@ const Kana = () => {
               </div>
 
               {/* Main Calligraphy Card */}
-              <div className="bg-surface rounded-3xl p-10 shadow-paper-layer border border-outline/10 relative overflow-hidden text-center flex flex-col items-center">
+              <div className="bg-surface rounded-3xl p-4 md:p-10 shadow-paper-layer border border-outline/10 relative overflow-hidden text-center flex flex-col items-center">
                 <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
                 
                 {/* Visual circle frame */}
-                <div className="relative w-44 h-44 bg-surface rounded-full border border-dashed border-outline/10 flex items-center justify-center mb-6 overflow-hidden">
+                <div className="relative w-28 h-28 md:w-44 md:h-44 bg-surface rounded-full border border-dashed border-outline/10 flex items-center justify-center mb-4 md:mb-6 overflow-hidden">
                   <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none"></div>
                   <span 
-                    className="text-[96px] font-bold text-primary leading-none"
+                    className="text-[64px] md:text-[96px] font-bold text-primary leading-none"
                     style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
                   >
                     {practiceMode === 'hiragana' 
@@ -1198,7 +1198,7 @@ const Kana = () => {
                   </span>
                 </div>
 
-                <p className="font-body-lg text-outline leading-relaxed mb-8">What is the correct Romaji reading for this character?</p>
+                <p className="font-body-lg text-outline leading-relaxed mb-4 md:mb-8">What is the correct Romaji reading for this character?</p>
 
                 {/* Multiple choice Options Grid */}
                 <div className="grid grid-cols-2 gap-4 w-full max-w-md">

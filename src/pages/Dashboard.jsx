@@ -84,32 +84,32 @@ const Dashboard = () => {
 
   const renderStreakCard = (isCompact = false) => {
     return (
-      <div className={`bg-surface-bright rounded-2xl shadow-ambient border border-outline/10 relative overflow-hidden group ${isCompact ? 'p-lg' : 'p-xl'}`}>
+      <div className={`bg-surface-bright rounded-2xl shadow-ambient border border-outline/10 relative overflow-hidden group ${isCompact ? 'p-3 sm:p-4 md:p-lg' : 'p-4 sm:p-6 md:p-xl'}`}>
         {/* Ink wash background effect */}
         <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors duration-1000 ease-out"></div>
         
         {/* Decorative Japanese element as absolute watermark */}
-        <div className="absolute -right-6 -bottom-8 opacity-[0.08] pointer-events-none select-none text-primary transition-transform duration-700 group-hover:scale-110">
-          <span className="text-[140px] leading-none font-bold" style={{ fontFamily: "serif" }}>道</span>
+        <div className="absolute -right-4 -bottom-6 md:-right-6 md:-bottom-8 opacity-[0.08] pointer-events-none select-none text-primary transition-transform duration-700 group-hover:scale-110">
+          <span className="text-[100px] md:text-[140px] leading-none font-bold" style={{ fontFamily: "serif" }}>道</span>
         </div>
 
         <div className="relative z-10 text-left">
           <motion.p 
             initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
-            className="font-label-caps text-outline mb-4 tracking-widest text-[9px]"
+            className="font-label-caps text-outline mb-2 md:mb-4 tracking-widest text-[9px]"
           >
             DAILY STREAK
           </motion.p>
-          <div className="flex items-center gap-md">
-            <div className={`rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-paper-layer shrink-0 ${isCompact ? 'w-12 h-12' : 'w-16 h-16'}`}>
-              <span className={`material-symbols-outlined text-primary ${isCompact ? 'text-[28px]' : 'text-[36px]'}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>local_fire_department</span>
+          <div className="flex items-center gap-3 md:gap-md">
+            <div className={`rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-paper-layer shrink-0 ${isCompact ? 'w-10 h-10 md:w-12 md:h-12' : 'w-12 h-12 md:w-16 md:h-16'}`}>
+              <span className={`material-symbols-outlined text-primary ${isCompact ? 'text-[24px] md:text-[28px]' : 'text-[28px] md:text-[36px]'}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>local_fire_department</span>
             </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className={`font-h1 text-primary leading-none tracking-tighter ${isCompact ? 'text-[48px]' : 'text-[64px]'}`}>{streak}</span>
-              <span className="font-h3 text-primary/60 text-[14px]">{streak === 1 ? 'day' : 'days'}</span>
+            <div className="flex items-baseline gap-1 md:gap-1.5">
+              <span className={`font-h1 text-primary leading-none tracking-tighter ${isCompact ? 'text-[36px] md:text-[48px]' : 'text-[40px] sm:text-[48px] md:text-[64px]'}`}>{streak}</span>
+              <span className="font-h3 text-primary/60 text-[12px] md:text-[14px]">{streak === 1 ? 'day' : 'days'}</span>
             </div>
           </div>
-          <p className="font-body-md text-on-surface-variant mt-sm max-w-sm leading-relaxed">
+          <p className="font-body-md text-on-surface-variant mt-2 md:mt-sm max-w-sm leading-relaxed text-[11px] sm:text-xs">
             {streak > 0 ? "The forest grows stronger with your consistency. Keep tending to your journey." : "Plant the first seed of your learning journey today."}
           </p>
         </div>
@@ -162,7 +162,7 @@ const Dashboard = () => {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="max-w-6xl mx-auto pb-xl relative px-2 sm:px-4"
+        className="max-w-6xl mx-auto pb-6 md:pb-xl relative px-2 sm:px-4"
       >
         {/* Ambient background blur */}
         <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-secondary-container/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply"></div>
@@ -175,10 +175,10 @@ const Dashboard = () => {
         </motion.div>
 
         {/* Two-column layout grid for desktop, single column stack for mobile/tablet */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg mb-xl relative z-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-lg mb-6 md:mb-xl relative z-10 items-start">
           
           {/* LEFT COLUMN: Main Learning Actions (7 cols on desktop) */}
-          <div className="lg:col-span-7 flex flex-col gap-lg">
+          <div className="lg:col-span-7 flex flex-col gap-4 md:gap-lg">
             {/* Page Header (Mobile/Tablet) - Hidden on Desktop */}
             <motion.div variants={itemVariants} className="relative z-10 lg:hidden mb-4">
               <h1 className="font-h1 text-primary mb-2 tracking-tighter">Home</h1>
@@ -196,17 +196,17 @@ const Dashboard = () => {
               
               if (currentIncomplete) {
                 return (
-                  <motion.div variants={itemVariants} className="bg-surface rounded-xl p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[220px]">
+                  <motion.div variants={itemVariants} className="bg-surface rounded-xl p-4 md:p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[160px] md:min-h-[220px]">
                     <div className="absolute -right-12 -top-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110">
                        <img src={logoNoText} alt="" className="w-[200px] h-auto" />
                     </div>
                     
-                    <div className="relative z-10 mb-xl">
-                      <div className="flex justify-between items-start mb-md">
-                        <div className="w-14 h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-surface-bright shadow-sm">
-                          <span className="material-symbols-outlined text-on-surface-variant text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>{currentIncomplete.icon}</span>
+                    <div className="relative z-10 mb-4 md:mb-xl">
+                      <div className="flex justify-between items-start mb-3 md:mb-md">
+                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-surface-bright shadow-sm">
+                          <span className="material-symbols-outlined text-on-surface-variant text-[20px] md:text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>{currentIncomplete.icon}</span>
                         </div>
-                        <span className="font-label-caps tracking-widest text-secondary px-4 py-2 border border-secondary/20 rounded-full bg-secondary/5">{currentIncomplete.unit}</span>
+                        <span className="font-label-caps tracking-widest text-secondary px-3 py-1.5 md:px-4 md:py-2 border border-secondary/20 rounded-full bg-secondary/5">{currentIncomplete.unit}</span>
                       </div>
                       <h2 className="font-h2 text-on-surface mb-xs tracking-tight">{currentIncomplete.title}</h2>
                       <p className="font-body-md text-primary font-bold mb-1">{currentIncomplete.phrase} ({currentIncomplete.meaning})</p>
@@ -223,17 +223,17 @@ const Dashboard = () => {
                 );
               } else {
                 return (
-                  <motion.div variants={itemVariants} className="bg-surface rounded-xl p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[220px]">
+                  <motion.div variants={itemVariants} className="bg-surface rounded-xl p-4 md:p-lg shadow-paper-layer border border-outline/20 flex flex-col justify-between relative overflow-hidden group hover:border-primary/30 transition-colors duration-500 min-h-[160px] md:min-h-[220px]">
                     <div className="absolute -right-12 -top-12 opacity-5 pointer-events-none transition-transform duration-700 group-hover:scale-110">
                        <img src={logoNoText} alt="" className="w-[200px] h-auto" />
                     </div>
                     
-                    <div className="relative z-10 mb-xl">
-                      <div className="flex justify-between items-start mb-md">
-                        <div className="w-14 h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-primary/10 text-primary shadow-sm">
-                          <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>stars</span>
+                    <div className="relative z-10 mb-4 md:mb-xl">
+                      <div className="flex justify-between items-start mb-3 md:mb-md">
+                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-2xl border border-outline/20 flex items-center justify-center bg-primary/10 text-primary shadow-sm">
+                          <span className="material-symbols-outlined text-[20px] md:text-[28px]" style={{ fontVariationSettings: "'wght' 200" }}>stars</span>
                         </div>
-                        <span className="font-label-caps tracking-widest text-primary px-4 py-2 border border-primary/20 rounded-full bg-primary/5">COMPLETED</span>
+                        <span className="font-label-caps tracking-widest text-primary px-3 py-1.5 md:px-4 md:py-2 border border-primary/20 rounded-full bg-primary/5">COMPLETED</span>
                       </div>
                       <h2 className="font-h2 text-on-surface mb-xs tracking-tight">All Foundations Mastered!</h2>
                       <p className="font-body-lg text-on-surface-variant max-w-md leading-relaxed">You have completed all standard daily foundations lessons. Your path to mastery continues!</p>
@@ -252,7 +252,7 @@ const Dashboard = () => {
 
             {/* Milestones Section */}
             <motion.section variants={itemVariants} className="relative z-10">
-              <div className="flex justify-between items-baseline mb-lg">
+              <div className="flex justify-between items-baseline mb-3 md:mb-lg">
                 <h2 className="font-h2 text-on-surface tracking-tight">Journey Milestones</h2>
                 <button 
                   onClick={() => navigate('/progress')}
@@ -262,34 +262,34 @@ const Dashboard = () => {
                 </button>
               </div>
               
-              <div className="flex gap-md overflow-x-auto pb-6 snap-x hide-scrollbar px-2 -mx-2">
+              <div className="flex gap-3 md:gap-md overflow-x-auto pb-4 md:pb-6 snap-x hide-scrollbar px-2 -mx-2">
                 {milestones.map((m, idx) => {
                   const isUnlocked = m.check();
                   return (
                     <motion.div 
                       key={idx}
                       whileHover={isUnlocked ? { y: -5 } : {}}
-                      className={`min-w-[140px] rounded-xl p-md flex flex-col items-center border snap-center transition-all duration-300 ${
+                      className={`min-w-[115px] md:min-w-[140px] rounded-xl p-3 md:p-md flex flex-col items-center border snap-center transition-all duration-300 ${
                         isUnlocked 
                           ? 'bg-surface border-outline/20 shadow-paper-layer cursor-pointer group' 
                           : 'bg-surface-bright border-outline/10 opacity-50 mix-blend-luminosity'
                       }`}
                     >
-                      <div className={`w-20 h-20 rounded-full overflow-hidden flex items-center justify-center mb-md relative border ${
+                      <div className={`w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden flex items-center justify-center mb-2 md:mb-md relative border ${
                         isUnlocked 
                           ? 'bg-primary-container/20 border-primary/30 text-primary shadow-sm' 
                           : 'bg-surface border-outline/20 text-outline'
                       }`}>
                         {isUnlocked && <div className="absolute inset-0 bg-primary/5 rounded-full"></div>}
                         <span 
-                          className="material-symbols-outlined text-[32px] relative z-10" 
+                          className="material-symbols-outlined text-[24px] md:text-[32px] relative z-10" 
                           style={{ fontVariationSettings: `'FILL' ${isUnlocked ? 1 : 0}, 'wght' 200` }}
                         >
                           {m.icon}
                         </span>
                         {!isUnlocked && (
                           <div className="absolute inset-0 flex items-center justify-center bg-surface-variant/40 rounded-full">
-                            <span className="material-symbols-outlined text-[14px] text-outline opacity-65" style={{ fontVariationSettings: "'wght' 300" }}>lock</span>
+                            <span className="material-symbols-outlined text-[12px] md:text-[14px] text-outline opacity-65" style={{ fontVariationSettings: "'wght' 300" }}>lock</span>
                           </div>
                         )}
                       </div>
@@ -304,20 +304,20 @@ const Dashboard = () => {
           </div>
 
           {/* RIGHT COLUMN: Stats Stack (5 cols on desktop) */}
-          <div className="lg:col-span-5 flex flex-col gap-lg w-full">
+          <div className="lg:col-span-5 flex flex-col gap-4 lg:gap-lg w-full">
             {/* Streak Card (Desktop Only) - Hidden on Mobile/Tablet */}
             <motion.section variants={itemVariants} className="relative z-10 hidden lg:block">
               {renderStreakCard(true)}
             </motion.section>
 
             {/* Mastery Card */}
-            <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-lg shadow-paper-layer border border-outline/20 flex justify-center items-center">
+            <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-4 md:p-lg shadow-paper-layer border border-outline/20 flex justify-center items-center">
               <MasteryRing progress={masteredWords} total={1000} label="Words Rooted" />
             </motion.div>
 
             {/* Daily Goal Card */}
-            <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/20 relative overflow-hidden">
-               <div className="flex justify-between items-end mb-md relative z-10">
+            <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-lg shadow-paper-layer border border-outline/20 relative overflow-hidden">
+               <div className="flex justify-between items-end mb-3 md:mb-md relative z-10">
                   <div>
                     <h3 className="font-label-caps text-outline tracking-widest mb-2">DAILY INTENT</h3>
                     <p className="font-h3 text-on-surface">Review {dailyGoal.total} Cards</p>
@@ -335,14 +335,14 @@ const Dashboard = () => {
                     className="h-full bg-secondary rounded-full"
                   />
                </div>
-               <p className="font-body-md text-outline text-right mt-3 relative z-10 tracking-widest font-mono text-sm">{dailyGoal.current} / {dailyGoal.total}</p>
+               <p className="font-body-md text-outline text-right mt-2 md:mt-3 relative z-10 tracking-widest font-mono text-sm">{dailyGoal.current} / {dailyGoal.total}</p>
             </motion.div>
 
             {/* Premium Promo Card */}
             {!user?.is_premium && (
               <motion.div 
                 variants={itemVariants} 
-                className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all duration-300 text-left"
+                className="bg-surface rounded-2xl p-4 md:p-lg shadow-paper-layer border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all duration-300 text-left"
               >
                 <div className="absolute inset-0 bg-primary/[0.02] group-hover:bg-primary/[0.04] transition-colors pointer-events-none" />
                 <div className="absolute -right-6 -bottom-6 opacity-[0.06] pointer-events-none text-primary">

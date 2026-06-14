@@ -89,14 +89,14 @@ const Progress = () => {
       variants={containerVariants} 
       initial="hidden" 
       animate="show" 
-      className="max-w-4xl mx-auto pb-xl px-2 sm:px-4"
+      className="max-w-4xl mx-auto pb-6 md:pb-xl px-2 sm:px-4"
     >
       {/* Ambient background blur */}
       <div className="fixed top-[-20%] right-[-10%] w-[60%] h-[60%] bg-secondary-container/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply z-0"></div>
       <div className="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-container/10 rounded-full blur-[80px] pointer-events-none mix-blend-multiply z-0"></div>
 
       {/* Canopy Header */}
-      <motion.div variants={itemVariants} className="mb-8 relative z-10 hidden md:block">
+      <motion.div variants={itemVariants} className="mb-4 md:mb-8 relative z-10 hidden md:block">
         <div className="flex items-center gap-4 mb-2">
           <button 
             onClick={() => navigate(-1)}
@@ -113,36 +113,36 @@ const Progress = () => {
       </motion.div>
 
       {/* Metrics Row */}
-      <motion.div variants={itemVariants} className="grid grid-cols-3 gap-4 mb-8 relative z-10">
+      <motion.div variants={itemVariants} className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-8 relative z-10">
         {/* Current Streak */}
-        <div className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col items-center relative overflow-hidden text-center">
+        <div className="bg-surface rounded-2xl p-3 md:p-md border border-outline/10 shadow-paper-layer flex flex-col items-center relative overflow-hidden text-center">
           <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-          <span className="material-symbols-outlined text-[32px] text-primary mb-2" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>local_fire_department</span>
+          <span className="material-symbols-outlined text-[24px] md:text-[32px] text-primary mb-1 md:mb-2" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>local_fire_department</span>
           <h3 className="font-h2 text-primary leading-none tracking-tighter">{streak}</h3>
           <p className="font-label-caps text-outline tracking-wider text-[9px] mt-1.5 leading-none">CURRENT STREAK</p>
         </div>
 
         {/* Longest Streak */}
-        <div className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col items-center relative overflow-hidden text-center">
+        <div className="bg-surface rounded-2xl p-3 md:p-md border border-outline/10 shadow-paper-layer flex flex-col items-center relative overflow-hidden text-center">
           <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-          <span className="material-symbols-outlined text-[32px] text-secondary mb-2" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>emoji_events</span>
+          <span className="material-symbols-outlined text-[24px] md:text-[32px] text-secondary mb-1 md:mb-2" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>emoji_events</span>
           <h3 className="font-h2 text-secondary leading-none tracking-tighter">{longestStreak}</h3>
           <p className="font-label-caps text-outline tracking-wider text-[9px] mt-1.5 leading-none">LONGEST STREAK</p>
         </div>
 
         {/* Mastered */}
-        <div className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col items-center relative overflow-hidden text-center">
+        <div className="bg-surface rounded-2xl p-3 md:p-md border border-outline/10 shadow-paper-layer flex flex-col items-center relative overflow-hidden text-center">
           <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-          <span className="material-symbols-outlined text-[32px] text-tertiary mb-2" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>verified</span>
+          <span className="material-symbols-outlined text-[24px] md:text-[32px] text-tertiary mb-1 md:mb-2" style={{ fontVariationSettings: "'FILL' 1, 'wght' 200" }}>verified</span>
           <h3 className="font-h2 text-tertiary leading-none tracking-tighter">{masteredWords}</h3>
           <p className="font-label-caps text-outline tracking-wider text-[9px] mt-1.5 leading-none">WORDS MASTERED</p>
         </div>
       </motion.div>
 
       {/* Daily Study Intent Card */}
-      <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden mb-8 z-10">
+      <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-4 md:p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden mb-6 md:mb-8 z-10">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
           <div className="flex-1 text-center md:text-left">
             <h3 className="font-h3 text-on-surface mb-2 tracking-tight">Daily Study Intent</h3>
             <p className="font-body-md text-on-surface-variant leading-relaxed">
@@ -209,7 +209,7 @@ const Progress = () => {
               return (
                 <div 
                   key={deck.id} 
-                  className="bg-surface rounded-2xl p-5 border border-outline/10 shadow-paper-layer relative overflow-hidden group hover:border-primary/20 transition-all duration-300"
+                  className="bg-surface rounded-2xl p-4 md:p-5 border border-outline/10 shadow-paper-layer relative overflow-hidden group hover:border-primary/20 transition-all duration-300"
                 >
                   <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
                   
@@ -280,24 +280,24 @@ const Progress = () => {
       </motion.div>
 
       {/* Sticker Book Milestones */}
-      <motion.div variants={itemVariants} className="mb-8 relative z-10">
+      <motion.div variants={itemVariants} className="mb-6 md:mb-8 relative z-10">
         <h3 className="font-label-caps text-outline tracking-[0.2em] mb-4 pl-2">JOURNEY MILESTONES</h3>
-        <div className="bg-surface rounded-3xl p-6 md:p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
+        <div className="bg-surface rounded-3xl p-4 md:p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
           <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
           
-          <div className="relative z-10 text-center mb-6">
+          <div className="relative z-10 text-center mb-4 md:mb-6">
             <h4 className="font-h3 text-on-surface tracking-tight mb-1">Your Sticker Book</h4>
             <p className="font-body-md text-outline">Stickers light up as you reach major learning milestones!</p>
           </div>
           
-          <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-4">
             {milestones.map((m, idx) => {
               const isUnlocked = m.check();
               return (
                 <motion.div 
                   key={idx}
                   whileHover={isUnlocked ? { scale: 1.03 } : {}}
-                  className={`flex flex-col items-center p-4 rounded-2xl border transition-all duration-500 relative overflow-hidden ${
+                  className={`flex flex-col items-center p-3 md:p-4 rounded-2xl border transition-all duration-500 relative overflow-hidden ${
                     isUnlocked 
                       ? 'bg-surface-bright border-primary/20 shadow-ambient' 
                       : 'bg-surface-variant/40 border-outline/10 opacity-40 mix-blend-luminosity'
@@ -306,12 +306,12 @@ const Progress = () => {
                   <div className="absolute inset-0 bg-washi opacity-10 mix-blend-multiply pointer-events-none"></div>
                   
                   {/* Sticker Badge Circle */}
-                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-3 relative shadow-inner border ${
+                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-2 md:mb-3 relative shadow-inner border ${
                     isUnlocked 
                       ? 'bg-primary-container/20 border-primary/30 text-primary shadow-sm' 
                       : 'bg-surface border-outline/20 text-outline'
                   }`}>
-                    <span className="material-symbols-outlined text-[32px]" style={{ fontVariationSettings: `'FILL' ${isUnlocked ? 1 : 0}, 'wght' 300` }}>
+                    <span className="material-symbols-outlined text-[24px] md:text-[32px]" style={{ fontVariationSettings: `'FILL' ${isUnlocked ? 1 : 0}, 'wght' 300` }}>
                       {m.icon}
                     </span>
                     

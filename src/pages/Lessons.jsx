@@ -189,11 +189,11 @@ const Lessons = () => {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="max-w-6xl mx-auto pb-xl text-left px-2 sm:px-4"
+        className="max-w-6xl mx-auto pb-6 md:pb-xl text-left px-2 sm:px-4"
       >
 
         {/* Global Progress Card */}
-        <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-6 mb-10 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+        <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-6 mb-4 md:mb-10 shadow-paper-layer border border-outline/10 relative overflow-hidden">
           <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
           <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -217,7 +217,7 @@ const Lessons = () => {
         {/* Category Tabs Selector */}
         <motion.div 
           variants={itemVariants} 
-          className="flex gap-2 overflow-x-auto pb-4 mb-8 -mx-4 px-4 scrollbar-none relative"
+          className="flex gap-2 overflow-x-auto pb-2 mb-4 md:mb-8 -mx-4 px-4 scrollbar-none relative"
           ref={containerRef}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
@@ -258,8 +258,8 @@ const Lessons = () => {
 
         {/* Active Foundations Modules */}
         {filteredLessons.length > 0 && (
-          <div className="mb-12">
-            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
+          <div className="mb-6 md:mb-12">
+            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-4 md:mb-6">
               <h3 className="font-h3 text-on-surface tracking-tight">Active Lessons</h3>
               <div className="h-[1px] flex-1 bg-outline/20"></div>
             </motion.div>
@@ -269,7 +269,7 @@ const Lessons = () => {
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
             >
               {[...filteredLessons].sort((a, b) => {
                 const aCompleted = completedLessons.includes(a.id);
@@ -284,13 +284,13 @@ const Lessons = () => {
                     key={lesson.id}
                     variants={itemVariants}
                       onClick={() => handleLessonStart(lesson)}
-                      className="bg-surface rounded-2xl p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
+                      className="bg-surface rounded-2xl p-4 md:p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
 
-                      <div className="flex justify-between items-start mb-6 relative z-10">
-                        <div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
+                      <div className="flex justify-between items-start mb-4 md:mb-6 relative z-10">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                          <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
                         </div>
                         <span className={`font-label-caps tracking-widest text-[9px] border px-2.5 py-1 rounded-full ${isCompleted ? 'bg-primary/10 border-primary text-primary font-bold' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
                           {isCompleted ? 'MASTERED' : 'ACTIVE'}
@@ -298,12 +298,12 @@ const Lessons = () => {
                       </div>
 
                       <div className="flex-grow relative z-10">
-                        <span className="text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
+                        <span className="text-[18px] md:text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
                         <h4 className="font-h3 text-on-surface tracking-tight">{lesson.title}</h4>
                         <p className="font-body-md text-outline tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
                       </div>
 
-                      <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
+                      <div className="mt-6 md:mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
                         <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
                         <span className="font-label-caps text-primary text-[9px] tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1 font-bold">
                           {isCompleted ? 'REVIEW' : 'STUDY'} <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
@@ -319,7 +319,7 @@ const Lessons = () => {
         {/* Future Expandable Modules */}
         {filteredFutureLessons.length > 0 && (
           <div>
-            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-6">
+            <motion.div variants={itemVariants} className="flex items-center gap-4 mb-4 md:mb-6">
               <h3 className="font-h3 text-outline tracking-tight">Locked Foundations</h3>
               <div className="h-[1px] flex-1 bg-outline/20"></div>
             </motion.div>
@@ -329,17 +329,17 @@ const Lessons = () => {
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-65"
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
             >
               {filteredFutureLessons.map((lesson) => (
                 <motion.div
                   key={lesson.id}
                   variants={itemVariants}
-                    className="bg-surface-bright rounded-2xl p-6 border border-outline/10 flex flex-col relative overflow-hidden"
+                    className="bg-surface-bright rounded-2xl p-4 md:p-6 border border-outline/10 flex flex-col relative overflow-hidden"
                   >
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-surface border border-outline/20 flex items-center justify-center text-outline">
-                        <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>{lesson.icon}</span>
+                    <div className="flex justify-between items-start mb-4 md:mb-6">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-surface border border-outline/20 flex items-center justify-center text-outline">
+                        <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>{lesson.icon}</span>
                       </div>
                       <span className="font-label-caps tracking-widest text-[9px] border border-outline/20 bg-surface/50 text-outline px-2.5 py-1 rounded-full flex items-center gap-1">
                         <span className="material-symbols-outlined text-[11px]">lock</span> LOCKED
@@ -347,12 +347,12 @@ const Lessons = () => {
                     </div>
 
                     <div className="flex-grow">
-                      <span className="text-[20px] font-bold text-outline/65 tracking-wide block mb-1">{lesson.phrase}</span>
+                      <span className="text-[18px] md:text-[20px] font-bold text-outline/65 tracking-wide block mb-1">{lesson.phrase}</span>
                       <h4 className="font-h3 text-outline tracking-tight">{lesson.title}</h4>
                       <p className="font-body-md text-outline/60 tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
                     </div>
 
-                    <div className="mt-8 border-t border-outline/5 pt-4 flex justify-between items-center">
+                    <div className="mt-6 md:mt-8 border-t border-outline/5 pt-4 flex justify-between items-center">
                       <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
                       <span className="font-label-caps text-outline text-[9px] tracking-widest font-bold">PREMIUM LOCK</span>
                     </div>
@@ -383,9 +383,9 @@ const Lessons = () => {
   const slide = activeLesson.slides[currentSlide];
 
   return (
-    <div className="max-w-2xl mx-auto pb-xl text-left">
+    <div className="max-w-2xl mx-auto pb-6 md:pb-xl text-left">
       {/* Lesson Header Navigation */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4 md:mb-6">
         <button
           onClick={handleExitLesson}
           className="flex items-center gap-2 py-2 text-outline hover:text-primary transition-colors font-label-caps tracking-widest text-[10px]"
@@ -398,7 +398,7 @@ const Lessons = () => {
       </div>
 
       {/* Interactive Screen Container */}
-      <div className="bg-surface rounded-2xl p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden">
+      <div className="bg-surface rounded-2xl p-4 md:p-lg shadow-paper-layer border border-outline/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
 
         <AnimatePresence mode="wait">
@@ -412,9 +412,9 @@ const Lessons = () => {
               className="relative z-10"
             >
               {/* Calligraphy Callout Display */}
-              <div className="bg-primary/5 rounded-2xl p-8 mb-6 text-center border border-primary/10 relative overflow-hidden">
+              <div className="bg-primary/5 rounded-2xl p-4 md:p-8 mb-4 md:mb-6 text-center border border-primary/10 relative overflow-hidden">
                 <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-                <div className="text-[38px] font-bold text-primary tracking-wide mb-1.5">{slide.japaneseContent}</div>
+                <div className="text-[28px] md:text-[38px] font-bold text-primary tracking-wide mb-1.5">{slide.japaneseContent}</div>
                 <div className="text-[13px] text-outline tracking-wider font-label-caps font-bold">{slide.romaji}</div>
               </div>
 
@@ -454,26 +454,26 @@ const Lessons = () => {
               className="relative z-10"
             >
               {/* Calligraphy Header */}
-              <div className="flex items-center gap-3 mb-6 bg-secondary/5 border border-secondary/10 px-4 py-3.5 rounded-xl">
-                <span className="material-symbols-outlined text-secondary text-[24px]">quiz</span>
+              <div className="flex items-center gap-3 mb-4 md:mb-6 bg-secondary/5 border border-secondary/10 px-4 py-3 md:py-3.5 rounded-xl">
+                <span className="material-symbols-outlined text-secondary text-[20px] md:text-[24px]">quiz</span>
                 <div>
                   <h4 className="font-label-caps text-secondary tracking-widest text-[9px] font-bold">COMPREHENSION CHECK</h4>
                   <h3 className="font-body-md font-bold text-on-surface">Test Your Knowledge</h3>
                 </div>
               </div>
 
-              <h3 className="font-body-lg font-bold text-on-surface leading-relaxed mb-6">
+              <h3 className="font-body-lg font-bold text-on-surface leading-relaxed mb-4 md:mb-6">
                 {activeLesson.quiz.question}
               </h3>
 
               {/* Quiz Option Buttons */}
-              <div className="space-y-3.5">
+              <div className="space-y-2.5 md:space-y-3.5">
                 {activeLesson.quiz.options.map((option, index) => {
                   const isSelected = selectedOption === index;
                   const isCorrectIndex = index === activeLesson.quiz.correctAnswerIndex;
                   const hasAnswered = selectedOption !== null;
 
-                  let buttonStyle = "w-full text-left p-4 rounded-xl border font-body-md transition-all duration-200 flex items-center justify-between outline-none ";
+                  let buttonStyle = "w-full text-left p-3 md:p-4 rounded-xl border font-body-md transition-all duration-200 flex items-center justify-between outline-none ";
 
                   if (!hasAnswered) {
                     buttonStyle += "bg-surface hover:bg-surface-bright hover:border-primary/30 border-outline/10 text-on-surface-variant active:scale-[0.99]";
@@ -512,7 +512,7 @@ const Lessons = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-primary/5 border border-primary/10 p-5 rounded-2xl mt-6 text-left"
+                    className="bg-primary/5 border border-primary/10 p-3.5 md:p-5 rounded-2xl mt-6 text-left"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <span className="material-symbols-outlined text-primary text-[18px]">lightbulb</span>

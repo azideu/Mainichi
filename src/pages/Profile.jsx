@@ -88,8 +88,8 @@ const Profile = () => {
   };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl mx-auto pb-xl px-2 sm:px-4">
-      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl mx-auto pb-6 md:pb-xl px-2 sm:px-4">
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-lg mb-4 md:mb-8 shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         
         {/* Settings shortcut inside profile card */}
@@ -114,12 +114,12 @@ const Profile = () => {
         <h3 className="font-h2 text-on-surface tracking-tight mb-1 relative z-10">{user?.name || 'Wanderer'}</h3>
         <p className="font-body-md text-outline mb-8 relative z-10 tracking-wide">{user?.email || 'journey@mainichi.app'}</p>
 
-        <div className="flex justify-center gap-6 relative z-10">
-          <div className="bg-primary/5 border border-primary/10 px-8 py-4 rounded-xl flex flex-col items-center">
+        <div className="flex justify-center gap-3 md:gap-6 relative z-10">
+          <div className="bg-primary/5 border border-primary/10 px-4 py-3 md:px-8 md:py-4 rounded-xl flex flex-col items-center">
             <span className="font-h2 text-primary">{streak}</span>
             <span className="font-label-caps text-outline tracking-widest text-[10px] mt-1">DAY STREAK</span>
           </div>
-          <div className="bg-secondary/5 border border-secondary/10 px-8 py-4 rounded-2xl flex flex-col items-center">
+          <div className="bg-secondary/5 border border-secondary/10 px-4 py-3 md:px-8 md:py-4 rounded-2xl flex flex-col items-center">
             <span className="font-h2 text-secondary">{masteredWords}</span>
             <span className="font-label-caps text-outline tracking-widest text-[10px] mt-1">MASTERED</span>
           </div>
@@ -127,7 +127,7 @@ const Profile = () => {
       </motion.div>
 
       {/* Subscription Status Card */}
-      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-6 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left">
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-6 mb-4 md:mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -164,7 +164,7 @@ const Profile = () => {
       <motion.div
         variants={itemVariants}
         onClick={() => navigate('/progress')}
-        className="bg-surface rounded-2xl p-5 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left group hover:border-primary/20 cursor-pointer transition-colors duration-300"
+        className="bg-surface rounded-2xl p-4 md:p-5 mb-4 md:mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left group hover:border-primary/20 cursor-pointer transition-colors duration-300"
       >
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <div className="relative z-10 flex justify-between items-center">
@@ -181,19 +181,19 @@ const Profile = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-lg shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-4 md:p-lg shadow-paper-layer border border-outline/10 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-        <h3 className="font-h3 text-on-surface mb-8 tracking-tight relative z-10">Edit Identity</h3>
+        <h3 className="font-h3 text-on-surface mb-4 md:mb-8 tracking-tight relative z-10">Edit Identity</h3>
 
-        <div className="mb-10 relative z-10">
-          <label className="block font-label-caps tracking-widest text-outline mb-4">CHOOSE AVATAR</label>
-          <div className="flex flex-wrap justify-center gap-4">
+        <div className="mb-6 md:mb-10 relative z-10">
+          <label className="block font-label-caps tracking-widest text-outline mb-3 md:mb-4">CHOOSE AVATAR</label>
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4">
             {/* Upload Button */}
             <button
               onClick={() => fileInputRef.current.click()}
-              className="w-16 h-16 rounded-xl bg-surface-bright border border-dashed border-primary/30 flex flex-col items-center justify-center text-primary hover:bg-primary/5 transition-all group"
+              className="w-12 h-12 md:w-16 md:h-16 rounded-xl bg-surface-bright border border-dashed border-primary/30 flex flex-col items-center justify-center text-primary hover:bg-primary/5 transition-all group"
             >
-              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>add_a_photo</span>
+              <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>add_a_photo</span>
             </button>
             <input
               type="file"
@@ -207,7 +207,7 @@ const Profile = () => {
               <button
                 key={idx}
                 onClick={() => setProfilePicture(url)}
-                className={`w-16 h-16 rounded-2xl overflow-hidden border transition-all ${profilePicture === url ? 'border-primary scale-110 shadow-paper-layer' : 'border-outline/10 opacity-70 hover:opacity-100 hover:border-outline/30'}`}
+                className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl overflow-hidden border transition-all ${profilePicture === url ? 'border-primary scale-110 shadow-paper-layer' : 'border-outline/10 opacity-70 hover:opacity-100 hover:border-outline/30'}`}
               >
                 <img src={url} alt={`Avatar ${idx}`} className="w-full h-full object-cover" />
               </button>
@@ -215,9 +215,9 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="h-[1px] bg-outline/10 mb-10 w-1/3 mx-auto relative z-10" />
+        <div className="h-[1px] bg-outline/10 mb-6 md:mb-10 w-1/3 mx-auto relative z-10" />
 
-        <form className="space-y-6 text-left max-w-sm mx-auto relative z-10" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4 md:space-y-6 text-left max-w-sm mx-auto relative z-10" onSubmit={(e) => e.preventDefault()}>
           <div>
             <label className="block font-label-caps tracking-widest text-outline mb-2 ml-1">DISPLAY NAME</label>
             <input

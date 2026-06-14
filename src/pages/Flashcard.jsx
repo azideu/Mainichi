@@ -34,14 +34,14 @@ const getActiveSteps = (card) => {
 };
 
 const getDynamicFontSize = (text) => {
-  if (!text) return 'text-[96px]';
+  if (!text) return 'text-[104px] md:text-[140px]';
   const len = text.length;
-  if (len <= 1) return 'text-[96px]';
-  if (len === 2) return 'text-[64px]';
-  if (len === 3) return 'text-[48px]';
-  if (len === 4) return 'text-[36px]';
-  if (len <= 8) return 'text-[24px]';
-  return 'text-[16px] leading-normal px-4 text-center';
+  if (len <= 1) return 'text-[104px] md:text-[140px]';
+  if (len === 2) return 'text-[76px] md:text-[104px]';
+  if (len === 3) return 'text-[56px] md:text-[76px]';
+  if (len === 4) return 'text-[42px] md:text-[56px]';
+  if (len <= 8) return 'text-[28px] md:text-[38px]';
+  return 'text-[18px] md:text-[24px] leading-normal px-4 text-center';
 };
 
 const Flashcard = () => {
@@ -54,6 +54,7 @@ const Flashcard = () => {
   const [isFinished, setIsFinished] = useState(false);
   const [results, setResults] = useState({ meaning: null, onyomi: null, kunyomi: null });
   const [options, setOptions] = useState({ meaning: [], onyomi: [], kunyomi: [] });
+  const [fullDeckVocab, setFullDeckVocab] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [speechFeedback, setSpeechFeedback] = useState('');
 
@@ -66,10 +67,10 @@ const Flashcard = () => {
         const token = localStorage.getItem('mainichi_token');
         const tzOffset = new Date().getTimezoneOffset().toString();
         const searchParams = new URLSearchParams(window.location.search);
-        const deckId = searchParams.get('deckId');
+        const deckId = searchParams.get('deckId') || '1';
         
         let url = `/api/progress/due?tzOffset=${tzOffset}`;
-        if (deckId) {
+        if (searchParams.get('deckId')) {
           url += `&deckId=${deckId}`;
         }
 
@@ -79,10 +80,27 @@ const Flashcard = () => {
             'X-Timezone-Offset': tzOffset
           }
         });
+
+        const vocabRes = await fetch(`/api/decks/${deckId}/vocab`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        let dueData = [];
+        let vocabData = [];
+
         if (res.ok) {
-          const data = await res.json();
-          setDeck(data);
-          if (data.length > 0) generateOptions(0, data);
+          dueData = await res.json();
+          setDeck(dueData);
+        }
+        if (vocabRes.ok) {
+          vocabData = await vocabRes.json();
+          setFullDeckVocab(vocabData);
+        }
+
+        if (dueData.length > 0) {
+          generateOptions(0, dueData, vocabData.length > 0 ? vocabData : dueData);
         }
       } catch (err) {
         console.error("Failed to fetch due cards", err);
@@ -93,17 +111,16 @@ const Flashcard = () => {
     fetchDue();
   }, []);
 
-  const generateOptions = (index, currentDeck) => {
+  const generateOptions = (index, currentDeck, poolOverride) => {
     const card = currentDeck[index];
-    const pool = currentDeck;
+    const pool = poolOverride || (fullDeckVocab.length > 0 ? fullDeckVocab : currentDeck);
     
     const getDistractors = (attr, correctVal) => {
-      const isReading = attr === 'onyomi' || attr === 'kunyomi';
-      const cleanCorrect = isReading ? getFirstReading(correctVal) : correctVal;
+      const cleanCorrect = getFirstReading(correctVal);
 
       const distractors = pool
         .filter(c => c.id !== card.id)
-        .map(c => isReading ? getFirstReading(c[attr]) : c[attr])
+        .map(c => getFirstReading(c[attr]))
         .filter(val => val && val !== cleanCorrect)
         .filter((val, idx, self) => self.indexOf(val) === idx);
       
@@ -138,7 +155,7 @@ const Flashcard = () => {
     
     // Vibrate device to confirm haptic shuffle action
     sendToAppInventor("VIBRATE");
-  }, [deck, currentIndex]);
+  }, [deck, currentIndex, fullDeckVocab]);
 
   useEffect(() => {
     const handleShake = () => {
@@ -287,7 +304,7 @@ const Flashcard = () => {
   const handleChoice = (type, choice) => {
     let isCorrect = false;
     if (type === 'meaning') {
-      isCorrect = choice === currentCard.english;
+      isCorrect = choice === getFirstReading(currentCard.english);
     } else {
       isCorrect = choice === getFirstReading(currentCard[type]);
     }
@@ -383,46 +400,49 @@ const Flashcard = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto h-[85vh] flex flex-col pt-4 px-4">
-      {/* Top Bar */}
-      <div className="flex justify-between items-center mb-8">
-        <button onClick={() => navigate('/')} className="text-outline hover:text-primary transition-colors">
-          <span className="material-symbols-outlined">close</span>
-        </button>
-        <div className="flex-1 px-8">
-          <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
-            <motion.div 
-              className="h-full bg-primary rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentIndex / deck.length) * 100}%` }}
-              transition={{ duration: 0.5 }}
-            />
+    <div className="max-w-md mx-auto h-[82vh] md:h-[85vh] flex flex-col justify-between pt-4 px-4">
+      {/* Top Section: Top Bar & Centered Kanji */}
+      <div className="flex flex-col flex-1 justify-between pb-2 w-full">
+        {/* Top Bar */}
+        <div className="flex justify-between items-center mb-4">
+          <button onClick={() => navigate('/')} className="text-outline hover:text-primary transition-colors">
+            <span className="material-symbols-outlined">close</span>
+          </button>
+          <div className="flex-1 px-8">
+            <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-primary rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${(currentIndex / deck.length) * 100}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
           </div>
+          <span className="font-label-caps text-outline text-[10px] tracking-widest">{currentIndex + 1}/{deck.length}</span>
         </div>
-        <span className="font-label-caps text-outline text-[10px] tracking-widest">{currentIndex + 1}/{deck.length}</span>
+
+        {/* Kanji Display (centered vertically in this top area) */}
+        <div className="flex-1 flex flex-col items-center justify-center py-6 relative">
+          <motion.div 
+            key={currentIndex}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="relative"
+          >
+            {/* Circular frame like Kanji Garden */}
+            <div className="absolute inset-0 -m-8 md:-m-12 border-4 border-dashed border-outline/10 rounded-full animate-[spin_30s_linear_infinite]"></div>
+            <div className="w-48 h-48 md:w-64 md:h-64 bg-surface rounded-full flex items-center justify-center shadow-paper-layer border border-outline/5 relative z-10 overflow-hidden">
+              <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply"></div>
+              <span className={`${getDynamicFontSize(currentCard.kanji)} font-bold text-on-surface relative z-10`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+                {currentCard.kanji}
+              </span>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Kanji Display */}
-      <div className="flex flex-col items-center mb-10">
-        <motion.div 
-          key={currentIndex}
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="relative"
-        >
-          {/* Circular frame like Kanji Garden */}
-          <div className="absolute inset-0 -m-8 border-4 border-dashed border-outline/10 rounded-full animate-[spin_30s_linear_infinite]"></div>
-          <div className="w-44 h-44 bg-surface rounded-full flex items-center justify-center shadow-paper-layer border border-outline/5 relative z-10 overflow-hidden">
-            <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply"></div>
-            <span className={`${getDynamicFontSize(currentCard.kanji)} font-bold text-on-surface relative z-10`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
-              {currentCard.kanji}
-            </span>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Interaction Area */}
-      <div className="flex-1 flex flex-col">
+      {/* Bottom Section: Interaction Area */}
+      <div className="flex-1 flex flex-col justify-end w-full">
         <AnimatePresence mode="wait">
           {step === STEPS.RECALL && (
             <motion.div 
@@ -430,9 +450,9 @@ const Flashcard = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex flex-col items-center text-center space-y-8"
+              className="flex-1 flex flex-col justify-between items-center text-center w-full pb-2"
             >
-              <p className="font-body-lg text-outline leading-relaxed">
+              <p className="font-body-lg text-outline leading-relaxed max-w-[320px] mb-6">
                 Recall the <span className="text-on-surface font-medium">meaning</span>
                 {activeSteps.includes(STEPS.ONYOMI) && (
                   <>
@@ -448,18 +468,18 @@ const Flashcard = () => {
                   <> and <span className="text-on-surface font-medium">reading</span></>
                 )} for this item.
               </p>
-              <div className="w-full space-y-4">
-                <Button3D onClick={() => setStep(STEPS.MEANING)} variant="primary" className="w-full py-6">
+              <div className="w-full space-y-4 mt-auto">
+                <Button3D onClick={() => setStep(STEPS.MEANING)} variant="primary" className="w-full py-6 text-[18px]">
                   Recall readings
                 </Button3D>
                 {isMobileApp && (
                   <Button3D 
                     onClick={handleSpeechRecognitionStart} 
                     variant="secondary" 
-                    className="w-full py-6 border-primary/20"
+                    className="w-full py-6 border-primary/20 text-[18px]"
                     disabled={isListening}
                   >
-                    <span className="material-symbols-outlined text-primary text-[20px] animate-pulse">
+                    <span className="material-symbols-outlined text-primary text-[22px] animate-pulse">
                       {isListening ? 'graphic_eq' : 'mic'}
                     </span>
                     {isListening ? 'Listening...' : 'Speak Answer'}
@@ -472,7 +492,7 @@ const Flashcard = () => {
                 )}
                 <button 
                   onClick={handleForgot}
-                  className="w-full py-4 bg-surface-variant/30 rounded-2xl text-outline font-label-caps tracking-widest hover:bg-surface-variant/50 transition-all border border-outline/5"
+                  className="w-full py-4 bg-surface-variant/30 rounded-xl text-outline font-label-caps tracking-widest hover:bg-surface-variant/50 transition-all border border-outline/5 text-[13px] font-semibold"
                 >
                   Not sure?
                 </button>
@@ -486,17 +506,17 @@ const Flashcard = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="flex flex-col space-y-6"
+              className="flex-1 flex flex-col justify-between w-full pb-2"
             >
-              <p className="font-label-caps text-outline text-center tracking-[0.2em]">
+              <p className="font-label-caps text-outline text-center tracking-[0.2em] mb-4">
                 CHOOSE THE {step}
               </p>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-4 flex-grow flex flex-col justify-center my-auto w-full py-2">
                 {options[step.toLowerCase()]?.map((opt, i) => (
                   <button
                     key={i}
                     onClick={() => handleChoice(step.toLowerCase(), opt)}
-                    className="w-full py-5 px-6 bg-surface border border-outline/10 rounded-2xl font-h3 text-on-surface hover:border-primary/50 hover:bg-primary/5 transition-all shadow-paper-layer text-center active:scale-[0.98]"
+                    className="w-full py-5 px-4 md:py-6 md:px-6 bg-surface border border-outline/10 rounded-xl md:rounded-2xl font-bold text-on-surface hover:border-primary/50 hover:bg-primary/5 transition-all shadow-paper-layer text-center active:scale-[0.98] text-[18px] md:text-[22px]"
                   >
                     {opt}
                   </button>
@@ -504,7 +524,7 @@ const Flashcard = () => {
               </div>
               <button 
                 onClick={handleForgot}
-                className="w-full py-4 text-outline font-label-caps tracking-widest hover:text-primary transition-colors mt-2"
+                className="w-full py-4 text-outline font-label-caps tracking-widest hover:text-primary transition-colors mt-auto text-[13px] font-semibold"
               >
                 Forgot?
               </button>
@@ -516,72 +536,74 @@ const Flashcard = () => {
               key="result"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col space-y-8"
+              className="flex-1 flex flex-col justify-between w-full pb-2"
             >
-              <div className="text-center space-y-1">
-                <h2 className={`font-h2 ${isAllCorrect ? 'text-primary' : 'text-error'}`}>
-                  {isAllCorrect ? 'Correct!' : 'Incorrect'}
-                </h2>
-                {nextReviewText && (
-                  <p className="font-body-md text-outline">
-                    Review again in <span className="font-medium text-on-surface-variant">{nextReviewText}</span>
-                  </p>
+              <div className="space-y-4 flex-grow flex flex-col justify-center my-auto w-full">
+                <div className="text-center space-y-1">
+                  <h2 className={`font-h2 ${isAllCorrect ? 'text-primary' : 'text-error'}`}>
+                    {isAllCorrect ? 'Correct!' : 'Incorrect'}
+                  </h2>
+                  {nextReviewText && (
+                    <p className="font-body-md text-outline">
+                      Review again in <span className="font-medium text-on-surface-variant">{nextReviewText}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div className="bg-surface rounded-2xl md:rounded-3xl p-4 md:p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
+                  <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply"></div>
+                  <div className="relative z-10 space-y-3 md:space-y-6">
+                    {activeSteps.includes(STEPS.MEANING) && (
+                      <div className="flex flex-col">
+                        <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
+                        <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
+                          {currentCard.english} {results.meaning === false && '✗'}
+                        </span>
+                      </div>
+                    )}
+                    {activeSteps.includes(STEPS.ONYOMI) && (
+                      <div className="flex flex-col">
+                        <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
+                        <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
+                          {currentCard.onyomi} {results.onyomi === false && '✗'}
+                        </span>
+                      </div>
+                    )}
+                    {activeSteps.includes(STEPS.KUNYOMI) && (
+                      <div className="flex flex-col">
+                        <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
+                        <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
+                          {currentCard.kunyomi} {results.kunyomi === false && '✗'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {!isAllCorrect && (
+                  <button
+                    type="button"
+                    onClick={handleOverrideClick}
+                    className="w-full py-4 bg-surface-variant/30 hover:bg-surface-variant/50 text-outline hover:text-primary border border-outline/10 rounded-xl font-label-caps tracking-widest text-[13px] font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">undo</span>
+                    Oops! I actually knew it
+                  </button>
                 )}
               </div>
 
-              <div className="bg-surface rounded-3xl p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
-                <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply"></div>
-                <div className="relative z-10 space-y-6">
-                  {activeSteps.includes(STEPS.MEANING) && (
-                    <div className="flex flex-col">
-                      <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
-                      <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
-                        {currentCard.english} {results.meaning === false && '✗'}
-                      </span>
-                    </div>
-                  )}
-                  {activeSteps.includes(STEPS.ONYOMI) && (
-                    <div className="flex flex-col">
-                      <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
-                      <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
-                        {currentCard.onyomi} {results.onyomi === false && '✗'}
-                      </span>
-                    </div>
-                  )}
-                  {activeSteps.includes(STEPS.KUNYOMI) && (
-                    <div className="flex flex-col">
-                      <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
-                      <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
-                        {currentCard.kunyomi} {results.kunyomi === false && '✗'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {!isAllCorrect && (
-                <button
-                  type="button"
-                  onClick={handleOverrideClick}
-                  className="w-full py-4 bg-surface-variant/30 hover:bg-surface-variant/50 text-outline hover:text-primary border border-outline/10 rounded-2xl font-label-caps tracking-widest text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-[16px]">undo</span>
-                  Oops! I actually knew it
-                </button>
-              )}
-
-              <div className="flex gap-4">
+              <div className="flex gap-3 md:gap-4 mt-auto pt-4 w-full">
                 <button 
                   onClick={() => {
                     if (isMobileApp) {
                       speakText(currentCard.kanji);
                     }
                   }}
-                  className="w-16 h-16 rounded-2xl bg-surface border border-outline/10 flex items-center justify-center text-outline hover:text-primary transition-colors shadow-sm"
+                  className="w-14 h-14 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-surface border border-outline/10 flex items-center justify-center text-outline hover:text-primary transition-colors shadow-sm shrink-0"
                 >
-                  <span className="material-symbols-outlined">volume_up</span>
+                  <span className="material-symbols-outlined text-[24px]">volume_up</span>
                 </button>
-                <Button3D onClick={handleNext} variant="primary" className="flex-1">
+                <Button3D onClick={handleNext} variant="primary" className="flex-1 py-6 text-[18px]">
                   Next Card
                   <span className="material-symbols-outlined ml-2">arrow_forward</span>
                 </Button3D>

@@ -358,9 +358,9 @@ const Community = () => {
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-6xl mx-auto pb-xl px-2 sm:px-4">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-6xl mx-auto pb-6 md:pb-xl px-2 sm:px-4">
       {/* Page Header */}
-      <motion.div variants={itemVariants} className="mb-8 hidden md:flex justify-between items-end">
+      <motion.div variants={itemVariants} className="mb-4 md:mb-8 hidden md:flex justify-between items-end">
         <div>
           <h1 className="font-h1 text-primary mb-2 tracking-tighter">Community</h1>
           <p className="font-body-md text-outline tracking-wide">Share custom paths and study with standard lists.</p>
@@ -375,7 +375,7 @@ const Community = () => {
       </motion.div>
 
       {/* Main Tabs */}
-      <motion.div variants={itemVariants} className="flex bg-surface-variant/30 rounded-xl p-1 mb-8 backdrop-blur-sm border border-outline/10">
+      <motion.div variants={itemVariants} className="flex bg-surface-variant/30 rounded-xl p-1 mb-4 md:mb-8 backdrop-blur-sm border border-outline/10">
         <button 
           onClick={() => setActiveTab('discover')}
           className={`flex-1 py-3 font-label-caps tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'discover' ? 'bg-surface shadow-paper-layer text-primary border border-outline/10' : 'text-outline hover:text-on-surface'}`}
@@ -390,148 +390,169 @@ const Community = () => {
         </button>
       </motion.div>
 
-      {/* Discover Decks Panel */}
-      {activeTab === 'discover' && (
-        <div className="space-y-6 mb-16">
-          {/* Search & Sort Filter Bar */}
-          <motion.div 
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row gap-4 bg-surface rounded-2xl p-4 shadow-paper-layer border border-outline/10 relative overflow-hidden"
+      {/* Discover Decks / Workshop Panels */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'discover' && (
+          <motion.div
+            key="discover"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, y: -15, transition: { duration: 0.15 } }}
+            className="space-y-6 mb-16"
           >
-            <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-            
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
-              <input
-                type="text"
-                placeholder="Search decks or authors..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface-variant/30 hover:bg-surface-variant/50 focus:bg-surface-bright border border-outline/15 rounded-xl pl-9 pr-4 py-2 text-[11px] focus:outline-none focus:border-primary/50 transition-colors"
-              />
-            </div>
-            
-            {/* Sort Dropdown */}
-            <div className="relative min-w-[160px]">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full bg-surface border border-outline/15 rounded-xl pl-3 pr-8 py-2 text-[11px] font-medium focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-bright transition-colors appearance-none"
-              >
-                <option value="newest">Newest First</option>
-                <option value="popular">Cards Count (High-Low)</option>
-                <option value="alphabetical">Alphabetical</option>
-              </select>
-              <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[14px] text-outline pointer-events-none">unfold_more</span>
-            </div>
-          </motion.div>
-
-          {filteredDecks.length === 0 ? (
-            <div className="bg-surface rounded-2xl p-10 border border-outline/10 text-center relative overflow-hidden shadow-sm">
-              <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-              <span className="material-symbols-outlined text-[48px] text-outline opacity-50 mb-2">import_contacts</span>
-              <p className="font-body-md text-outline">No matching decks found. Try a different query.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredDecks.map(deck => (
-                <motion.div 
-                  variants={itemVariants} 
-                  key={deck.id} 
-                  onClick={() => handleOpenPreview(deck)}
-                  className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 group relative overflow-hidden transition-colors hover:border-primary/20 cursor-pointer"
+            {/* Search & Sort Filter Bar */}
+            <motion.div 
+              variants={itemVariants}
+              className="flex flex-col sm:flex-row gap-3 md:gap-4 bg-surface rounded-2xl p-3 md:p-4 shadow-paper-layer border border-outline/10 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+              
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                <input
+                  type="text"
+                  placeholder="Search decks or authors..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-surface-variant/30 hover:bg-surface-variant/50 focus:bg-surface-bright border border-outline/15 rounded-xl pl-9 pr-4 py-2 text-[11px] focus:outline-none focus:border-primary/50 transition-colors"
+                />
+              </div>
+              
+              {/* Sort Dropdown */}
+              <div className="relative min-w-[160px]">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full bg-surface border border-outline/15 rounded-xl pl-3 pr-8 py-2 text-[11px] font-medium focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-surface-bright transition-colors appearance-none"
                 >
-                  {/* Washi Texture */}
-                  <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-                  {/* Ink wash hover */}
-                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                  <div className="relative z-10 flex-1">
-                    <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h3 className="font-h3 text-on-surface tracking-tight group-hover:text-primary transition-colors">{deck.title}</h3>
-                      {deck.is_premium === 1 && (
-                        <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
-                          PREMIUM
-                        </span>
-                      )}
-                      {deck.downloaded === 1 && (
-                        <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[10px]">check</span> ACTIVE
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-body-md text-on-surface-variant text-sm mb-4 leading-relaxed line-clamp-2">{deck.description || 'No description provided.'}</p>
-                    <div className="flex items-center gap-6 text-xs font-label-caps text-outline tracking-widest">
-                      <span className="flex items-center gap-1.5">
-                        Crafted by <span className="text-on-surface font-semibold">{deck.author}</span>
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[15px]">menu_book</span> {deck.word_count} cards
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="w-full sm:w-auto relative z-10 flex gap-2">
-                    {deck.downloaded === 1 ? (
-                      <Button3D 
-                        variant="primary" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/flashcard?deckId=${deck.id}`);
-                        }}
-                      >
-                        Study Now
-                      </Button3D>
-                    ) : (
-                      <Button3D 
-                        variant={deck.is_premium === 1 ? 'primary' : 'secondary'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownload(deck.id, deck.is_premium === 1);
-                        }}
-                      >
-                        {deck.is_premium === 1 ? 'Unlock Deck' : 'Download'}
-                      </Button3D>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Workshop Panel */}
-      {activeTab === 'workshop' && (
-        <div className="space-y-8 mb-16">
-          {!isCreator ? (
-            <motion.div variants={itemVariants} className="bg-primary-container rounded-3xl p-lg text-center border border-primary/20 shadow-paper-layer relative overflow-hidden">
-              <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply pointer-events-none"></div>
-              <div className="relative z-10">
-                <span className="material-symbols-outlined text-[56px] text-primary mb-4" style={{ fontVariationSettings: "'wght' 200" }}>storefront</span>
-                <h3 className="font-h2 text-on-primary-container mb-3 tracking-tight">Become a Creator</h3>
-                <p className="font-body-md text-on-primary-container/85 mb-8 max-w-md mx-auto leading-relaxed">
-                  Join other master scholars. Share your custom vocabulary lists with the world and unlock creator achievements.
-                </p>
-                <Button3D variant="primary" onClick={() => { setWizardStep(1); setShowCreatorWizard(true); }} className="max-w-[200px] mx-auto">
-                  Apply Now
-                </Button3D>
+                  <option value="newest">Newest First</option>
+                  <option value="popular">Cards Count (High-Low)</option>
+                  <option value="alphabetical">Alphabetical</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-[14px] text-outline pointer-events-none">unfold_more</span>
               </div>
             </motion.div>
-          ) : (
-            <div className="space-y-6">
-              <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-md border border-dashed border-outline/20 flex flex-col justify-center items-center text-center py-10 shadow-sm cursor-pointer hover:border-primary/40 transition-colors" onClick={() => setShowCreatorForm(true)}>
-                <span className="material-symbols-outlined text-[48px] text-primary/50 mb-3">add_circle</span>
-                <h3 className="font-h3 text-on-surface mb-1">Create a Custom Deck</h3>
-                <p className="font-body-md text-outline max-w-sm">Design, add vocabulary, and publish your own Japanese learning deck.</p>
-              </motion.div>
 
-              <div>
-                <h2 className="font-label-caps text-outline tracking-widest mb-4">YOUR HANDCRAFTED DECKS</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {filteredDecks.length === 0 ? (
+              <div className="bg-surface rounded-2xl p-10 border border-outline/10 text-center relative overflow-hidden shadow-sm">
+                <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+                <span className="material-symbols-outlined text-[48px] text-outline opacity-50 mb-2">import_contacts</span>
+                <p className="font-body-md text-outline">No matching decks found. Try a different query.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                {filteredDecks.map(deck => (
+                  <motion.div 
+                    variants={itemVariants} 
+                    key={deck.id} 
+                    onClick={() => handleOpenPreview(deck)}
+                    className="bg-surface rounded-2xl p-4 md:p-md border border-outline/10 shadow-paper-layer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 md:gap-6 group relative overflow-hidden transition-colors hover:border-primary/20 cursor-pointer"
+                  >
+                    {/* Washi Texture */}
+                    <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+                    {/* Ink wash hover */}
+                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                    <div className="relative z-10 flex-1">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <h3 className="font-h3 text-on-surface tracking-tight group-hover:text-primary transition-colors">{deck.title}</h3>
+                        {deck.is_premium === 1 && (
+                          <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
+                            PREMIUM
+                          </span>
+                        )}
+                        {deck.downloaded === 1 && (
+                          <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[10px]">check</span> ACTIVE
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-body-md text-on-surface-variant text-sm mb-2 md:mb-4 leading-relaxed line-clamp-2">{deck.description || 'No description provided.'}</p>
+                      <div className="flex items-center gap-6 text-xs font-label-caps text-outline tracking-widest">
+                        <span className="flex items-center gap-1.5">
+                          Crafted by <span className="text-on-surface font-semibold">{deck.author}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[15px]">menu_book</span> {deck.word_count} cards
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="w-full sm:w-auto relative z-10 flex gap-2">
+                      {deck.downloaded === 1 ? (
+                        <Button3D 
+                          variant="primary" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/flashcard?deckId=${deck.id}`);
+                          }}
+                        >
+                          Study Now
+                        </Button3D>
+                      ) : (
+                        <Button3D 
+                          variant={deck.is_premium === 1 ? 'primary' : 'secondary'}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(deck.id, deck.is_premium === 1);
+                          }}
+                        >
+                          {deck.is_premium === 1 ? 'Unlock Deck' : 'Download'}
+                        </Button3D>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === 'workshop' && (
+          <motion.div
+            key="workshop"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, y: -15, transition: { duration: 0.15 } }}
+            className="space-y-8 mb-16"
+          >
+            {!isCreator ? (
+              <motion.div variants={itemVariants} className="bg-primary-container rounded-3xl p-4 md:p-lg text-center border border-primary/20 shadow-paper-layer relative overflow-hidden">
+                <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply pointer-events-none"></div>
+                <div className="relative z-10">
+                  <span className="material-symbols-outlined text-[56px] text-primary mb-4" style={{ fontVariationSettings: "'wght' 200" }}>storefront</span>
+                  <h3 className="font-h3 text-on-primary-container mb-3 tracking-tight">Become a Creator</h3>
+                  <p className="font-body-md text-on-primary-container/85 mb-8 max-w-md mx-auto leading-relaxed">
+                    Join other master scholars. Share your custom vocabulary lists with the world and unlock creator achievements.
+                  </p>
+                  <Button3D variant="primary" onClick={() => { setWizardStep(1); setShowCreatorWizard(true); }} className="max-w-[200px] mx-auto">
+                    Apply Now
+                  </Button3D>
+                </div>
+              </motion.div>
+            ) : (
+              <div className="space-y-6">
+                <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-md border border-dashed border-outline/20 flex flex-col justify-center items-center text-center py-10 shadow-sm cursor-pointer hover:border-primary/40 transition-colors" onClick={() => setShowCreatorForm(true)}>
+                  <span className="material-symbols-outlined text-[48px] text-primary/50 mb-3">add_circle</span>
+                  <h3 className="font-h3 text-on-surface mb-1">Create a Custom Deck</h3>
+                  <p className="font-body-md text-outline max-w-sm">Design, add vocabulary, and publish your own Japanese learning deck.</p>
+                </motion.div>
+
+                <motion.div variants={itemVariants}>
+                  <h2 className="font-label-caps text-outline tracking-widest mb-3 md:mb-4">YOUR HANDCRAFTED DECKS</h2>
+                </motion.div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-md">
                   {decks.filter(d => d.author === creatorHandle || d.author === user?.name || d.author === 'Admin').map(deck => (
-                    <div key={deck.id} onClick={() => handleOpenPreview(deck)} className="bg-surface rounded-2xl p-md border border-outline/10 shadow-paper-layer flex flex-col justify-between cursor-pointer hover:border-secondary/30 transition-colors relative overflow-hidden group">
+                    <motion.div 
+                      variants={itemVariants}
+                      key={deck.id} 
+                      onClick={() => handleOpenPreview(deck)} 
+                      className="bg-surface rounded-2xl p-4 md:p-md border border-outline/10 shadow-paper-layer flex flex-col justify-between cursor-pointer hover:border-secondary/30 transition-colors relative overflow-hidden group"
+                    >
                       <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
                       <div>
                         <div className="flex justify-between items-start mb-2">
@@ -551,14 +572,14 @@ const Community = () => {
                           <span className="material-symbols-outlined text-[14px]">visibility</span> PREVIEW
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ========================================================================= */}
       {/* 1. DECK DETAIL & PREVIEW DRAWER (Washi Sliding Panel) */}
@@ -587,9 +608,9 @@ const Community = () => {
               <div className="absolute inset-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
 
               {/* Drawer Header */}
-              <div className="relative z-10 p-md border-b border-outline/10 flex justify-between items-center bg-surface">
+              <div className="relative z-10 p-4 md:p-md border-b border-outline/10 flex justify-between items-center bg-surface">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[28px]">import_contacts</span>
+                  <span className="material-symbols-outlined text-primary text-[24px] md:text-[28px]">import_contacts</span>
                   <span className="font-label-caps text-outline tracking-widest text-xs">DECK ARCHIVE</span>
                 </div>
                 <button onClick={() => setSelectedDeck(null)} className="text-outline hover:text-primary transition-colors">
@@ -598,7 +619,7 @@ const Community = () => {
               </div>
 
               {/* Drawer Scrollable Content */}
-              <div className="relative z-10 flex-1 overflow-y-auto p-md space-y-6">
+              <div className="relative z-10 flex-1 overflow-y-auto p-4 md:p-md space-y-4 md:space-y-6">
                 <div>
                   <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <h2 className="font-h2 text-on-surface tracking-tight leading-none">{selectedDeck.title}</h2>
@@ -638,7 +659,7 @@ const Community = () => {
                       </div>
                     ) : (
                       <div>
-                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-sm">
+                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5 md:gap-sm">
                           {selectedDeckVocab.map(word => (
                             <div 
                               key={word.id}
@@ -654,7 +675,7 @@ const Community = () => {
                         </div>
 
                         {/* Interactive Tooltip Detail Panel */}
-                        <div className="h-32 mt-6">
+                        <div className="h-24 md:h-32 mt-4 md:mt-6">
                           <AnimatePresence mode="wait">
                             {hoveredWord ? (
                               <motion.div 

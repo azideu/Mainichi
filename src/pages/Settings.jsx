@@ -103,8 +103,8 @@ const Settings = () => {
   };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl mx-auto pb-xl px-2 sm:px-4">
-      <div className="hidden md:flex items-center gap-4 mb-8 relative z-10">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-3xl mx-auto pb-6 md:pb-xl px-2 sm:px-4">
+      <div className="hidden md:flex items-center gap-4 mb-4 md:mb-8 relative z-10">
         <motion.button 
           variants={itemVariants}
           onClick={() => navigate(-1)}
@@ -116,11 +116,11 @@ const Settings = () => {
         <motion.h1 variants={itemVariants} className="font-h1 text-primary tracking-tighter mb-2">Settings</motion.h1>
       </div>
       
-      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-lg mb-4 md:mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-        <h3 className="font-h3 text-on-surface mb-6 tracking-tight relative z-10">Notifications</h3>
+        <h3 className="font-h3 text-on-surface mb-4 md:mb-6 tracking-tight relative z-10">Notifications</h3>
         
-        <div className="space-y-6 relative z-10">
+        <div className="space-y-4 md:space-y-6 relative z-10">
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div>
@@ -186,11 +186,11 @@ const Settings = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-lg mb-4 md:mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-        <h3 className="font-h3 text-on-surface mb-6 tracking-tight relative z-10">Learning Preferences</h3>
+        <h3 className="font-h3 text-on-surface mb-4 md:mb-6 tracking-tight relative z-10">Learning Preferences</h3>
         
-        <div className="space-y-6 relative z-10">
+        <div className="space-y-4 md:space-y-6 relative z-10">
           <div className="flex flex-col">
             <label className="font-body-md text-on-surface tracking-wide mb-1">Mastery Requirement</label>
             <p className="font-label-caps text-outline tracking-widest mb-3">CONSECUTIVE SUCCESSFUL REVIEWS (MAX 10)</p>
@@ -250,16 +250,16 @@ const Settings = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-lg mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 md:p-lg mb-4 md:mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden">
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <div className="absolute inset-0 bg-secondary/5 pointer-events-none"></div>
         <h3 className="font-h3 text-on-surface mb-2 tracking-tight relative z-10 flex items-center gap-2">
           <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>biotech</span>
           Presentation Sandbox
         </h3>
-        <p className="font-label-caps text-outline tracking-widest mb-6 relative z-10">PREPARE DEMONSTRATIONS INSTANTLY</p>
+        <p className="font-label-caps text-outline tracking-widest mb-4 md:mb-6 relative z-10">PREPARE DEMONSTRATIONS INSTANTLY</p>
         
-        <div className="space-y-4 relative z-10">
+        <div className="space-y-3 md:space-y-4 relative z-10">
           <p className="font-body-md text-on-surface-variant leading-relaxed">
             Ensure you have perfect material to showcase. Reload all 80 JLPT N5 cards into your due queue or simulate a live 5-day active study streak.
           </p>
@@ -291,9 +291,9 @@ const Settings = () => {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-error/5 rounded-xl p-lg border border-error/20 relative overflow-hidden">
-        <h3 className="font-h3 text-error mb-3 tracking-tight relative z-10">Danger Zone</h3>
-        <p className="font-body-md text-on-surface-variant mb-8 relative z-10 leading-relaxed">
+      <motion.div variants={itemVariants} className="bg-error/5 rounded-xl p-4 md:p-lg border border-error/20 relative overflow-hidden">
+        <h3 className="font-h3 text-error mb-2 md:mb-3 tracking-tight relative z-10">Danger Zone</h3>
+        <p className="font-body-md text-on-surface-variant mb-4 md:mb-8 relative z-10 leading-relaxed">
           Once you delete your account, there is no going back. All your progress will be erased. Please be certain.
         </p>
         <button className="w-full px-6 py-3 border-2 border-error text-error font-label-caps tracking-widest rounded-xl hover:bg-error hover:text-white transition-all shadow-sm active:scale-95 relative z-10">

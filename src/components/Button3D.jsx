@@ -5,7 +5,11 @@ const Button3D = ({ children, onClick, variant = 'primary', className = '', ...p
   const isPrimary = variant === 'primary';
   
   // Tactical "Stone" Feel
-  const baseStyle = "font-label-caps text-base py-4 px-6 flex items-center justify-center gap-3 relative w-full transition-colors duration-300 overflow-hidden group";
+  const hasCustomPy = className.split(' ').some(c => c.startsWith('py-'));
+  const hasCustomPx = className.split(' ').some(c => c.startsWith('px-') || c.startsWith('p-'));
+  const pyStyle = hasCustomPy ? '' : 'py-4';
+  const pxStyle = hasCustomPx ? '' : 'px-6';
+  const baseStyle = `font-label-caps text-base ${pyStyle} ${pxStyle} flex items-center justify-center gap-3 relative w-full transition-colors duration-300 overflow-hidden group`;
   
   // Add organic rounding and subtle 1px "ink stroke" borders
   const colorStyle = isPrimary 
