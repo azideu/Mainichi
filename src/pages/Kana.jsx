@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
+import KANA_SVGS from '../constants/kana_svgs.json';
 
 // Comprehensive Kana Database (46 Basic Sounds)
 const KANA_DATA = [
@@ -254,6 +255,14 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
       return;
     }
 
+    // Check if character SVG exists in local JSON bundle
+    if (KANA_SVGS && KANA_SVGS[char]) {
+      setSvgContent(KANA_SVGS[char]);
+      setLoading(false);
+      setError(false);
+      return;
+    }
+
     setLoading(true);
     setError(false);
     
@@ -261,8 +270,8 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
     const codePoint = char.charCodeAt(0).toString(16).toLowerCase();
     const paddedHex = codePoint.padStart(5, '0');
     
-    // Fetch KanjiVG SVG from high-availability jsDelivr CDN
-    const url = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/0${paddedHex}.svg`;
+    // Fetch from KanjiVG CDN as a fallback
+    const url = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/${paddedHex}.svg`;
     let active = true;
 
     fetch(url)
