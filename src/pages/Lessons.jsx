@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { LESSONS, FUTURE_LESSONS } from '../constants/lessons';
 import { sendToAppInventor, APP_INVENTOR_ACTIONS, IS_APP_INVENTOR } from '../utils/appInventorBridge';
+import LoadingState from '../components/LoadingState';
 
 const CATEGORIES = [
   { id: 'all', title: 'All Modules', icon: 'subject' },
@@ -14,6 +15,7 @@ const CATEGORIES = [
 
 const Lessons = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeLesson, setActiveLesson] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -50,7 +52,7 @@ const Lessons = () => {
       clearTimeout(timer);
       window.removeEventListener('resize', updateIndicator);
     };
-  }, [selectedCategory]);
+  }, [selectedCategory, isLoading]);
 
   useEffect(() => {
     const loadCompletedLessons = async () => {
@@ -59,6 +61,7 @@ const Lessons = () => {
       if (saved) {
         try {
           setCompletedLessons(JSON.parse(saved));
+          setIsLoading(false);
         } catch (e) {
           console.error("Failed to parse completed lessons", e);
         }
@@ -67,7 +70,10 @@ const Lessons = () => {
       // Then fetch from server to sync/override
       try {
         const token = localStorage.getItem('mainichi_token');
-        if (!token) return;
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
         const res = await fetch('/api/lessons/completed', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -80,6 +86,8 @@ const Lessons = () => {
         }
       } catch (err) {
         console.error("Failed to fetch completed lessons from backend", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -149,6 +157,9 @@ const Lessons = () => {
         syncLessonCompletion(activeLesson.id);
       }
       setCelebrate(true);
+      if (IS_APP_INVENTOR) {
+        sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
+      }
     } else {
       // Vibrate only on incorrect choices
       if (IS_APP_INVENTOR) {
@@ -166,6 +177,9 @@ const Lessons = () => {
 
   // Main Dashboard View
   if (!activeLesson) {
+    if (isLoading) {
+      return <LoadingState message="Loading modules..." />;
+    }
     const totalProgress = Math.round((completedLessons.length / LESSONS.length) * 100);
     const filteredLessons = LESSONS.filter(lesson => selectedCategory === 'all' || lesson.category === selectedCategory);
     const filteredFutureLessons = FUTURE_LESSONS.filter(lesson => selectedCategory === 'all' || lesson.category === selectedCategory);

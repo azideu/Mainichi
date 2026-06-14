@@ -185,6 +185,25 @@ const Flashcard = () => {
       
       const spokenClean = clean(spokenText);
       
+      const JAPANESE_NUMBERS_MAP = {
+        '0': ['れい', 'ぜろ', '零', 'rei', 'zero'],
+        '1': ['いち', '一', 'ichi'],
+        '2': ['に', '二', 'ni'],
+        '3': ['さん', '三', 'san'],
+        '4': ['よん', 'し', '四', 'yon', 'shi'],
+        '5': ['ご', '五', 'go'],
+        '6': ['ろく', '六', 'roku'],
+        '7': ['なな', 'しち', '七', 'nana', 'shichi'],
+        '8': ['はち', '八', 'hachi'],
+        '9': ['きゅう', 'く', '九', 'kyuu', 'ku'],
+        '10': ['じゅう', '十', 'juu']
+      };
+
+      const spokenVariants = [spokenClean];
+      if (JAPANESE_NUMBERS_MAP[spokenClean]) {
+        spokenVariants.push(...JAPANESE_NUMBERS_MAP[spokenClean]);
+      }
+      
       const cleanList = (raw) => {
         if (!raw) return [];
         return raw.split(/[,、;]/).map(r => clean(r)).filter(Boolean);
@@ -198,7 +217,9 @@ const Flashcard = () => {
       ].filter(Boolean);
       
       const isMatch = targetList.some(target => {
-        return spokenClean === target || spokenClean.includes(target) || target.includes(spokenClean);
+        return spokenVariants.some(variant => 
+          variant === target || variant.includes(target) || target.includes(variant)
+        );
       });
       
       if (isMatch) {

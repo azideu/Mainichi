@@ -164,7 +164,7 @@ const Profile = () => {
       <motion.div
         variants={itemVariants}
         onClick={() => navigate('/progress')}
-        className="bg-surface rounded-2xl p-5 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left group hover:border-primary/20 cursor-pointer transition-all duration-300"
+        className="bg-surface rounded-2xl p-5 mb-8 shadow-paper-layer border border-outline/10 relative overflow-hidden text-left group hover:border-primary/20 cursor-pointer transition-colors duration-300"
       >
         <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         <div className="relative z-10 flex justify-between items-center">

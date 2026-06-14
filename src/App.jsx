@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, Outlet, useOutlet } from 'react-router-dom';
 import TopBar from './components/TopBar';
 import BottomNav from './components/BottomNav';
 import Dashboard from './pages/Dashboard';
@@ -36,8 +36,14 @@ const ProtectedRoute = ({ children }) => {
 import { AnimatePresence, motion } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 
+const FrozenRoute = ({ children }) => {
+  const [frozen] = useState(children);
+  return frozen;
+};
+
 const AppLayout = () => {
   const location = useLocation();
+  const outlet = useOutlet();
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
   const { isOffline } = useApp();
   
@@ -60,7 +66,9 @@ const AppLayout = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <Outlet />
+            <FrozenRoute>
+              {outlet}
+            </FrozenRoute>
           </motion.div>
         </AnimatePresence>
       </main>

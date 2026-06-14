@@ -181,7 +181,7 @@ const getGridPosition = (char) => {
 };
 
 
-import { speakText as speakTextBridge, IS_APP_INVENTOR } from '../utils/appInventorBridge';
+import { speakText as speakTextBridge, IS_APP_INVENTOR, sendToAppInventor } from '../utils/appInventorBridge';
 
 // Safe localStorage helper functions to prevent exceptions in private mode or custom webviews
 const getSafeLocalStorage = (key, fallback = '') => {
@@ -364,8 +364,14 @@ const Kana = () => {
     if (isCorrect) {
       setStreak(prev => prev + 1);
       setScore(prev => prev + 1);
+      if (IS_APP_INVENTOR) {
+        sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
+      }
     } else {
       setStreak(0);
+      if (IS_APP_INVENTOR) {
+        sendToAppInventor("VIBRATE", { duration: 200 });
+      }
     }
   };
 
@@ -397,8 +403,6 @@ const Kana = () => {
 
   return (
     <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
       className="max-w-6xl mx-auto pb-xl text-left px-2 sm:px-4"
     >
       {/* Inline Tab & Desktop Voice Selector wrapper */}
