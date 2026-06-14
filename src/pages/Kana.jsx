@@ -969,35 +969,36 @@ const Kana = () => {
             {isMobile && createPortal(
               <AnimatePresence>
                 {selectedChar && (
-                  <>
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
+                  <motion.div 
+                    key="backdrop"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setSelectedChar(null)}
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 cursor-pointer"
+                  />
+                )}
+                {selectedChar && (
+                  <motion.div
+                    key={selectedChar.romaji}
+                    initial={{ opacity: 0, y: 100 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 100 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                    className="bg-surface rounded-t-3xl p-6 shadow-2xl border-t border-outline/10 fixed bottom-0 left-0 right-0 z-50 max-h-[82vh] overflow-y-auto"
+                  >
+                    <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-t-3xl"></div>
+                    
+                    {/* Close Button */}
+                    <button
                       onClick={() => setSelectedChar(null)}
-                      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 cursor-pointer"
-                    />
-                    <motion.div
-                      key={selectedChar.romaji}
-                      initial={{ opacity: 0, y: 100 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 100 }}
-                      transition={{ type: "spring", damping: 25, stiffness: 220 }}
-                      className="bg-surface rounded-t-3xl p-6 shadow-2xl border-t border-outline/10 fixed bottom-0 left-0 right-0 z-50 max-h-[82vh] overflow-y-auto"
+                      className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-outline/5 hover:bg-outline/10 text-outline rounded-full transition-colors active:scale-95 border border-outline/5 shadow-sm"
                     >
-                      <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-t-3xl"></div>
-                      
-                      {/* Close Button */}
-                      <button
-                        onClick={() => setSelectedChar(null)}
-                        className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-outline/5 hover:bg-outline/10 text-outline rounded-full transition-colors active:scale-95 border border-outline/5 shadow-sm"
-                      >
-                        <span className="material-symbols-outlined text-[16px]">close</span>
-                      </button>
+                      <span className="material-symbols-outlined text-[16px]">close</span>
+                    </button>
 
-                      {renderCardContent()}
-                    </motion.div>
-                  </>
+                    {renderCardContent()}
+                  </motion.div>
                 )}
               </AnimatePresence>,
               document.body
