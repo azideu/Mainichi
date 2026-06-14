@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 
@@ -235,7 +236,17 @@ const speakText = (text, rate = 0.8, voiceURI = null) => {
 
 const Kana = () => {
   const [activeTab, setActiveTab] = useState('hiragana'); // 'hiragana' | 'katakana' | 'practice'
-  const [selectedChar, setSelectedChar] = useState(KANA_DATA[0]);
+  const [selectedChar, setSelectedChar] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => 
+    typeof window !== 'undefined' ? window.innerWidth < 1024 : false
+  );
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Voice selector states
   const [voices, setVoices] = useState([]);
@@ -399,6 +410,102 @@ const Kana = () => {
     } else {
       setSelectedGroups([...selectedGroups, groupName]);
     }
+  };
+
+  const renderCardContent = () => {
+    if (!selectedChar) return null;
+    return (
+      <div className="relative z-10 flex flex-col items-center text-center">
+        
+        {/* Big Japanese calligraph cell */}
+        <div className="relative w-36 h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-4 overflow-hidden">
+          <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none"></div>
+          <div className="absolute inset-4 border border-dashed border-outline/10 rounded-full animate-[spin_40s_linear_infinite]"></div>
+          {(() => {
+            const symbol = activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana;
+            const isCombo = symbol.length > 1;
+            return (
+              <span 
+                className={`font-bold text-primary relative z-10 leading-none whitespace-nowrap tracking-tighter ${
+                  isCombo ? 'text-[44px]' : 'text-[72px]'
+                }`}
+                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+              >
+                {symbol}
+              </span>
+            );
+          })()}
+        </div>
+
+        {/* Header details */}
+        <div className="mb-4">
+          <h2 className="font-h2 text-on-surface">{selectedChar.romaji.toUpperCase()} Sound</h2>
+          <span className="font-label-caps text-[9px] text-outline tracking-wider border border-outline/10 bg-surface-container-low px-2 py-0.5 rounded-full mt-1.5 inline-block">
+            {selectedChar.strokeCount ? `${selectedChar.strokeCount} STROKES` : 'COMBO SOUND'}
+          </span>
+        </div>
+
+        {/* Play Sound Trigger */}
+        <button
+          onClick={() => speakText(activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana, 0.75, selectedVoiceURI)}
+          className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform mb-6 shadow-sm"
+          title="Hear Sound"
+        >
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>volume_up</span>
+        </button>
+
+        {/* Mnemonic Memory Aid */}
+        <div className="w-full text-left bg-secondary/5 border border-secondary/15 rounded-2xl p-4 mb-6">
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="material-symbols-outlined text-secondary text-[18px]">lightbulb</span>
+            <span className="font-label-caps text-secondary tracking-widest text-[9px] font-bold">MNEMONIC AID</span>
+          </div>
+          <p className="font-body-md text-on-surface-variant leading-relaxed">
+            {selectedChar.mnemonic || `“${activeTab === 'hiragana' ? selectedChar.hiragana : selectedChar.katakana}” is a combined Japanese syllable merging the sound of ${selectedChar.romaji.slice(0, -2).toUpperCase()} and the glide ${selectedChar.romaji.slice(-2).toUpperCase()}.`}
+          </p>
+        </div>
+
+        {/* Example JLPT N5 Vocabulary */}
+        {selectedChar.vocab && (
+          <div className="w-full text-left border-t border-outline/10 pt-4">
+            <span className="font-label-caps text-outline text-[9px] tracking-wider mb-3 block">EXAMPLE VOCABULARY</span>
+            <div className="bg-surface-container-low border border-outline/5 p-4 rounded-2xl flex justify-between items-center group">
+              <div>
+                <span 
+                  className="text-[20px] font-bold text-primary tracking-wide block"
+                  style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
+                >
+                  {activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab}
+                </span>
+                <span className="font-label-caps text-[9px] text-outline tracking-wider font-bold block mt-0.5">
+                  {selectedChar.vocabRomaji} • {selectedChar.vocabMeaning}
+                </span>
+              </div>
+              
+              <button
+                onClick={() => {
+                  const getVocabTTS = () => {
+                    if (activeTab === 'hiragana') {
+                      return selectedChar.vocabKanji || selectedChar.vocab;
+                    } else {
+                      if (selectedChar.katakana === 'ア') return 'アイス';
+                      if (selectedChar.katakana === 'イ') return 'インク';
+                      if (selectedChar.katakana === 'ウ') return 'ウサギ';
+                      return selectedChar.vocabKanji || selectedChar.vocab;
+                    }
+                  };
+                  speakText(getVocabTTS(), 0.8, selectedVoiceURI);
+                }}
+                className="w-8 h-8 rounded-xl bg-surface border border-outline/10 text-outline hover:text-primary hover:border-primary/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[16px]">volume_up</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+      </div>
+    );
   };
 
   return (
@@ -675,9 +782,48 @@ const Kana = () => {
 
           {/* RIGHT 1/3 COLUMN: CHARACTER DETAIL STUDY CARD */}
           <div className="lg:col-span-1">
+            {/* Mobile Backdrop Blur & Sheet Portal */}
+            {isMobile && createPortal(
+              <AnimatePresence>
+                {selectedChar && (
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setSelectedChar(null)}
+                      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 cursor-pointer"
+                    />
+                    <motion.div
+                      key={selectedChar.romaji}
+                      initial={{ opacity: 0, y: 100 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 100 }}
+                      transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                      className="bg-surface rounded-t-3xl p-6 shadow-2xl border-t border-outline/10 fixed bottom-0 left-0 right-0 z-50 max-h-[82vh] overflow-y-auto"
+                    >
+                      <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-t-3xl"></div>
+                      
+                      {/* Close Button */}
+                      <button
+                        onClick={() => setSelectedChar(null)}
+                        className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-outline/5 hover:bg-outline/10 text-outline rounded-full transition-colors active:scale-95 border border-outline/5 shadow-sm"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">close</span>
+                      </button>
+
+                      {renderCardContent()}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>,
+              document.body
+            )}
+
+            {/* Desktop Details Sidebar */}
             <div className="sticky top-24">
               <AnimatePresence mode="wait">
-                {selectedChar && (
+                {!isMobile && selectedChar ? (
                   <motion.div
                     key={selectedChar.romaji}
                     initial={{ opacity: 0, y: 15 }}
@@ -686,99 +832,15 @@ const Kana = () => {
                     className="bg-surface rounded-3xl p-6 shadow-paper-layer border border-outline/10 relative overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-3xl"></div>
-                    
-                    <div className="relative z-10 flex flex-col items-center text-center">
-                      
-                      {/* Big Japanese calligraph cell */}
-                      <div className="relative w-36 h-36 bg-surface-container-lowest rounded-full border border-outline/10 flex items-center justify-center shadow-inner mb-4 overflow-hidden">
-                        <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none"></div>
-                        <div className="absolute inset-4 border border-dashed border-outline/10 rounded-full animate-[spin_40s_linear_infinite]"></div>
-                        {(() => {
-                          const symbol = activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana;
-                          const isCombo = symbol.length > 1;
-                          return (
-                            <span 
-                              className={`font-bold text-primary relative z-10 leading-none whitespace-nowrap tracking-tighter ${
-                                isCombo ? 'text-[44px]' : 'text-[72px]'
-                              }`}
-                              style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
-                            >
-                              {symbol}
-                            </span>
-                          );
-                        })()}
-                      </div>
-
-                      {/* Header details */}
-                      <div className="mb-4">
-                        <h2 className="font-h2 text-on-surface">{selectedChar.romaji.toUpperCase()} Sound</h2>
-                        <span className="font-label-caps text-[9px] text-outline tracking-wider border border-outline/10 bg-surface-container-low px-2 py-0.5 rounded-full mt-1.5 inline-block">
-                          {selectedChar.strokeCount ? `${selectedChar.strokeCount} STROKES` : 'COMBO SOUND'}
-                        </span>
-                      </div>
-
-                      {/* Play Sound Trigger */}
-                      <button
-                        onClick={() => speakText(activeTab === 'hiragana' ? (selectedChar.hiraganaOverride || selectedChar.hiragana) : selectedChar.katakana, 0.75, selectedVoiceURI)}
-                        className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform mb-6 shadow-sm"
-                        title="Hear Sound"
-                      >
-                        <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>volume_up</span>
-                      </button>
-
-                      {/* Mnemonic Memory Aid */}
-                      <div className="w-full text-left bg-secondary/5 border border-secondary/15 rounded-2xl p-4 mb-6">
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <span className="material-symbols-outlined text-secondary text-[18px]">lightbulb</span>
-                          <span className="font-label-caps text-secondary tracking-widest text-[9px] font-bold">MNEMONIC AID</span>
-                        </div>
-                        <p className="font-body-md text-on-surface-variant leading-relaxed">
-                          {selectedChar.mnemonic || `“${activeTab === 'hiragana' ? selectedChar.hiragana : selectedChar.katakana}” is a combined Japanese syllable merging the sound of ${selectedChar.romaji.slice(0, -2).toUpperCase()} and the glide ${selectedChar.romaji.slice(-2).toUpperCase()}.`}
-                        </p>
-                      </div>
-
-                      {/* Example JLPT N5 Vocabulary */}
-                      {selectedChar.vocab && (
-                        <div className="w-full text-left border-t border-outline/10 pt-4">
-                          <span className="font-label-caps text-outline text-[9px] tracking-wider mb-3 block">EXAMPLE VOCABULARY</span>
-                          <div className="bg-surface-container-low border border-outline/5 p-4 rounded-2xl flex justify-between items-center group">
-                            <div>
-                              <span 
-                                className="text-[20px] font-bold text-primary tracking-wide block"
-                                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
-                              >
-                                {activeTab === 'hiragana' ? selectedChar.vocab : selectedChar.katakana === 'ア' ? 'アイス' : selectedChar.katakana === 'イ' ? 'インク' : selectedChar.katakana === 'ウ' ? 'ウサギ' : selectedChar.vocab}
-                              </span>
-                              <span className="font-label-caps text-[9px] text-outline tracking-wider font-bold block mt-0.5">
-                                {selectedChar.vocabRomaji} • {selectedChar.vocabMeaning}
-                              </span>
-                            </div>
-                            
-                            <button
-                              onClick={() => {
-                                const getVocabTTS = () => {
-                                  if (activeTab === 'hiragana') {
-                                    return selectedChar.vocabKanji || selectedChar.vocab;
-                                  } else {
-                                    if (selectedChar.katakana === 'ア') return 'アイス';
-                                    if (selectedChar.katakana === 'イ') return 'インク';
-                                    if (selectedChar.katakana === 'ウ') return 'ウサギ';
-                                    return selectedChar.vocabKanji || selectedChar.vocab;
-                                  }
-                                };
-                                speakText(getVocabTTS(), 0.8, selectedVoiceURI);
-                              }}
-                              className="w-8 h-8 rounded-xl bg-surface border border-outline/10 text-outline hover:text-primary hover:border-primary/20 flex items-center justify-center transition-all active:scale-95 shadow-sm"
-                            >
-                              <span className="material-symbols-outlined text-[16px]">volume_up</span>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                    </div>
+                    {renderCardContent()}
                   </motion.div>
-                )}
+                ) : !isMobile ? (
+                  <div className="hidden lg:block bg-surface/40 border border-dashed border-outline-variant/30 rounded-3xl p-8 text-center text-outline/80 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+                    <span className="material-symbols-outlined text-[32px] mb-3 opacity-45 block text-center" style={{ fontVariationSettings: "'wght' 200" }}>touch_app</span>
+                    <p className="font-body-md text-xs leading-relaxed max-w-[200px] mx-auto">Tap any character in the table to view its mnemonic memory aid, stroke counts, and vocabulary!</p>
+                  </div>
+                ) : null}
               </AnimatePresence>
             </div>
           </div>
