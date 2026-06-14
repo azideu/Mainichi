@@ -281,7 +281,13 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
       })
       .then(text => {
         if (active) {
-          setSvgContent(text);
+          const svgIndex = text.indexOf('<svg');
+          let cleaned = svgIndex !== -1 ? text.substring(svgIndex) : text;
+          cleaned = cleaned
+            .replace(/<!--[\s\S]*?-->/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          setSvgContent(cleaned);
           setLoading(false);
         }
       })
