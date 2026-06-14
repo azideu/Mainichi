@@ -334,22 +334,35 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
     const paths = svgRef.current.querySelectorAll('g[id^="kvg:StrokePaths_"] path');
     const numbers = svgRef.current.querySelectorAll('g[id^="kvg:StrokeNumbers_"] text');
 
-    let currentDelay = 0.2; // brief delay before drawing begins
-
-    paths.forEach((path, index) => {
+    // 1. Set initial hidden state (no transition)
+    paths.forEach((path) => {
       const length = path.getTotalLength();
-      
-      // Visual adjustments for drawing stroke
       path.style.stroke = 'var(--stroke-color, #567d46)';
       path.style.strokeWidth = '4.5px';
       path.style.strokeDasharray = `${length} ${length}`;
       path.style.strokeDashoffset = length;
       path.style.transition = 'none';
+    });
 
+    // Force browser layout reflow to register the starting parameters
+    if (svgRef.current) {
+      svgRef.current.getBoundingClientRect();
+    }
+
+    // 2. Apply transitions and target drawing values
+    let currentDelay = 0.25; // brief delay before drawing begins (coincides with drawer slide-up)
+
+    paths.forEach((path, index) => {
+      const length = path.getTotalLength();
       const duration = 0.45 + (length / 120); // dynamic duration based on stroke length
+      
+      // Apply transition duration and delay
       path.style.transition = `stroke-dashoffset ${duration}s cubic-bezier(0.4, 0, 0.2, 1) ${currentDelay}s`;
+      
+      // Set target offset to trigger drawing transition
+      path.style.strokeDashoffset = '0';
 
-      // Animate corresponding stroke number label
+      // Setup corresponding stroke number label transition
       if (numbers[index]) {
         const num = numbers[index];
         num.style.fill = 'var(--number-color, #7a8a64)';
@@ -363,12 +376,9 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
       currentDelay += duration + 0.15; // timing gap between strokes
     });
 
-    // Trigger reflow and start stroke drawing animation
+    // Fade in the stroke numbers as they are drawn
     const timer = setTimeout(() => {
       if (svgRef.current) {
-        paths.forEach((path) => {
-          path.style.strokeDashoffset = '0';
-        });
         numbers.forEach((num) => {
           num.style.opacity = '0.6';
         });
