@@ -325,7 +325,7 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
       guideGroup.querySelectorAll('path').forEach(path => {
         path.removeAttribute('id');
         path.style.stroke = 'var(--guide-color, #e9ede2)';
-        path.style.strokeWidth = '4.5px';
+        path.style.strokeWidth = '3.2px';
         path.style.strokeDasharray = 'none';
         path.style.strokeDashoffset = 'none';
         path.style.transition = 'none';
@@ -344,7 +344,7 @@ const KanaStrokeAnimator = ({ char, replayKey }) => {
     paths.forEach((path) => {
       const length = path.getTotalLength();
       path.style.stroke = 'var(--stroke-color, #567d46)';
-      path.style.strokeWidth = '4.5px';
+      path.style.strokeWidth = '3.2px';
       path.style.strokeDasharray = `${length} ${length}`;
       path.style.strokeDashoffset = length;
       path.style.transition = 'none';
