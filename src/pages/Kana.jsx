@@ -728,9 +728,6 @@ const Kana = () => {
                 key={tab}
                 onClick={() => {
                   setActiveTab(tab);
-                  if (tab === 'practice') {
-                    startPractice();
-                  }
                 }}
                 className={`flex-1 py-2 px-3 text-center rounded-xl font-label-caps text-[10px] tracking-wider z-10 transition-all font-bold ${
                   isSelected ? 'text-primary bg-primary/10 border border-primary/10 shadow-sm' : 'text-outline hover:text-primary'
@@ -1143,7 +1140,7 @@ const Kana = () => {
                   </div>
 
                   <div className="flex gap-4 pt-4 border-t border-outline/5">
-                    <Button3D variant="secondary" onClick={() => setPracticeDeck([])} className="flex-1">
+                    <Button3D variant="secondary" onClick={() => { setPracticeDeck([]); setSessionCompleted(false); }} className="flex-1">
                       Adjust Rows
                     </Button3D>
                     <Button3D variant="primary" onClick={startPractice} className="flex-1">
