@@ -352,6 +352,17 @@ const Community = () => {
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
 
+  const panelVariants = {
+    hidden: { opacity: 0 },
+    show: { 
+      opacity: 1, 
+      transition: { 
+        staggerChildren: 0.08,
+        delayChildren: 0.15
+      } 
+    }
+  };
+
   const itemVariants = {
     hidden: { opacity: 0, y: 15 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }
@@ -399,7 +410,7 @@ const Community = () => {
         {activeTab === 'discover' && (
           <motion.div
             key="discover"
-            variants={containerVariants}
+            variants={panelVariants}
             initial="hidden"
             animate="show"
             exit={{ opacity: 0, y: -15, transition: { duration: 0.15 } }}
@@ -517,7 +528,7 @@ const Community = () => {
         {activeTab === 'workshop' && (
           <motion.div
             key="workshop"
-            variants={containerVariants}
+            variants={panelVariants}
             initial="hidden"
             animate="show"
             exit={{ opacity: 0, y: -15, transition: { duration: 0.15 } }}
