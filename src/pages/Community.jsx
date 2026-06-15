@@ -98,6 +98,8 @@ const Community = () => {
   const [newDeckTitle, setNewDeckTitle] = useState('');
   const [newDeckDesc, setNewDeckDesc] = useState('');
   const [newDeckPremium, setNewDeckPremium] = useState(false);
+  const [newDeckType, setNewDeckType] = useState('kanji'); // 'kanji' | 'phrase'
+  const [editingDeckId, setEditingDeckId] = useState(null);
   const [newDeckVocab, setNewDeckVocab] = useState([
     { kanji: '', furigana: '', onyomi: '', kunyomi: '', english: '' }
   ]);
@@ -295,6 +297,61 @@ const Community = () => {
   };
 
   // Submit new deck
+  const handleOpenCreateForm = () => {
+    setEditingDeckId(null);
+    setNewDeckTitle('');
+    setNewDeckDesc('');
+    setNewDeckPremium(false);
+    setNewDeckType('kanji');
+    setNewDeckVocab([{ kanji: '', furigana: '', onyomi: '', kunyomi: '', english: '' }]);
+    setShowCreatorForm(true);
+  };
+
+  const handleEditClick = (deck) => {
+    setNewDeckTitle(deck.title);
+    setNewDeckDesc(deck.description || '');
+    setNewDeckPremium(deck.is_premium === 1);
+    setNewDeckType(deck.deck_type || 'kanji');
+    setNewDeckVocab(selectedDeckVocab.map(v => ({
+      id: v.id,
+      kanji: v.kanji,
+      furigana: v.furigana || '',
+      onyomi: v.onyomi || '',
+      kunyomi: v.kunyomi || '',
+      english: v.english
+    })));
+    setEditingDeckId(deck.id);
+    setSelectedDeck(null);
+    setShowCreatorForm(true);
+  };
+
+  const handleDeleteDeck = async (deckId) => {
+    if (!window.confirm("Are you sure you want to permanently delete this deck? This action cannot be undone and will erase all associated progress records.")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch(`/api/decks/${deckId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        setSelectedDeck(null);
+        await fetchDecks();
+        alert("Deck deleted successfully.");
+      } else {
+        const errData = await res.json();
+        alert(errData.error || "Failed to delete deck.");
+      }
+    } catch (err) {
+      console.error("Failed to delete deck", err);
+    }
+  };
+
   const handlePublishDeck = async (e) => {
     e.preventDefault();
     if (!newDeckTitle.trim()) return alert("Please specify a Deck Title.");
@@ -302,14 +359,18 @@ const Community = () => {
     // Filter and validate non-empty rows
     const validVocab = newDeckVocab.filter(v => v.kanji.trim() && v.english.trim());
     if (validVocab.length === 0) {
-      return alert("Please add at least one vocabulary card with a Kanji and English meaning.");
+      return alert("Please add at least one vocabulary card with a Kanji/Phrase and English meaning.");
     }
 
     try {
       setIsSubmittingDeck(true);
       const token = localStorage.getItem('mainichi_token');
-      const res = await fetch('/api/decks', {
-        method: 'POST',
+      
+      const url = editingDeckId ? `/api/decks/${editingDeckId}` : '/api/decks';
+      const method = editingDeckId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -318,6 +379,7 @@ const Community = () => {
           title: newDeckTitle,
           description: newDeckDesc,
           is_premium: newDeckPremium,
+          deck_type: newDeckType,
           vocabulary: validVocab
         })
       });
@@ -327,17 +389,19 @@ const Community = () => {
         setNewDeckTitle('');
         setNewDeckDesc('');
         setNewDeckPremium(false);
+        setNewDeckType('kanji');
         setNewDeckVocab([{ kanji: '', furigana: '', onyomi: '', kunyomi: '', english: '' }]);
+        setEditingDeckId(null);
         setShowCreatorForm(false);
         
         // Refresh and return
         await fetchDecks();
       } else {
         const errData = await res.json();
-        alert(errData.error || "Failed to publish deck.");
+        alert(errData.error || `Failed to ${editingDeckId ? 'update' : 'publish'} deck.`);
       }
     } catch (err) {
-      console.error("Failed to publish deck", err);
+      console.error(`Failed to ${editingDeckId ? 'update' : 'publish'} deck`, err);
     } finally {
       setIsSubmittingDeck(false);
     }
@@ -401,7 +465,7 @@ const Community = () => {
         </div>
         
         {isCreator && activeTab === 'workshop' && (
-          <Button3D variant="primary" onClick={() => setShowCreatorForm(true)} className="w-auto py-3 px-5 text-sm">
+          <Button3D variant="primary" onClick={handleOpenCreateForm} className="w-auto py-3 px-5 text-sm">
             <span className="material-symbols-outlined text-[18px]">add_circle</span>
             Create Deck
           </Button3D>
@@ -569,7 +633,7 @@ const Community = () => {
               </motion.div>
             ) : (
               <div className="space-y-6">
-                <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-md border border-dashed border-outline/20 flex flex-col justify-center items-center text-center py-10 shadow-sm cursor-pointer hover:border-primary/40 transition-colors" onClick={() => setShowCreatorForm(true)}>
+                <motion.div variants={itemVariants} className="bg-surface rounded-3xl p-md border border-dashed border-outline/20 flex flex-col justify-center items-center text-center py-10 shadow-sm cursor-pointer hover:border-primary/40 transition-colors" onClick={handleOpenCreateForm}>
                   <span className="material-symbols-outlined text-[48px] text-primary/50 mb-3">add_circle</span>
                   <h3 className="font-h3 text-on-surface mb-1">Create a Custom Deck</h3>
                   <p className="font-body-md text-outline max-w-sm">Design, add vocabulary, and publish your own Japanese learning deck.</p>
@@ -874,6 +938,26 @@ const Community = () => {
 
               {/* Drawer Bottom Bar (Purchase/Study) */}
               <div className="relative z-10 p-md border-t border-outline/10 bg-surface flex flex-col gap-3">
+                {user && selectedDeck.author_id === user.id && (
+                  <div className="flex gap-2 w-full border-b border-outline/10 pb-3 mb-1">
+                    <button
+                      type="button"
+                      onClick={() => handleEditClick(selectedDeck)}
+                      className="flex-1 py-2.5 rounded-xl bg-surface border border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50 transition-colors text-xs font-label-caps tracking-wider flex items-center justify-center gap-1.5 active:scale-[0.98] font-semibold"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">edit</span>
+                      Edit Path
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDeck(selectedDeck.id)}
+                      className="flex-1 py-2.5 rounded-xl bg-surface border border-error/30 text-error hover:bg-error/5 hover:border-error/50 transition-colors text-xs font-label-caps tracking-wider flex items-center justify-center gap-1.5 active:scale-[0.98] font-semibold"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+                      Delete Path
+                    </button>
+                  </div>
+                )}
                 {selectedDeck.downloaded === 1 ? (
                   <div className="flex gap-2 w-full">
                     <Button3D 
@@ -1165,6 +1249,26 @@ const Community = () => {
                   />
                 </div>
 
+                <div>
+                  <label className="font-label-caps text-outline tracking-wider text-[10px] mb-2 block font-semibold">DECK TYPE</label>
+                  <div className="flex border border-outline/15 p-0.5 bg-surface rounded-xl shadow-sm">
+                    <button 
+                      type="button"
+                      onClick={() => setNewDeckType('kanji')}
+                      className={`flex-1 py-2 font-label-caps tracking-widest text-xs rounded-lg transition-all ${newDeckType === 'kanji' ? 'bg-primary text-on-primary shadow-sm' : 'text-outline hover:text-on-surface'}`}
+                    >
+                      Kanji
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setNewDeckType('phrase')}
+                      className={`flex-1 py-2 font-label-caps tracking-widest text-xs rounded-lg transition-all ${newDeckType === 'phrase' ? 'bg-primary text-on-primary shadow-sm' : 'text-outline hover:text-on-surface'}`}
+                    >
+                      Phrases/Sentences
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-3 bg-surface border border-outline/10 p-4 rounded-xl shadow-sm">
                   <input 
                     type="checkbox" 
@@ -1206,12 +1310,14 @@ const Community = () => {
                         
                         <div className="grid grid-cols-2 gap-md pt-2">
                           <div>
-                            <label className="font-label-caps text-outline text-[9px] tracking-wider mb-1 block font-semibold">KANJI (単語)</label>
+                            <label className="font-label-caps text-outline text-[9px] tracking-wider mb-1 block font-semibold">
+                              {newDeckType === 'phrase' ? 'PHRASE/SENTENCE (文)' : 'KANJI (単語)'}
+                            </label>
                             <input 
                               type="text" 
                               value={card.kanji} 
                               onChange={(e) => handleVocabChange(idx, 'kanji', e.target.value)} 
-                              placeholder="e.g. 先生"
+                              placeholder={newDeckType === 'phrase' ? 'e.g. お元気ですか' : 'e.g. 先生'}
                               required
                               className="w-full bg-surface-bright border border-outline/20 rounded-lg px-3 py-2 text-on-surface text-sm focus:border-secondary focus:outline-none transition-colors"
                             />
@@ -1229,38 +1335,52 @@ const Community = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-sm">
+                        {newDeckType === 'phrase' ? (
                           <div>
-                            <label className="font-label-caps text-outline text-[8px] tracking-wider mb-1 block">FURIGANA</label>
+                            <label className="font-label-caps text-outline text-[9px] tracking-wider mb-1 block font-semibold">FURIGANA / READING (よみがな)</label>
                             <input 
                               type="text" 
                               value={card.furigana} 
                               onChange={(e) => handleVocabChange(idx, 'furigana', e.target.value)} 
-                              placeholder="e.g. せんせい"
-                              className="w-full bg-surface-bright border border-outline/10 rounded-lg px-2.5 py-1.5 text-on-surface text-xs focus:outline-none"
+                              placeholder="e.g. おげんきですか"
+                              required
+                              className="w-full bg-surface-bright border border-outline/20 rounded-lg px-3 py-2 text-on-surface text-sm focus:border-secondary focus:outline-none transition-colors"
                             />
                           </div>
-                          <div>
-                            <label className="font-label-caps text-outline text-[8px] tracking-wider mb-1 block">ON'YOMI</label>
-                            <input 
-                              type="text" 
-                              value={card.onyomi} 
-                              onChange={(e) => handleVocabChange(idx, 'onyomi', e.target.value)} 
-                              placeholder="e.g. セン"
-                              className="w-full bg-surface-bright border border-outline/10 rounded-lg px-2.5 py-1.5 text-on-surface text-xs focus:outline-none"
-                            />
+                        ) : (
+                          <div className="grid grid-cols-3 gap-sm">
+                            <div>
+                              <label className="font-label-caps text-outline text-[8px] tracking-wider mb-1 block">FURIGANA</label>
+                              <input 
+                                type="text" 
+                                value={card.furigana} 
+                                onChange={(e) => handleVocabChange(idx, 'furigana', e.target.value)} 
+                                placeholder="e.g. せんせい"
+                                className="w-full bg-surface-bright border border-outline/10 rounded-lg px-2.5 py-1.5 text-on-surface text-xs focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="font-label-caps text-outline text-[8px] tracking-wider mb-1 block">ON'YOMI</label>
+                              <input 
+                                type="text" 
+                                value={card.onyomi} 
+                                onChange={(e) => handleVocabChange(idx, 'onyomi', e.target.value)} 
+                                placeholder="e.g. セン"
+                                className="w-full bg-surface-bright border border-outline/10 rounded-lg px-2.5 py-1.5 text-on-surface text-xs focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="font-label-caps text-outline text-[8px] tracking-wider mb-1 block">KUN'YOMI</label>
+                              <input 
+                                type="text" 
+                                value={card.kunyomi} 
+                                onChange={(e) => handleVocabChange(idx, 'kunyomi', e.target.value)} 
+                                placeholder="e.g. さき"
+                                className="w-full bg-surface-bright border border-outline/10 rounded-lg px-2.5 py-1.5 text-on-surface text-xs focus:outline-none"
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <label className="font-label-caps text-outline text-[8px] tracking-wider mb-1 block">KUN'YOMI</label>
-                            <input 
-                              type="text" 
-                              value={card.kunyomi} 
-                              onChange={(e) => handleVocabChange(idx, 'kunyomi', e.target.value)} 
-                              placeholder="e.g. さき"
-                              className="w-full bg-surface-bright border border-outline/10 rounded-lg px-2.5 py-1.5 text-on-surface text-xs focus:outline-none"
-                            />
-                          </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1283,7 +1403,7 @@ const Community = () => {
                     className="flex-1"
                     disabled={isSubmittingDeck}
                   >
-                    {isSubmittingDeck ? "Sealing scrolls..." : "Publish Deck to Community"}
+                    {isSubmittingDeck ? "Sealing scrolls..." : "Publish Deck"}
                   </Button3D>
                 </div>
               </form>

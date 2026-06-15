@@ -108,6 +108,15 @@ async function ensureTablesExist() {
       }
     }
 
+    try {
+      await pool.query("ALTER TABLE mainichi_decks ADD COLUMN deck_type VARCHAR(50) DEFAULT 'kanji'");
+      console.log("✅ Verified deck_type column in mainichi_decks table.");
+    } catch (err) {
+      if (err.code !== 'ER_DUP_COLUMN_NAME') {
+        console.log("ℹ️ deck_type column already exists or failed to verify:", err.message);
+      }
+    }
+
     // 1. Create table if not exists (old schema might not have unique key)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS mainichi_deck_reviews (
@@ -840,7 +849,7 @@ app.get('/api/decks', authenticateToken, async (req, res) => {
   try {
     const user_id = req.user.id;
     const query = `
-      SELECT d.id, d.title, d.description, d.is_premium, d.created_at, 
+      SELECT d.id, d.title, d.description, d.is_premium, d.created_at, d.deck_type, d.author_id,
              COALESCE(u.name, 'Admin') AS author, 
              (SELECT COUNT(*) FROM mainichi_vocabulary WHERE deck_id = d.id) AS word_count,
              EXISTS(SELECT 1 FROM mainichi_user_decks WHERE user_id = ? AND deck_id = d.id) AS downloaded
@@ -862,16 +871,18 @@ app.post('/api/decks', authenticateToken, deckCreationLimiter, validateDeckCreat
   try {
     await connection.beginTransaction();
     const user_id = req.user.id;
-    const { title, description, is_premium, vocabulary } = req.body;
+    const { title, description, is_premium, deck_type, vocabulary } = req.body;
 
     if (!title || !vocabulary || !Array.isArray(vocabulary) || vocabulary.length === 0) {
       return res.status(400).json({ error: 'Title and a non-empty vocabulary list are required.' });
     }
 
+    const finalDeckType = deck_type === 'phrase' ? 'phrase' : 'kanji';
+
     // 1. Insert Deck
     const [deckResult] = await connection.query(
-      'INSERT INTO mainichi_decks (author_id, title, description, is_premium) VALUES (?, ?, ?, ?)',
-      [user_id, title, description || '', is_premium ? 1 : 0]
+      'INSERT INTO mainichi_decks (author_id, title, description, is_premium, deck_type) VALUES (?, ?, ?, ?, ?)',
+      [user_id, title, description || '', is_premium ? 1 : 0, finalDeckType]
     );
     const deck_id = deckResult.insertId;
 
@@ -904,6 +915,122 @@ app.post('/api/decks', authenticateToken, deckCreationLimiter, validateDeckCreat
     res.status(500).json({ error: 'Server error: ' + err.message });
   } finally {
     connection.release();
+  }
+});
+
+// Update Deck
+app.put('/api/decks/:id', authenticateToken, validateDeckCreation, async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const user_id = req.user.id;
+    const deck_id = parseInt(req.params.id, 10);
+    const { title, description, is_premium, deck_type, vocabulary } = req.body;
+
+    // Check if deck exists and user is the author
+    const [deckRows] = await connection.query('SELECT * FROM mainichi_decks WHERE id = ?', [deck_id]);
+    if (deckRows.length === 0) {
+      return res.status(404).json({ error: 'Deck not found.' });
+    }
+    if (deckRows[0].author_id !== user_id) {
+      return res.status(403).json({ error: 'You are not authorized to edit this deck.' });
+    }
+
+    const finalDeckType = deck_type === 'phrase' ? 'phrase' : 'kanji';
+
+    // 1. Update Deck details
+    await connection.query(
+      'UPDATE mainichi_decks SET title = ?, description = ?, is_premium = ?, deck_type = ? WHERE id = ?',
+      [title, description || '', is_premium ? 1 : 0, finalDeckType, deck_id]
+    );
+
+    // 2. Fetch existing vocabulary for this deck
+    const [existingVocab] = await connection.query('SELECT id FROM mainichi_vocabulary WHERE deck_id = ?', [deck_id]);
+    const existingIds = existingVocab.map(v => v.id);
+
+    const updatedIds = [];
+    
+    // 3. Process each vocabulary card in the payload
+    for (const item of vocabulary) {
+      if (item.id && existingIds.includes(parseInt(item.id, 10))) {
+        // Update existing card
+        const cardId = parseInt(item.id, 10);
+        await connection.query(
+          'UPDATE mainichi_vocabulary SET kanji = ?, furigana = ?, onyomi = ?, kunyomi = ?, english = ? WHERE id = ?',
+          [item.kanji, item.furigana || '', item.onyomi || '', item.kunyomi || '', item.english, cardId]
+        );
+        updatedIds.push(cardId);
+      } else {
+        // Insert new card
+        const [insertResult] = await connection.query(
+          'INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, onyomi, kunyomi, english) VALUES (?, ?, ?, ?, ?, ?)',
+          [deck_id, item.kanji, item.furigana || '', item.onyomi || '', item.kunyomi || '', item.english]
+        );
+        updatedIds.push(insertResult.insertId);
+      }
+    }
+
+    // 4. Delete vocabulary cards that were removed from the deck
+    const idsToDelete = existingIds.filter(id => !updatedIds.includes(id));
+    if (idsToDelete.length > 0) {
+      await connection.query('DELETE FROM mainichi_vocabulary WHERE id IN (?)', [idsToDelete]);
+    }
+
+    await connection.commit();
+    res.json({ success: true, deck_id, word_count: vocabulary.length });
+  } catch (err) {
+    await connection.rollback();
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  } finally {
+    connection.release();
+  }
+});
+
+// Delete Deck
+app.delete('/api/decks/:id', authenticateToken, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const deck_id = parseInt(req.params.id, 10);
+
+    // Check if deck exists and user is the author
+    const [deckRows] = await pool.query('SELECT * FROM mainichi_decks WHERE id = ?', [deck_id]);
+    if (deckRows.length === 0) {
+      return res.status(404).json({ error: 'Deck not found.' });
+    }
+    if (deckRows[0].author_id !== user_id) {
+      return res.status(403).json({ error: 'You are not authorized to delete this deck.' });
+    }
+
+    // Delete the deck (cascades automatically to vocabulary, downloads, reviews)
+    await pool.query('DELETE FROM mainichi_decks WHERE id = ?', [deck_id]);
+
+    res.json({ success: true, message: 'Deck deleted successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Look up phonetic readings for homophone speech matching
+app.get('/api/vocab/lookup', authenticateToken, async (req, res) => {
+  try {
+    const { kanji } = req.query;
+    if (!kanji || typeof kanji !== 'string') {
+      return res.status(400).json({ error: 'Kanji query parameter is required.' });
+    }
+    
+    // Select all furigana associated with this kanji in our vocabulary records
+    const [rows] = await pool.query(
+      'SELECT DISTINCT furigana FROM mainichi_vocabulary WHERE kanji = ? AND furigana IS NOT NULL AND furigana != ""',
+      [kanji.trim()]
+    );
+    
+    const readings = rows.map(r => r.furigana);
+    res.json({ readings });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
   }
 });
 
@@ -1313,7 +1440,8 @@ app.get('/api/progress/due', authenticateToken, async (req, res) => {
     // 2. Has no progress record yet (new cards)
     // 3. Has a next_review_date in the past
     const query = `
-      SELECT v.* FROM mainichi_vocabulary v
+      SELECT v.*, d.deck_type FROM mainichi_vocabulary v
+      JOIN mainichi_decks d ON v.deck_id = d.id
       LEFT JOIN mainichi_user_progress p ON v.id = p.vocab_id AND p.user_id = ?
       WHERE v.deck_id = ? AND (p.next_review_date <= CURRENT_TIMESTAMP OR p.id IS NULL)
       ORDER BY p.next_review_date ASC

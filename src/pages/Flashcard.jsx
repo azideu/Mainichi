@@ -11,6 +11,7 @@ const STEPS = {
   MEANING: 'MEANING',
   ONYOMI: 'ONYOMI',
   KUNYOMI: 'KUNYOMI',
+  FURIGANA: 'FURIGANA',
   RESULT: 'RESULT'
 };
 
@@ -22,6 +23,11 @@ const getFirstReading = (readingStr) => {
 
 const getActiveSteps = (card) => {
   if (!card) return [STEPS.RECALL, STEPS.RESULT];
+  
+  if (card.deck_type === 'phrase') {
+    return [STEPS.RECALL, STEPS.FURIGANA, STEPS.RESULT];
+  }
+  
   const steps = [STEPS.RECALL, STEPS.MEANING];
   if (card.onyomi && card.onyomi.trim() !== '') {
     steps.push(STEPS.ONYOMI);
@@ -52,8 +58,8 @@ const Flashcard = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [step, setStep] = useState(STEPS.RECALL);
   const [isFinished, setIsFinished] = useState(false);
-  const [results, setResults] = useState({ meaning: null, onyomi: null, kunyomi: null });
-  const [options, setOptions] = useState({ meaning: [], onyomi: [], kunyomi: [] });
+  const [results, setResults] = useState({ meaning: null, onyomi: null, kunyomi: null, furigana: null });
+  const [options, setOptions] = useState({ meaning: [], onyomi: [], kunyomi: [], furigana: [] });
   const [fullDeckVocab, setFullDeckVocab] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [speechFeedback, setSpeechFeedback] = useState('');
@@ -133,7 +139,8 @@ const Flashcard = () => {
     setOptions({
       meaning: getDistractors('english', card.english),
       onyomi: (card.onyomi && card.onyomi.trim()) ? getDistractors('onyomi', card.onyomi) : [],
-      kunyomi: (card.kunyomi && card.kunyomi.trim()) ? getDistractors('kunyomi', card.kunyomi) : []
+      kunyomi: (card.kunyomi && card.kunyomi.trim()) ? getDistractors('kunyomi', card.kunyomi) : [],
+      furigana: (card.furigana && card.furigana.trim()) ? getDistractors('furigana', card.furigana) : []
     });
   };
 
@@ -181,7 +188,7 @@ const Flashcard = () => {
   };
 
   useEffect(() => {
-    const handleSpeechResult = (event) => {
+    const handleSpeechResult = async (event) => {
       setIsListening(false);
       const spokenText = event.detail;
       if (!spokenText) return;
@@ -233,14 +240,33 @@ const Flashcard = () => {
         ...cleanList(currentCard.kunyomi)
       ].filter(Boolean);
       
-      const isMatch = targetList.some(target => {
+      let isMatch = targetList.some(target => {
         return spokenVariants.some(variant => 
           variant === target || variant.includes(target) || target.includes(variant)
         );
       });
+
+      // Homophone / DB check (if direct match failed and spokenClean contains Kanji characters)
+      if (!isMatch && spokenText && !/^[\u3040-\u309F\u30A0-\u30FF]+$/.test(spokenClean)) {
+        try {
+          const token = localStorage.getItem('mainichi_token');
+          const res = await fetch(`/api/vocab/lookup?kanji=${encodeURIComponent(spokenText)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.readings && data.readings.length > 0) {
+              const cleanReadings = data.readings.map(r => clean(r));
+              isMatch = cleanReadings.some(reading => reading === targetFurigana);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to perform homophone lookup", e);
+        }
+      }
       
       if (isMatch) {
-        setResults({ meaning: true, onyomi: true, kunyomi: true });
+        setResults({ meaning: true, onyomi: true, kunyomi: true, furigana: true });
         setStep(STEPS.RESULT);
         if (isMobileApp) {
           sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
@@ -267,11 +293,12 @@ const Flashcard = () => {
     if (activeSteps.includes(STEPS.MEANING) && results.meaning !== true) correct = false;
     if (activeSteps.includes(STEPS.ONYOMI) && results.onyomi !== true) correct = false;
     if (activeSteps.includes(STEPS.KUNYOMI) && results.kunyomi !== true) correct = false;
+    if (activeSteps.includes(STEPS.FURIGANA) && results.furigana !== true) correct = false;
     return correct;
   })();
 
   const handleForgot = () => {
-    setResults({ meaning: false, onyomi: false, kunyomi: false });
+    setResults({ meaning: false, onyomi: false, kunyomi: false, furigana: false });
     setStep(STEPS.RESULT);
   };
 
@@ -281,6 +308,7 @@ const Flashcard = () => {
       if (s === STEPS.MEANING) correctedResults.meaning = true;
       if (s === STEPS.ONYOMI) correctedResults.onyomi = true;
       if (s === STEPS.KUNYOMI) correctedResults.kunyomi = true;
+      if (s === STEPS.FURIGANA) correctedResults.furigana = true;
     });
     setResults(correctedResults);
     
@@ -332,6 +360,7 @@ const Flashcard = () => {
       if (currentActiveSteps.includes(STEPS.MEANING) && results.meaning !== true) allCorrect = false;
       if (currentActiveSteps.includes(STEPS.ONYOMI) && results.onyomi !== true) allCorrect = false;
       if (currentActiveSteps.includes(STEPS.KUNYOMI) && results.kunyomi !== true) allCorrect = false;
+      if (currentActiveSteps.includes(STEPS.FURIGANA) && results.furigana !== true) allCorrect = false;
 
       const performRecord = async () => {
         const data = await recordReview(currentCard.id, allCorrect ? 'good' : 'hard', currentCard.deck_id);
@@ -452,25 +481,35 @@ const Flashcard = () => {
               exit={{ opacity: 0, y: -10 }}
               className="flex-1 flex flex-col justify-between items-center text-center w-full pb-2"
             >
-              <p className="font-body-lg text-outline leading-relaxed max-w-[320px] mb-6">
-                Recall the <span className="text-on-surface font-medium">meaning</span>
-                {activeSteps.includes(STEPS.ONYOMI) && (
-                  <>
-                    , <span className="text-on-surface font-medium">on'yomi</span>
-                  </>
-                )}
-                {activeSteps.includes(STEPS.KUNYOMI) && (
-                  <>
-                    , and <span className="text-on-surface font-medium">kun'yomi</span>
-                  </>
-                )}
-                {!activeSteps.includes(STEPS.ONYOMI) && !activeSteps.includes(STEPS.KUNYOMI) && (
-                  <> and <span className="text-on-surface font-medium">reading</span></>
-                )} for this item.
-              </p>
+              {currentCard.deck_type === 'phrase' ? (
+                <p className="font-body-lg text-outline leading-relaxed max-w-[320px] mb-6">
+                  Recall the <span className="text-on-surface font-medium">furigana/reading</span> for this item.
+                </p>
+              ) : (
+                <p className="font-body-lg text-outline leading-relaxed max-w-[320px] mb-6">
+                  Recall the <span className="text-on-surface font-medium">meaning</span>
+                  {activeSteps.includes(STEPS.ONYOMI) && (
+                    <>
+                      , <span className="text-on-surface font-medium">on'yomi</span>
+                    </>
+                  )}
+                  {activeSteps.includes(STEPS.KUNYOMI) && (
+                    <>
+                      , and <span className="text-on-surface font-medium">kun'yomi</span>
+                    </>
+                  )}
+                  {!activeSteps.includes(STEPS.ONYOMI) && !activeSteps.includes(STEPS.KUNYOMI) && (
+                    <> and <span className="text-on-surface font-medium">reading</span></>
+                  )} for this item.
+                </p>
+              )}
               <div className="w-full space-y-4 mt-auto">
-                <Button3D onClick={() => setStep(STEPS.MEANING)} variant="primary" className="w-full py-6 text-[18px]">
-                  Recall readings
+                <Button3D 
+                  onClick={() => setStep(currentCard.deck_type === 'phrase' ? STEPS.FURIGANA : STEPS.MEANING)} 
+                  variant="primary" 
+                  className="w-full py-6 text-[18px]"
+                >
+                  {currentCard.deck_type === 'phrase' ? "Recall reading" : "Recall readings"}
                 </Button3D>
                 {isMobileApp && (
                   <Button3D 
@@ -500,7 +539,7 @@ const Flashcard = () => {
             </motion.div>
           )}
 
-          {(step === STEPS.MEANING || step === STEPS.ONYOMI || step === STEPS.KUNYOMI) && (
+          {(step === STEPS.MEANING || step === STEPS.ONYOMI || step === STEPS.KUNYOMI || step === STEPS.FURIGANA) && (
             <motion.div 
               key={step}
               initial={{ opacity: 0, x: 20 }}
@@ -553,29 +592,54 @@ const Flashcard = () => {
                 <div className="bg-surface rounded-2xl md:rounded-3xl p-4 md:p-8 border border-outline/10 shadow-paper-layer relative overflow-hidden">
                   <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply"></div>
                   <div className="relative z-10 space-y-3 md:space-y-6">
-                    {activeSteps.includes(STEPS.MEANING) && (
-                      <div className="flex flex-col">
-                        <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
-                        <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
-                          {currentCard.english} {results.meaning === false && '✗'}
-                        </span>
-                      </div>
-                    )}
-                    {activeSteps.includes(STEPS.ONYOMI) && (
-                      <div className="flex flex-col">
-                        <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
-                        <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
-                          {currentCard.onyomi} {results.onyomi === false && '✗'}
-                        </span>
-                      </div>
-                    )}
-                    {activeSteps.includes(STEPS.KUNYOMI) && (
-                      <div className="flex flex-col">
-                        <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
-                        <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
-                          {currentCard.kunyomi} {results.kunyomi === false && '✗'}
-                        </span>
-                      </div>
+                    {currentCard.deck_type === 'phrase' ? (
+                      <>
+                        <div className="flex flex-col">
+                          <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">PHRASE / SENTENCE</span>
+                          <span className="font-h3 text-on-surface font-semibold" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+                            {currentCard.kanji}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">FURIGANA / READING</span>
+                          <span className={`font-h2 ${results.furigana ? 'text-primary' : 'text-error'}`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+                            {currentCard.furigana} {results.furigana === false && '✗'}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ENGLISH MEANING</span>
+                          <span className="font-h3 text-on-surface">
+                            {currentCard.english}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {activeSteps.includes(STEPS.MEANING) && (
+                          <div className="flex flex-col">
+                            <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">MEANING</span>
+                            <span className={`font-h3 ${results.meaning ? 'text-primary' : 'text-error'}`}>
+                              {currentCard.english} {results.meaning === false && '✗'}
+                            </span>
+                          </div>
+                        )}
+                        {activeSteps.includes(STEPS.ONYOMI) && (
+                          <div className="flex flex-col">
+                            <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">ON'YOMI</span>
+                            <span className={`font-h2 ${results.onyomi ? 'text-primary' : 'text-error'}`}>
+                              {currentCard.onyomi} {results.onyomi === false && '✗'}
+                            </span>
+                          </div>
+                        )}
+                        {activeSteps.includes(STEPS.KUNYOMI) && (
+                          <div className="flex flex-col">
+                            <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">KUN'YOMI</span>
+                            <span className={`font-h2 ${results.kunyomi ? 'text-primary' : 'text-error'}`}>
+                              {currentCard.kunyomi} {results.kunyomi === false && '✗'}
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

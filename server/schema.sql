@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS mainichi_decks (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     is_premium BOOLEAN DEFAULT FALSE,
+    deck_type VARCHAR(50) DEFAULT 'kanji',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES mainichi_users(id) ON DELETE SET NULL
 );
