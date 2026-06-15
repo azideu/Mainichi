@@ -39,6 +39,25 @@ const pool = mysql.createPool({
 // Ensure tables exist on startup
 async function ensureTablesExist() {
   try {
+    // Ensure is_premium and is_creator columns exist in mainichi_users
+    try {
+      await pool.query('ALTER TABLE mainichi_users ADD COLUMN is_premium BOOLEAN DEFAULT FALSE');
+      console.log("✅ Verified is_premium column in mainichi_users table.");
+    } catch (err) {
+      if (err.code !== 'ER_DUP_COLUMN_NAME') {
+        console.log("ℹ️ is_premium column already exists or failed to verify:", err.message);
+      }
+    }
+
+    try {
+      await pool.query('ALTER TABLE mainichi_users ADD COLUMN is_creator BOOLEAN DEFAULT FALSE');
+      console.log("✅ Verified is_creator column in mainichi_users table.");
+    } catch (err) {
+      if (err.code !== 'ER_DUP_COLUMN_NAME') {
+        console.log("ℹ️ is_creator column already exists or failed to verify:", err.message);
+      }
+    }
+
     // 1. Create table if not exists (old schema might not have unique key)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS mainichi_deck_reviews (
@@ -373,7 +392,7 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     const token = jsonwebtoken.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: userId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi', is_premium: 0 } });
+    res.status(201).json({ token, user: { id: userId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi', is_premium: 0, is_creator: 0 } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
@@ -396,7 +415,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jsonwebtoken.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email, profile_picture: user.profile_picture, is_premium: user.is_premium } });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, profile_picture: user.profile_picture, is_premium: user.is_premium, is_creator: user.is_creator } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
@@ -433,7 +452,28 @@ app.post('/api/user/subscribe', authenticateToken, async (req, res) => {
     await pool.query('UPDATE mainichi_users SET is_premium = TRUE WHERE id = ?', [userId]);
 
     // Fetch the updated user details to return to the frontend
-    const [rows] = await pool.query('SELECT id, name, email, profile_picture, is_premium FROM mainichi_users WHERE id = ?', [userId]);
+    const [rows] = await pool.query('SELECT id, name, email, profile_picture, is_premium, is_creator FROM mainichi_users WHERE id = ?', [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ success: true, user: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Upgrade user to creator status
+app.post('/api/user/become-creator', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Update is_creator to true
+    await pool.query('UPDATE mainichi_users SET is_creator = TRUE WHERE id = ?', [userId]);
+
+    // Fetch the updated user details to return to the frontend
+    const [rows] = await pool.query('SELECT id, name, email, profile_picture, is_premium, is_creator FROM mainichi_users WHERE id = ?', [userId]);
     if (rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }

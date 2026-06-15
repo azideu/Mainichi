@@ -272,6 +272,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const becomeCreator = async () => {
+    try {
+      const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
+      const response = await fetch('/api/user/become-creator', {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error('Session expired. Please log in again.');
+      }
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to update creator status');
+
+      if (user?.isGuest) {
+        sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
+      } else {
+        localStorage.setItem('mainichi_user', JSON.stringify(data.user));
+      }
+      setUser(data.user);
+      return true;
+    } catch (error) {
+      console.error("Failed to update creator status", error);
+      alert(error.message);
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('mainichi_token');
     localStorage.removeItem('mainichi_user');
@@ -297,7 +329,8 @@ export const AuthProvider = ({ children }) => {
       loading,
       isPremiumModalOpen,
       setIsPremiumModalOpen,
-      subscribeUser
+      subscribeUser,
+      becomeCreator
     }}>
       {children}
     </AuthContext.Provider>

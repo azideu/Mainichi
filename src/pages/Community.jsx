@@ -33,11 +33,17 @@ const getPreviewFontSize = (text) => {
 
 const Community = () => {
   const navigate = useNavigate();
-  const { user, setIsPremiumModalOpen } = useAuth();
+  const { user, setIsPremiumModalOpen, becomeCreator } = useAuth();
   const [activeTab, setActiveTab] = useState('discover'); // discover | workshop
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreator, setIsCreator] = useState(localStorage.getItem('mainichi_is_creator') === 'true');
+  const [isCreator, setIsCreator] = useState(user?.is_creator === 1 || localStorage.getItem('mainichi_is_creator') === 'true');
+
+  useEffect(() => {
+    if (user) {
+      setIsCreator(user.is_creator === 1 || localStorage.getItem('mainichi_is_creator') === 'true');
+    }
+  }, [user]);
   
   // Modals & Drawers State
   const [selectedDeck, setSelectedDeck] = useState(null);
@@ -342,10 +348,17 @@ const Community = () => {
   };
 
   // Creator approval finalization
-  const handleCreatorApprove = () => {
-    localStorage.setItem('mainichi_is_creator', 'true');
-    setIsCreator(true);
-    setWizardStep(4);
+  const handleCreatorApprove = async () => {
+    if (user?.isGuest) {
+      localStorage.setItem('mainichi_is_creator', 'true');
+      setIsCreator(true);
+      setWizardStep(4);
+      return;
+    }
+    const success = await becomeCreator();
+    if (success) {
+      setWizardStep(4);
+    }
   };
 
   const containerVariants = {
