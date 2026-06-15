@@ -5,6 +5,7 @@ import Button3D from '../components/Button3D';
 import LoadingState from '../components/LoadingState';
 import HankoStamp from '../components/HankoStamp';
 import { useAuth } from '../context/AuthContext';
+import { createPortal } from 'react-dom';
 
 const SYSTEM_REVIEWS = {
   1: [
@@ -599,9 +600,10 @@ const Community = () => {
       {/* ========================================================================= */}
       {/* 1. DECK DETAIL & PREVIEW DRAWER (Washi Sliding Panel) */}
       {/* ========================================================================= */}
-      <AnimatePresence>
-        {selectedDeck && (
-          <div className="fixed inset-0 z-50 flex justify-end">
+      {createPortal(
+        <AnimatePresence>
+          {selectedDeck && (
+            <div className="fixed inset-0 z-[100] flex justify-end">
             {/* Backdrop Blur */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -883,14 +885,17 @@ const Community = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
 
       {/* ========================================================================= */}
       {/* 2. CREATOR APPLICATION WIZARD OVERLAY */}
       {/* ========================================================================= */}
-      <AnimatePresence>
-        {showCreatorWizard && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {createPortal(
+        <AnimatePresence>
+          {showCreatorWizard && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -1067,14 +1072,17 @@ const Community = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
 
       {/* ========================================================================= */}
       {/* 3. INTERACTIVE DECK CREATOR WORKSHOP FORM DRAWER */}
       {/* ========================================================================= */}
-      <AnimatePresence>
-        {showCreatorForm && (
-          <div className="fixed inset-0 z-50 flex justify-end">
+      {createPortal(
+        <AnimatePresence>
+          {showCreatorForm && (
+            <div className="fixed inset-0 z-[100] flex justify-end">
             {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
@@ -1256,7 +1264,9 @@ const Community = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </motion.div>
   );
 };
