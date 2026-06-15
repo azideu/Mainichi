@@ -196,17 +196,44 @@ const Community = () => {
         setReviews(data);
         
         // Pre-populate if current user has already reviewed
-        const userName = user?.name;
-        const userReview = data.find(r => r.author === userName);
+        const userReview = data.find(r => r.user_id === user?.id);
         if (userReview) {
           setNewReviewRating(userReview.rating);
           setNewReviewComment(userReview.comment);
+        } else {
+          setNewReviewRating(5);
+          setNewReviewComment('');
         }
       }
     } catch (err) {
       console.error("Failed to fetch reviews", err);
     } finally {
       setIsReviewsLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!selectedDeck) return;
+    const confirmed = await showConfirm("Are you sure you want to delete your review for this deck?", "Delete Review");
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const res = await fetch(`/api/decks/${selectedDeck.id}/reviews`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        await fetchReviews(selectedDeck.id);
+        await showAlert("Review deleted successfully.", "Success");
+      } else {
+        const errData = await res.json();
+        await showAlert(errData.error || "Failed to delete review.", "Error");
+      }
+    } catch (err) {
+      console.error("Failed to delete review", err);
+      await showAlert("Error occurred while deleting review.", "Error");
     }
   };
 
@@ -844,7 +871,7 @@ const Community = () => {
                           </div>
                         );
                       }
-                      const hasExistingReview = reviews.some(r => r.author === user?.name);
+                      const hasExistingReview = reviews.some(r => r.user_id === user?.id);
                       return (
                         <form onSubmit={handleSubmitReview} className="bg-surface rounded-2xl p-4 border border-outline/10 shadow-sm relative overflow-hidden mb-6">
                           <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
@@ -871,7 +898,7 @@ const Community = () => {
                               </button>
                             ))}
                           </div>
-
+ 
                           <div className="mb-4 relative z-10">
                             <textarea
                               value={newReviewComment}
@@ -882,8 +909,19 @@ const Community = () => {
                               className="w-full bg-surface-bright border border-outline/25 rounded-xl px-4 py-3 text-on-surface text-sm focus:border-secondary focus:outline-none transition-colors shadow-sm resize-none"
                             />
                           </div>
-
-                          <div className="flex justify-end relative z-10">
+ 
+                          <div className="flex justify-end gap-3 relative z-10">
+                            {hasExistingReview && (
+                              <button
+                                type="button"
+                                onClick={handleDeleteReview}
+                                disabled={isSubmittingReview}
+                                className="py-2.5 px-4 text-[11px] font-label-caps tracking-wider font-semibold rounded-xl bg-surface border border-error/30 text-error hover:bg-error/5 hover:border-error/50 transition-colors active:scale-[0.98] flex items-center gap-1.5"
+                              >
+                                <span className="material-symbols-outlined text-[14px]">delete</span>
+                                Delete
+                              </button>
+                            )}
                             <Button3D
                               type="submit"
                               variant="secondary"
@@ -915,9 +953,20 @@ const Community = () => {
                                 <span className="font-body-md font-semibold text-on-surface text-sm">{rev.author}</span>
                                 <span className="bg-secondary/10 text-secondary border border-secondary/20 text-[7px] font-label-caps px-1.5 py-0.5 rounded-full tracking-wider ml-2 font-semibold font-semibold">SCHOLAR</span>
                               </div>
-                              <span className="text-[10px] text-outline font-mono">
-                                {rev.date || new Date(rev.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] text-outline font-mono">
+                                  {rev.date || new Date(rev.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                                </span>
+                                {user && rev.user_id === user.id && (
+                                  <button
+                                    onClick={handleDeleteReview}
+                                    className="text-outline hover:text-error transition-colors p-1"
+                                    title="Delete Review"
+                                  >
+                                    <span className="material-symbols-outlined text-[16px]">delete</span>
+                                  </button>
+                                )}
+                              </div>
                             </div>
                             <div className="flex gap-0.5 text-secondary text-[12px] mb-2 relative z-10">
                               {[...Array(rev.rating)].map((_, i) => (

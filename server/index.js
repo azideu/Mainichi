@@ -1093,7 +1093,7 @@ app.get('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
   try {
     const deck_id = parseInt(req.params.deck_id, 10);
     const [reviews] = await pool.query(`
-      SELECT r.id, r.rating, r.comment, r.created_at, u.name as author
+      SELECT r.id, r.rating, r.comment, r.created_at, r.user_id, u.name as author
       FROM mainichi_deck_reviews r
       JOIN mainichi_users u ON r.user_id = u.id
       WHERE r.deck_id = ?
@@ -1139,6 +1139,28 @@ app.post('/api/decks/:deck_id/reviews', authenticateToken, reviewLimiter, valida
       `, [deck_id, user_id, rating, comment || '']);
       res.json({ success: true, message: 'Review submitted successfully.' });
     }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+// Delete a review for a deck
+app.delete('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
+  try {
+    const deck_id = parseInt(req.params.deck_id, 10);
+    const user_id = req.user.id;
+
+    const [result] = await pool.query(
+      'DELETE FROM mainichi_deck_reviews WHERE deck_id = ? AND user_id = ?',
+      [deck_id, user_id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    res.json({ success: true, message: 'Review deleted successfully.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });
