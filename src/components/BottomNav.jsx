@@ -87,7 +87,7 @@ const BottomNav = () => {
     <nav 
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="fixed bottom-[calc(16px+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 md:hidden touch-none select-none"
+      className="fixed bottom-4 left-4 right-4 z-50 md:hidden touch-none select-none"
     >
       <div className="bg-surface/80 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl h-16 flex justify-around items-center px-4 relative overflow-hidden">
         {/* Washi texture overlay */}
