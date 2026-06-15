@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jsonwebtoken from 'jsonwebtoken';
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -17,8 +18,37 @@ const app = express();
 const PORT = process.env.PORT || 5005;
 const JWT_SECRET = process.env.JWT_SECRET || 'mainichi_super_secret_key_2024';
 
-app.use(cors());
+// Safety warning for default JWT secret in production
+if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'mainichi_super_secret_key_2024') {
+  console.error("🚨 CRITICAL SECURITY WARNING: Running in production with default JWT_SECRET. Please configure process.env.JWT_SECRET immediately!");
+}
+
+// Configured CORS to restrict origins in production, allow credentials, and compatibility with null/empty origins (MIT App Inventor WebView)
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:5173', 'http://localhost:5005'];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or standard same-origin requests)
+    if (!origin || origin === 'null') return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
+  credentials: true
+}));
+
+app.use(cookieParser());
 app.use(express.json({ limit: '2mb' }));
+
+// Custom Security Headers middleware (Defense-in-depth: Clickjacking, MIME-sniffing protection)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
 
 // Serve static files from the React app build folder
 app.use(express.static(path.join(__dirname, '../dist')));
@@ -209,16 +239,183 @@ async function ensureTablesExist() {
 }
 ensureTablesExist();
 
-// Auth Middleware
+// ==========================================
+// SECURITY MIDDLEWARES & UTILITIES
+// ==========================================
+
+// Custom IP-based Rate Limiter Store
+const rateLimitStore = {};
+function createRateLimiter({ windowMs, max, message }) {
+  return (req, res, next) => {
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const now = Date.now();
+    
+    if (!rateLimitStore[ip]) {
+      rateLimitStore[ip] = [];
+    }
+    
+    // Clean up expired entries
+    rateLimitStore[ip] = rateLimitStore[ip].filter(timestamp => now - timestamp < windowMs);
+    
+    if (rateLimitStore[ip].length >= max) {
+      return res.status(429).json({ error: message || 'Too many requests. Please try again later.' });
+    }
+    
+    rateLimitStore[ip].push(now);
+    next();
+  };
+}
+
+// Rate Limiter Instances
+const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many login attempts. Please try again in 15 minutes.' });
+const registerLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5, message: 'Too many account registrations. Please try again in 15 minutes.' });
+const guestLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 15, message: 'Too many guest sessions requested. Please try again in 15 minutes.' });
+const deckCreationLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 10, message: 'Too many custom decks created. Please try again in an hour.' });
+const reviewLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many reviews submitted. Please try again in 15 minutes.' });
+
+// Email validation regex (RFC 5322)
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+// Input Validation Middlewares
+const validateRegister = (req, res, next) => {
+  const { name, email, password } = req.body;
+  if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 50) {
+    return res.status(400).json({ error: 'Name must be a non-empty string under 50 characters.' });
+  }
+  if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email) || email.length > 100) {
+    return res.status(400).json({ error: 'Please enter a valid email address under 100 characters.' });
+  }
+  if (!password || typeof password !== 'string' || password.length < 8 || password.length > 100) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
+  }
+  next();
+};
+
+const validateLogin = (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || typeof email !== 'string' || email.trim().length === 0) {
+    return res.status(400).json({ error: 'Email is required.' });
+  }
+  if (!password || typeof password !== 'string' || password.trim().length === 0) {
+    return res.status(400).json({ error: 'Password is required.' });
+  }
+  next();
+};
+
+const validateProfileUpdate = (req, res, next) => {
+  const { name, profile_picture } = req.body;
+  if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 50) {
+    return res.status(400).json({ error: 'Name must be a non-empty string under 50 characters.' });
+  }
+  if (profile_picture && (typeof profile_picture !== 'string' || profile_picture.length > 500)) {
+    return res.status(400).json({ error: 'Profile picture URL is too long.' });
+  }
+  next();
+};
+
+const validateDeckCreation = (req, res, next) => {
+  const { title, description, vocabulary } = req.body;
+  if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 100) {
+    return res.status(400).json({ error: 'Title must be a non-empty string under 100 characters.' });
+  }
+  if (description && (typeof description !== 'string' || description.length > 500)) {
+    return res.status(400).json({ error: 'Description must be under 500 characters.' });
+  }
+  if (!vocabulary || !Array.isArray(vocabulary) || vocabulary.length === 0) {
+    return res.status(400).json({ error: 'Vocabulary list must be a non-empty array.' });
+  }
+  
+  // Validate each vocabulary item
+  for (let i = 0; i < vocabulary.length; i++) {
+    const item = vocabulary[i];
+    if (!item.kanji || typeof item.kanji !== 'string' || item.kanji.trim().length === 0 || item.kanji.length > 100) {
+      return res.status(400).json({ error: `Card at index ${i} has an invalid or missing 'kanji' string.` });
+    }
+    if (!item.english || typeof item.english !== 'string' || item.english.trim().length === 0 || item.english.length > 100) {
+      return res.status(400).json({ error: `Card at index ${i} has an invalid or missing 'english' string.` });
+    }
+    if (item.furigana && (typeof item.furigana !== 'string' || item.furigana.length > 100)) {
+      return res.status(400).json({ error: `Card at index ${i} has an excessively long 'furigana' string.` });
+    }
+    if (item.onyomi && (typeof item.onyomi !== 'string' || item.onyomi.length > 100)) {
+      return res.status(400).json({ error: `Card at index ${i} has an excessively long 'onyomi' string.` });
+    }
+    if (item.kunyomi && (typeof item.kunyomi !== 'string' || item.kunyomi.length > 100)) {
+      return res.status(400).json({ error: `Card at index ${i} has an excessively long 'kunyomi' string.` });
+    }
+  }
+  next();
+};
+
+const validateDeckReview = (req, res, next) => {
+  const { rating, comment } = req.body;
+  const parsedRating = parseInt(rating, 10);
+  if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+    return res.status(400).json({ error: 'Rating must be an integer between 1 and 5.' });
+  }
+  if (comment && (typeof comment !== 'string' || comment.length > 1000)) {
+    return res.status(400).json({ error: 'Comment must be under 1000 characters.' });
+  }
+  next();
+};
+
+const validateSRSReview = (req, res, next) => {
+  const { vocab_id, rating } = req.body;
+  if (!vocab_id || isNaN(parseInt(vocab_id, 10))) {
+    return res.status(400).json({ error: 'A valid vocab_id is required.' });
+  }
+  if (!['easy', 'good', 'hard'].includes(rating)) {
+    return res.status(400).json({ error: "Rating must be either 'easy', 'good', or 'hard'." });
+  }
+  next();
+};
+
+const validateSettingsUpdate = (req, res, next) => {
+  const { masteryRequirement, dailyGoal } = req.body;
+  const parsedMastery = parseInt(masteryRequirement, 10);
+  const parsedGoal = parseInt(dailyGoal, 10);
+  
+  if (isNaN(parsedMastery) || parsedMastery < 1 || parsedMastery > 100) {
+    return res.status(400).json({ error: 'Mastery requirement must be an integer between 1 and 100.' });
+  }
+  if (isNaN(parsedGoal) || parsedGoal < 1 || parsedGoal > 200) {
+    return res.status(400).json({ error: 'Daily goal must be an integer between 1 and 200.' });
+  }
+  next();
+};
+
+// Auth Middleware (Reads HTTP-Only Cookie, falls back to Authorization Header)
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  let token = null;
+
+  // 1. Try to read from cookie
+  if (req.cookies && req.cookies['__Host-mainichi_token']) {
+    token = req.cookies['__Host-mainichi_token'];
+  }
+
+  // 2. Try to read from Authorization header (fallback for App Inventor integration)
+  if (!token) {
+    const authHeader = req.headers['authorization'];
+    token = authHeader && authHeader.split(' ')[1];
+  }
   
   if (!token) return res.sendStatus(401);
 
   jsonwebtoken.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
+    
+    // Automatically upgrade this session to cookie-based if it was passed via header
+    if (!req.cookies || !req.cookies['__Host-mainichi_token']) {
+      res.cookie('__Host-mainichi_token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+    }
+    
     next();
   });
 };
@@ -283,9 +480,18 @@ function getTimezoneOffsetString(req) {
 // AUTHENTICATION ROUTES
 // ==========================================
 
-app.post('/api/auth/guest', async (req, res) => {
+app.post('/api/auth/guest', guestLimiter, async (req, res) => {
   try {
     const token = jsonwebtoken.sign({ id: -1, email: 'guest@mainichi.app', isGuest: true }, JWT_SECRET, { expiresIn: '7d' });
+    
+    res.cookie('__Host-mainichi_token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.json({
       token,
       user: {
@@ -303,7 +509,7 @@ app.post('/api/auth/guest', async (req, res) => {
   }
 });
 
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', registerLimiter, validateRegister, async (req, res) => {
   try {
     const { name, email, password, guestProgress } = req.body;
     
@@ -392,6 +598,15 @@ app.post('/api/auth/register', async (req, res) => {
     }
 
     const token = jsonwebtoken.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '7d' });
+    
+    res.cookie('__Host-mainichi_token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.status(201).json({ token, user: { id: userId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi', is_premium: 0, is_creator: 0 } });
   } catch (err) {
     console.error(err);
@@ -399,7 +614,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', loginLimiter, validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
     
@@ -415,6 +630,15 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jsonwebtoken.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    
+    res.cookie('__Host-mainichi_token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, profile_picture: user.profile_picture, is_premium: user.is_premium, is_creator: user.is_creator } });
   } catch (err) {
     console.error(err);
@@ -422,11 +646,54 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.isGuest) {
+      return res.json({
+        user: {
+          id: -1,
+          name: req.user.name || 'Guest Traveler',
+          email: 'guest@mainichi.app',
+          profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi',
+          is_premium: 0,
+          isGuest: true
+        }
+      });
+    }
+
+    const [rows] = await pool.query(
+      'SELECT id, name, email, profile_picture, is_premium, is_creator FROM mainichi_users WHERE id = ?',
+      [req.user.id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ user: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('__Host-mainichi_token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Lax',
+    path: '/'
+  });
+  
+  res.setHeader('Clear-Site-Data', '"cookies", "storage", "cache"');
+  res.json({ success: true });
+});
+
 // ==========================================
 // USER PROFILE ROUTES
 // ==========================================
 
-app.put('/api/user/profile', authenticateToken, async (req, res) => {
+app.put('/api/user/profile', authenticateToken, validateProfileUpdate, async (req, res) => {
   try {
     const { name, profile_picture } = req.body;
     const userId = req.user.id;
@@ -570,7 +837,7 @@ app.get('/api/decks', authenticateToken, async (req, res) => {
 });
 
 // Create Deck (with vocabulary list inside a transaction)
-app.post('/api/decks', authenticateToken, async (req, res) => {
+app.post('/api/decks', authenticateToken, deckCreationLimiter, validateDeckCreation, async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -693,7 +960,7 @@ app.get('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
 });
 
 // Post a review for a deck
-app.post('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
+app.post('/api/decks/:deck_id/reviews', authenticateToken, reviewLimiter, validateDeckReview, async (req, res) => {
   try {
     const deck_id = parseInt(req.params.deck_id, 10);
     const { rating, comment } = req.body;
@@ -829,7 +1096,7 @@ app.get('/api/progress/decks', authenticateToken, async (req, res) => {
 });
 
 // Update settings
-app.put('/api/progress/settings', authenticateToken, async (req, res) => {
+app.put('/api/progress/settings', authenticateToken, validateSettingsUpdate, async (req, res) => {
   try {
     const user_id = req.user.id;
     let { masteryRequirement, dailyGoal } = req.body;
@@ -1041,7 +1308,7 @@ app.get('/api/progress/due', authenticateToken, async (req, res) => {
 });
 
 // Record a review result (Spaced Repetition Logic)
-app.post('/api/progress/review', authenticateToken, async (req, res) => {
+app.post('/api/progress/review', authenticateToken, validateSRSReview, async (req, res) => {
   try {
     const { vocab_id, rating } = req.body; // rating: 'easy', 'good', 'hard'
     const user_id = req.user.id;

@@ -10,76 +10,99 @@ export const AuthProvider = ({ children }) => {
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
   useEffect(() => {
-    // Check local storage for token on mount (real user)
-    const token = localStorage.getItem('mainichi_token');
-    const storedUser = localStorage.getItem('mainichi_user');
-    
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setLoading(false);
-        return;
-      } catch (e) {
-        localStorage.removeItem('mainichi_token');
-        localStorage.removeItem('mainichi_user');
-      }
-    }
-
-    // Check session storage for guest user session
-    const sessionToken = sessionStorage.getItem('mainichi_token');
-    const sessionUser = sessionStorage.getItem('mainichi_user');
-    if (sessionToken && sessionUser) {
-      try {
-        setUser(JSON.parse(sessionUser));
-        setLoading(false);
-        return;
-      } catch (e) {
-        sessionStorage.removeItem('mainichi_token');
-        sessionStorage.removeItem('mainichi_user');
-      }
-    }
-
-    // If in App Inventor, try to load guest session from TinyDB
-    if (IS_APP_INVENTOR) {
-      const handleTinyDBSync = (e) => {
-        const data = e.detail;
-        if (data && data.user) {
-          try {
-            sessionStorage.setItem('mainichi_token', data.token);
-            sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
-            sessionStorage.setItem('mainichi_guest', 'true');
-            if (data.stats) sessionStorage.setItem('mainichi_guest_stats', JSON.stringify(data.stats));
-            if (data.reviews) sessionStorage.setItem('mainichi_guest_progress', JSON.stringify(data.reviews));
-            if (data.completedLessons) sessionStorage.setItem('mainichi_guest_completed_lessons', JSON.stringify(data.completedLessons));
-            if (data.unlockedDecks) sessionStorage.setItem('mainichi_guest_downloaded_decks', JSON.stringify(data.unlockedDecks));
-            
-            setUser(data.user);
-          } catch (err) {
-            console.error("Error setting guest data from TinyDB:", err);
-          }
+    const checkAuth = async () => {
+      // 1. Initial quick state load from local/session storage (optimistic UX)
+      const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
+      const storedUserStr = localStorage.getItem('mainichi_user') || sessionStorage.getItem('mainichi_user');
+      let initialUser = null;
+      if (token && storedUserStr) {
+        try {
+          initialUser = JSON.parse(storedUserStr);
+          setUser(initialUser);
+        } catch (e) {
+          localStorage.removeItem('mainichi_token');
+          localStorage.removeItem('mainichi_user');
+          sessionStorage.removeItem('mainichi_token');
+          sessionStorage.removeItem('mainichi_user');
         }
+      }
+
+      // If in App Inventor, try to load guest session from TinyDB
+      if (IS_APP_INVENTOR && !initialUser) {
+        const handleTinyDBSync = async (e) => {
+          const data = e.detail;
+          if (data && data.user) {
+            try {
+              sessionStorage.setItem('mainichi_token', data.token);
+              sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
+              sessionStorage.setItem('mainichi_guest', 'true');
+              if (data.stats) sessionStorage.setItem('mainichi_guest_stats', JSON.stringify(data.stats));
+              if (data.reviews) sessionStorage.setItem('mainichi_guest_progress', JSON.stringify(data.reviews));
+              if (data.completedLessons) sessionStorage.setItem('mainichi_guest_completed_lessons', JSON.stringify(data.completedLessons));
+              if (data.unlockedDecks) sessionStorage.setItem('mainichi_guest_downloaded_decks', JSON.stringify(data.unlockedDecks));
+              
+              setUser(data.user);
+              await verifySessionWithBackend(data.token);
+            } catch (err) {
+              console.error("Error setting guest data from TinyDB:", err);
+              setLoading(false);
+            }
+          } else {
+            setLoading(false);
+          }
+          window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
+        };
+
+        window.addEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
+        getFromTinyDB('mainichi_guest_data');
+
+        const timer = setTimeout(() => {
+          setLoading(false);
+          window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
+        }, 1500);
+
+        return () => {
+          clearTimeout(timer);
+          window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
+        };
+      }
+
+      // 2. Perform backend silent validation
+      if (token) {
+        await verifySessionWithBackend(token);
+      } else {
         setLoading(false);
-        window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-      };
+      }
+    };
 
-      window.addEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-      
-      // Request guest data
-      getFromTinyDB('mainichi_guest_data');
-
-      // Safety timeout: 1.5 seconds fallback
-      const timer = setTimeout(() => {
+    const verifySessionWithBackend = async (currentToken) => {
+      try {
+        const headers = {};
+        if (currentToken && currentToken !== 'cookie_session') {
+          headers['Authorization'] = `Bearer ${currentToken}`;
+        }
+        
+        const response = await fetch('/api/auth/me', { headers });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+          if (data.user.isGuest) {
+            sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
+          } else {
+            localStorage.setItem('mainichi_user', JSON.stringify(data.user));
+          }
+        } else if (response.status === 401 || response.status === 403) {
+          // Token or cookie expired
+          logout();
+        }
+      } catch (err) {
+        console.error("Failed to verify session on mount", err);
+      } finally {
         setLoading(false);
-        window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-      }, 1500);
+      }
+    };
 
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-      };
-    } else {
-      setLoading(false);
-    }
+    checkAuth();
   }, []);
 
   const continueAsGuest = async () => {
@@ -92,7 +115,9 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Guest login failed');
 
-      sessionStorage.setItem('mainichi_token', data.token);
+      // For standard web, store 'cookie_session' as placeholder. For App Inventor, store the actual JWT.
+      const storedToken = IS_APP_INVENTOR ? data.token : 'cookie_session';
+      sessionStorage.setItem('mainichi_token', storedToken);
       sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
       sessionStorage.setItem('mainichi_guest', 'true');
       
@@ -112,7 +137,6 @@ export const AuthProvider = ({ children }) => {
       
       setUser(data.user);
       
-      // Sync to TinyDB if in App Inventor
       if (IS_APP_INVENTOR) {
         syncGuestProgressToTinyDB();
       }
@@ -133,7 +157,6 @@ export const AuthProvider = ({ children }) => {
       });
       
       const data = await response.json();
-      
       if (!response.ok) throw new Error(data.error || 'Login failed');
 
       // Clear any guest state
@@ -146,7 +169,8 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem('mainichi_guest_downloaded_decks');
       clearGuestProgressInTinyDB();
 
-      localStorage.setItem('mainichi_token', data.token);
+      const storedToken = IS_APP_INVENTOR ? data.token : 'cookie_session';
+      localStorage.setItem('mainichi_token', storedToken);
       localStorage.setItem('mainichi_user', JSON.stringify(data.user));
       setUser(data.user);
       return true;
@@ -180,7 +204,6 @@ export const AuthProvider = ({ children }) => {
       });
       
       const data = await response.json();
-      
       if (!response.ok) throw new Error(data.error || 'Registration failed');
 
       // Clear guest session data upon successful registration
@@ -193,7 +216,8 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem('mainichi_guest_downloaded_decks');
       clearGuestProgressInTinyDB();
 
-      localStorage.setItem('mainichi_token', data.token);
+      const storedToken = IS_APP_INVENTOR ? data.token : 'cookie_session';
+      localStorage.setItem('mainichi_token', storedToken);
       localStorage.setItem('mainichi_user', JSON.stringify(data.user));
       setUser(data.user);
       return true;
@@ -305,6 +329,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Clear cookie on server (fire and forget / non-blocking)
+    fetch('/api/auth/logout', { method: 'POST' }).catch(err => console.error("Server logout request failed", err));
+
     localStorage.removeItem('mainichi_token');
     localStorage.removeItem('mainichi_user');
     sessionStorage.removeItem('mainichi_token');
