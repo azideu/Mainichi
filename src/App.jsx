@@ -57,7 +57,7 @@ const AppLayout = () => {
           Offline Mode — Progress will sync when connection returns
         </div>
       )}
-      <main className={`px-4 sm:px-md ${isOffline ? 'pt-[96px] md:pt-[116px]' : 'pt-[72px] md:pt-[88px]'} pb-4 md:pb-xl transition-all duration-300`}>
+      <main className={`px-4 sm:px-md ${isOffline ? 'pt-[calc(96px+env(safe-area-inset-top,0px))] md:pt-[116px]' : 'pt-[calc(72px+env(safe-area-inset-top,0px))] md:pt-[88px]'} pb-4 md:pb-xl transition-all duration-300`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
