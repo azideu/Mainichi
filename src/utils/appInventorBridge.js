@@ -37,6 +37,14 @@ export const sendToAppInventor = (action, data = null) => {
  */
 export const speakText = (text) => {
   sendToAppInventor("SPEAK", { text });
+  
+  // HTML5 Web Speech Synthesis fallback for browser previews
+  if (!window.AppInventor && 'speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ja-JP';
+    window.speechSynthesis.cancel(); // Stop any current speaking
+    window.speechSynthesis.speak(utterance);
+  }
 };
 
 /**

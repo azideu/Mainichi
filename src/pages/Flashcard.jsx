@@ -656,17 +656,16 @@ const Flashcard = () => {
                 )}
               </div>
 
-              <div className="flex gap-3 md:gap-4 mt-auto pt-4 w-full">
-                <button 
+              <div className="flex items-stretch gap-3 md:gap-4 mt-auto pt-4 w-full">
+                <Button3D
+                  variant="secondary"
                   onClick={() => {
-                    if (isMobileApp) {
-                      speakText(currentCard.kanji);
-                    }
+                    speakText(currentCard.kanji);
                   }}
-                  className="w-14 h-14 md:w-20 md:h-20 rounded-xl md:rounded-2xl bg-surface border border-outline/10 flex items-center justify-center text-outline hover:text-primary transition-colors shadow-sm shrink-0"
+                  className="w-14 md:w-20 py-0 h-auto shrink-0"
                 >
                   <span className="material-symbols-outlined text-[24px]">volume_up</span>
-                </button>
+                </Button3D>
                 <Button3D onClick={handleNext} variant="primary" className="flex-1 py-6 text-[18px]">
                   Next Card
                   <span className="material-symbols-outlined ml-2">arrow_forward</span>
