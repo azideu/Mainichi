@@ -638,7 +638,7 @@ const Community = () => {
               <div className="absolute inset-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
 
               {/* Drawer Header */}
-              <div className="relative z-10 pt-[calc(16px+env(safe-area-inset-top,0px))] pb-4 px-4 md:pt-[calc(24px+env(safe-area-inset-top,0px))] md:pb-md md:px-md border-b border-outline/10 flex justify-between items-center bg-surface">
+              <div className="relative z-10 pt-[calc(16px+env(safe-area-inset-top,0px)+var(--notch-gap))] pb-4 px-4 md:pt-[calc(24px+env(safe-area-inset-top,0px))] md:pb-md md:px-md border-b border-outline/10 flex justify-between items-center bg-surface">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-[24px] md:text-[28px]">import_contacts</span>
                   <span className="font-label-caps text-outline tracking-widest text-xs">DECK ARCHIVE</span>
@@ -1117,7 +1117,7 @@ const Community = () => {
               <div className="absolute inset-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
 
               {/* Header */}
-              <div className="relative z-10 pt-[calc(24px+env(safe-area-inset-top,0px))] pb-md px-md border-b border-outline/10 flex justify-between items-center bg-surface">
+              <div className="relative z-10 pt-[calc(24px+env(safe-area-inset-top,0px)+var(--notch-gap))] pb-md px-md border-b border-outline/10 flex justify-between items-center bg-surface">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-secondary text-[28px]">handyman</span>
                   <span className="font-label-caps text-outline tracking-widest text-xs font-semibold">HANDCRAFT NEW PATH</span>

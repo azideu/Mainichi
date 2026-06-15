@@ -46,18 +46,34 @@ const AppLayout = () => {
   const outlet = useOutlet();
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
   const { isOffline } = useApp();
+
+  React.useEffect(() => {
+    const detectWebView = () => {
+      const userAgent = window.navigator.userAgent || window.navigator.vendor;
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+      const isSafari = /Safari/.test(userAgent) && !/CriOS/.test(userAgent) && !/FxiOS/.test(userAgent);
+      const isAppInventor = !!window.AppInventor;
+      
+      if (isAppInventor || (isIOS && !isSafari)) {
+        document.documentElement.style.setProperty('--notch-gap', '44px');
+      } else {
+        document.documentElement.style.setProperty('--notch-gap', '0px');
+      }
+    };
+    detectWebView();
+  }, []);
   
   return (
     <div className="bg-background text-on-background pb-[84px] md:pb-xl font-body-md min-h-screen relative overflow-x-hidden md:pl-[260px]">
       <Sidebar />
       <TopBar />
       {isOffline && (
-        <div className="fixed top-0 left-0 right-0 md:left-[260px] z-[9999] bg-error text-on-error py-2 px-4 text-center font-label-caps tracking-widest text-[9px] flex items-center justify-center gap-2 shadow-md animate-in slide-in-from-top duration-300">
+        <div className="fixed top-0 left-0 right-0 md:left-[260px] z-[9999] bg-error text-on-error pt-[calc(8px+var(--notch-gap))] pb-2 px-4 text-center font-label-caps tracking-widest text-[9px] flex items-center justify-center gap-2 shadow-md animate-in slide-in-from-top duration-300">
           <span className="material-symbols-outlined text-[14px] animate-pulse">wifi_off</span>
           Offline Mode — Progress will sync when connection returns
         </div>
       )}
-      <main className={`px-4 sm:px-md ${isOffline ? 'pt-[96px] md:pt-[116px]' : 'pt-[72px] md:pt-[88px]'} pb-4 md:pb-xl transition-all duration-300`}>
+      <main className={`px-4 sm:px-md ${isOffline ? 'pt-[calc(96px+var(--notch-gap))] md:pt-[116px]' : 'pt-[calc(72px+var(--notch-gap))] md:pt-[88px]'} pb-4 md:pb-xl transition-all duration-300`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
