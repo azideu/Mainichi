@@ -31,7 +31,7 @@ const TopBar = () => {
   if (location.pathname === '/login') return null;
 
   return (
-    <header className="fixed top-0 left-0 md:left-[260px] right-0 z-50 px-4 pt-4 pb-2 md:px-6 md:pt-4">
+    <header className="fixed top-0 left-0 md:left-[260px] right-0 z-50 px-4 pt-2 pb-2 md:px-6 md:pt-4">
       {/* Floating Glassmorphic Capsule */}
       <div className="bg-surface/85 backdrop-blur-xl border border-outline/10 shadow-ambient rounded-2xl flex justify-between items-center w-full px-4 h-12 md:h-14 relative">
         {/* Washi texture overlay */}
