@@ -610,7 +610,7 @@ const Community = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedDeck(null)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute -top-20 inset-x-0 bottom-0 bg-black/40 backdrop-blur-sm"
             />
             
             {/* Sliding Panel */}
@@ -621,8 +621,11 @@ const Community = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
               className="relative w-full max-w-lg bg-surface-bright h-full shadow-ambient border-l border-outline/10 flex flex-col z-10"
             >
+              {/* Top safe-area extension to prevent background bleed */}
+              <div className="absolute -top-20 left-0 right-0 h-20 bg-surface z-[-1] border-l border-outline/10" />
+
               {/* Authentic Washi Texture */}
-              <div className="absolute inset-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
+              <div className="absolute -top-20 inset-x-0 bottom-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
 
               {/* Drawer Header */}
               <div className="relative z-10 p-4 md:p-md border-b border-outline/10 flex justify-between items-center bg-surface">
@@ -902,7 +905,7 @@ const Community = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => { if (wizardStep !== 4) setShowCreatorWizard(false); }}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute -top-20 inset-x-0 bottom-0 bg-black/50 backdrop-blur-sm"
             />
 
             {/* Wizard Box */}
@@ -1089,7 +1092,7 @@ const Community = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => { if (!isSubmittingDeck) setShowCreatorForm(false); }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute -top-20 inset-x-0 bottom-0 bg-black/40 backdrop-blur-sm"
             />
             
             {/* Form Drawer */}
@@ -1100,8 +1103,11 @@ const Community = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
               className="relative w-full max-w-xl bg-surface-bright h-full shadow-ambient border-l border-outline/10 flex flex-col z-10"
             >
+              {/* Top safe-area extension to prevent background bleed */}
+              <div className="absolute -top-20 left-0 right-0 h-20 bg-surface z-[-1] border-l border-outline/10" />
+
               {/* Authentic Washi Texture */}
-              <div className="absolute inset-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
+              <div className="absolute -top-20 inset-x-0 bottom-0 bg-washi opacity-35 mix-blend-multiply pointer-events-none"></div>
 
               {/* Header */}
               <div className="relative z-10 p-md border-b border-outline/10 flex justify-between items-center bg-surface">

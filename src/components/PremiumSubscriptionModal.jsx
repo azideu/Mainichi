@@ -436,7 +436,7 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={handleClose}
-          className="absolute inset-0 bg-black/45 backdrop-blur-md"
+          className="absolute -top-20 inset-x-0 bottom-0 bg-black/45 backdrop-blur-md"
         />
 
         {/* Modal Sheet */}

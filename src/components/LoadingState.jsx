@@ -27,8 +27,8 @@ const LoadingState = ({ message = "Loading...", fullScreen = false }) => {
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-surface/80 backdrop-blur-md z-50 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
+      <div className="fixed -top-20 inset-x-0 bottom-0 bg-surface/80 backdrop-blur-md z-50 flex items-center justify-center overflow-hidden">
+        <div className="absolute -top-20 inset-x-0 bottom-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
         {content}
       </div>
     );
