@@ -51,6 +51,11 @@ const Community = () => {
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [previewTab, setPreviewTab] = useState('words'); // words | reviews
   const [hoveredWord, setHoveredWord] = useState(null);
+  const [supportsHover, setSupportsHover] = useState(false);
+
+  useEffect(() => {
+    setSupportsHover(window.matchMedia('(hover: hover)').matches);
+  }, []);
 
   // Search & Sorting state
   const [searchQuery, setSearchQuery] = useState('');
@@ -693,9 +698,17 @@ const Community = () => {
                           {selectedDeckVocab.map(word => (
                             <div 
                               key={word.id}
-                              onMouseEnter={() => setHoveredWord(word)}
-                              onMouseLeave={() => setHoveredWord(null)}
-                              onClick={() => setHoveredWord(hoveredWord?.id === word.id ? null : word)}
+                              onMouseEnter={() => {
+                                if (supportsHover) setHoveredWord(word);
+                              }}
+                              onMouseLeave={() => {
+                                if (supportsHover) setHoveredWord(null);
+                              }}
+                              onClick={() => {
+                                if (!supportsHover) {
+                                  setHoveredWord(prev => prev?.id === word.id ? null : word);
+                                }
+                              }}
                               className={`aspect-square bg-surface border rounded-xl flex items-center justify-center font-h2 text-on-surface shadow-paper-layer transition-all hover:scale-105 cursor-pointer relative overflow-hidden group select-none ${hoveredWord?.id === word.id ? 'border-primary bg-primary/5' : 'border-outline/10'}`}
                             >
                               <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
@@ -736,7 +749,7 @@ const Community = () => {
                               <div className="h-full flex items-center justify-center border border-dashed border-outline/15 rounded-2xl bg-surface/30">
                                 <p className="font-body-md text-outline text-xs text-center leading-relaxed">
                                   <span className="material-symbols-outlined text-[18px] align-middle mr-1.5">ads_click</span>
-                                  Hover or tap on a kanji card to study its readings
+                                  Hover or tap on a card to study its readings/meanings
                                 </p>
                               </div>
                             )}
