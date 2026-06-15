@@ -5,6 +5,7 @@ import Button3D from '../components/Button3D';
 import LoadingState from '../components/LoadingState';
 import HankoStamp from '../components/HankoStamp';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import { createPortal } from 'react-dom';
 
 const SYSTEM_REVIEWS = {
@@ -34,6 +35,7 @@ const getPreviewFontSize = (text) => {
 const Community = () => {
   const navigate = useNavigate();
   const { user, setIsPremiumModalOpen, becomeCreator } = useAuth();
+  const { showAlert, showConfirm } = useDialog();
   const [activeTab, setActiveTab] = useState('discover'); // discover | workshop
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -155,7 +157,7 @@ const Community = () => {
 
   // Remove / Deactivate Deck
   const handleRemove = async (deckId) => {
-    const confirmed = window.confirm("Are you sure you want to remove this deck and all its study records from your account?");
+    const confirmed = await showConfirm("Are you sure you want to remove this deck and all its study records from your account?", "Remove Deck");
     if (!confirmed) return;
     
     try {
@@ -173,11 +175,11 @@ const Community = () => {
           setSelectedDeck(prev => ({ ...prev, downloaded: 0 }));
         }
       } else {
-        alert("Failed to remove deck. Please try again.");
+        await showAlert("Failed to remove deck. Please try again.", "Error");
       }
     } catch (err) {
       console.error("Failed to remove deck", err);
-      alert("Error occurred while removing deck.");
+      await showAlert("Error occurred while removing deck.", "Error");
     }
   };
 
@@ -212,12 +214,12 @@ const Community = () => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (user?.isGuest) {
-      alert("Guest users cannot write reviews. Please create an account to share your thoughts!");
+      await showAlert("Guest users cannot write reviews. Please create an account to share your thoughts!", "Account Required");
       return;
     }
     if (!selectedDeck) return;
     if (newReviewRating < 1 || newReviewRating > 5) {
-      alert("Please select a rating between 1 and 5 stars.");
+      await showAlert("Please select a rating between 1 and 5 stars.", "Validation Error");
       return;
     }
 
@@ -243,11 +245,11 @@ const Community = () => {
         await fetchReviews(selectedDeck.id);
       } else {
         const errData = await res.json();
-        alert(errData.error || "Failed to submit review.");
+        await showAlert(errData.error || "Failed to submit review.", "Error");
       }
     } catch (err) {
       console.error("Failed to submit review", err);
-      alert("Error occurred while submitting review.");
+      await showAlert("Error occurred while submitting review.", "Error");
     } finally {
       setIsSubmittingReview(false);
     }
@@ -326,9 +328,8 @@ const Community = () => {
   };
 
   const handleDeleteDeck = async (deckId) => {
-    if (!window.confirm("Are you sure you want to permanently delete this deck? This action cannot be undone and will erase all associated progress records.")) {
-      return;
-    }
+    const confirmed = await showConfirm("Are you sure you want to permanently delete this deck? This action cannot be undone and will erase all associated progress records.", "Delete Deck");
+    if (!confirmed) return;
 
     try {
       const token = localStorage.getItem('mainichi_token');
@@ -342,10 +343,10 @@ const Community = () => {
       if (res.ok) {
         setSelectedDeck(null);
         await fetchDecks();
-        alert("Deck deleted successfully.");
+        await showAlert("Deck deleted successfully.", "Success");
       } else {
         const errData = await res.json();
-        alert(errData.error || "Failed to delete deck.");
+        await showAlert(errData.error || "Failed to delete deck.", "Error");
       }
     } catch (err) {
       console.error("Failed to delete deck", err);
@@ -354,12 +355,16 @@ const Community = () => {
 
   const handlePublishDeck = async (e) => {
     e.preventDefault();
-    if (!newDeckTitle.trim()) return alert("Please specify a Deck Title.");
+    if (!newDeckTitle.trim()) {
+      await showAlert("Please specify a Deck Title.", "Validation Error");
+      return;
+    }
     
     // Filter and validate non-empty rows
     const validVocab = newDeckVocab.filter(v => v.kanji.trim() && v.english.trim());
     if (validVocab.length === 0) {
-      return alert("Please add at least one vocabulary card with a Kanji/Phrase and English meaning.");
+      await showAlert("Please add at least one vocabulary card with a Kanji/Phrase and English meaning.", "Validation Error");
+      return;
     }
 
     try {
@@ -398,7 +403,7 @@ const Community = () => {
         await fetchDecks();
       } else {
         const errData = await res.json();
-        alert(errData.error || `Failed to ${editingDeckId ? 'update' : 'publish'} deck.`);
+        await showAlert(errData.error || `Failed to ${editingDeckId ? 'update' : 'publish'} deck.`, "Error");
       }
     } catch (err) {
       console.error(`Failed to ${editingDeckId ? 'update' : 'publish'} deck`, err);
@@ -1064,8 +1069,11 @@ const Community = () => {
 
                   <Button3D 
                     variant="primary" 
-                    onClick={() => {
-                      if (!creatorHandle.trim() || !creatorBio.trim()) return alert("Please fill in your Creator Handle and Bio.");
+                    onClick={async () => {
+                      if (!creatorHandle.trim() || !creatorBio.trim()) {
+                        await showAlert("Please fill in your Creator Handle and Bio.", "Validation Error");
+                        return;
+                      }
                       setWizardStep(2);
                     }}
                   >
@@ -1105,8 +1113,11 @@ const Community = () => {
                     <div className="flex-1">
                       <Button3D 
                         variant="primary" 
-                        onClick={() => {
-                          if (creatorFocus.length === 0) return alert("Please select at least one speciality focus.");
+                        onClick={async () => {
+                          if (creatorFocus.length === 0) {
+                            await showAlert("Please select at least one speciality focus.", "Validation Error");
+                            return;
+                          }
                           setWizardStep(3);
                         }}
                       >
@@ -1143,8 +1154,11 @@ const Community = () => {
                     <div className="flex-1">
                       <Button3D 
                         variant="primary" 
-                        onClick={() => {
-                          if (!signedName.trim()) return alert("Please enter your signature handle to sign.");
+                        onClick={async () => {
+                          if (!signedName.trim()) {
+                            await showAlert("Please enter your signature handle to sign.", "Validation Error");
+                            return;
+                          }
                           handleCreatorApprove();
                         }}
                       >

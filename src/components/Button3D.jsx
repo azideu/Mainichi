@@ -2,7 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const Button3D = ({ children, onClick, variant = 'primary', className = '', ...props }) => {
-  const isPrimary = variant === 'primary';
+  const isDanger = variant === 'danger';
+  const isPrimary = variant === 'primary' || isDanger;
   
   // Tactical "Stone" Feel
   const hasCustomPy = className.split(' ').some(c => c.startsWith('py-'));
@@ -14,9 +15,11 @@ const Button3D = ({ children, onClick, variant = 'primary', className = '', ...p
   const baseStyle = `font-label-caps text-base ${pyStyle} ${pxStyle} ${widthStyle} flex items-center justify-center gap-3 relative transition-colors duration-300 overflow-hidden group`;
   
   // Add organic rounding and subtle 1px "ink stroke" borders
-  const colorStyle = isPrimary 
-    ? "bg-primary text-on-primary border border-primary/20 rounded-xl shadow-3d shadow-primary-container"
-    : "bg-surface text-on-surface border border-outline/30 rounded-2xl shadow-paper-layer";
+  const colorStyle = isDanger
+    ? "bg-error text-on-error border border-error/20 rounded-xl shadow-3d shadow-error-container"
+    : isPrimary 
+      ? "bg-primary text-on-primary border border-primary/20 rounded-xl shadow-3d shadow-primary-container"
+      : "bg-surface text-on-surface border border-outline/30 rounded-2xl shadow-paper-layer";
 
   return (
     <motion.button

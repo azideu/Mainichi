@@ -2,12 +2,14 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
+import { useDialog } from '../context/DialogContext';
 import { useNavigate } from 'react-router-dom';
 import Button3D from '../components/Button3D';
 
 const Profile = () => {
   const { user, updateProfile, setIsPremiumModalOpen, logout } = useAuth();
   const { streak, masteredWords } = useApp();
+  const { showAlert } = useDialog();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name || '');
   const [profilePicture, setProfilePicture] = useState(user?.profile_picture || '');
@@ -37,7 +39,7 @@ const Profile = () => {
     setIsUpdating(true);
     const success = await updateProfile(name, profilePicture);
     if (success) {
-      alert("Profile updated successfully!");
+      await showAlert("Profile updated successfully!", "Success");
     }
     setIsUpdating(false);
   };

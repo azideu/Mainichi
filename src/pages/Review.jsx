@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
+import { useDialog } from '../context/DialogContext';
 import LoadingState from '../components/LoadingState';
 import { sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
 
@@ -23,6 +24,7 @@ const getQueueKanjiFontSize = (text) => {
 const Review = () => {
   const navigate = useNavigate();
   const { isMobileApp } = useApp();
+  const { showAlert, showConfirm } = useDialog();
   const [loading, setLoading] = useState(true);
   const [dueCount, setDueCount] = useState(0);
   const [dueCards, setDueCards] = useState([]);
@@ -99,7 +101,7 @@ const Review = () => {
   }, [dueCards]);
 
   const handleRemoveDeck = async (deckId) => {
-    const confirmed = window.confirm("Are you sure you want to remove this deck and all its study records from your account?");
+    const confirmed = await showConfirm("Are you sure you want to remove this deck and all its study records from your account?", "Remove Deck");
     if (!confirmed) return;
 
     try {
@@ -112,11 +114,11 @@ const Review = () => {
       if (res.ok) {
         await fetchReviewData();
       } else {
-        alert("Failed to remove deck. Please try again.");
+        await showAlert("Failed to remove deck. Please try again.", "Error");
       }
     } catch (err) {
       console.error("Failed to remove deck", err);
-      alert("Error occurred while removing deck.");
+      await showAlert("Error occurred while removing deck.", "Error");
     }
   };
 

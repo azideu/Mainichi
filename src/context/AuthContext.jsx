@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { IS_APP_INVENTOR, getFromTinyDB } from '../utils/appInventorBridge';
 import { clearGuestProgressInTinyDB, syncGuestProgressToTinyDB } from '../utils/guestMockApi';
+import { useDialog } from './DialogContext';
 
 const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const { showAlert } = useDialog();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -143,7 +145,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Guest login failed", error);
-      alert(error.message);
+      await showAlert(error.message, "Authentication Error");
       return false;
     }
   };
@@ -176,7 +178,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Login failed", error);
-      alert(error.message);
+      await showAlert(error.message, "Authentication Error");
       return false;
     }
   };
@@ -223,7 +225,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Registration failed", error);
-      alert(error.message);
+      await showAlert(error.message, "Authentication Error");
       return false;
     }
   };
@@ -259,7 +261,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Update failed", error);
-      alert(error.message);
+      await showAlert(error.message, "Profile Update Error");
       return false;
     }
   };
@@ -291,7 +293,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Subscription failed", error);
-      alert(error.message);
+      await showAlert(error.message, "Premium Subscription Error");
       return false;
     }
   };
@@ -323,7 +325,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Failed to update creator status", error);
-      alert(error.message);
+      await showAlert(error.message, "Creator Status Error");
       return false;
     }
   };

@@ -15,8 +15,10 @@ import Settings from './pages/Settings';
 import DevSandbox from './pages/DevSandbox';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
+import { DialogProvider, useDialog } from './context/DialogContext';
 import PremiumSubscriptionModal from './components/PremiumSubscriptionModal';
 import LoadingState from './components/LoadingState';
+import ThemeDialog from './components/ThemeDialog';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -46,6 +48,7 @@ const AppLayout = () => {
   const outlet = useOutlet();
   const { isPremiumModalOpen, setIsPremiumModalOpen } = useAuth();
   const { isOffline } = useApp();
+  const { dialogConfig, closeDialog } = useDialog();
 
   React.useEffect(() => {
     const detectWebView = () => {
@@ -90,6 +93,7 @@ const AppLayout = () => {
       </main>
       <BottomNav />
       <PremiumSubscriptionModal isOpen={isPremiumModalOpen} onClose={() => setIsPremiumModalOpen(false)} />
+      <ThemeDialog config={dialogConfig} onClose={closeDialog} />
     </div>
   );
 };
@@ -113,30 +117,32 @@ const AppGlobalListener = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <AppGlobalListener />
-        <Router>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            
-            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/lessons" element={<Lessons />} />
-              <Route path="/kana" element={<Kana />} />
-              <Route path="/review" element={<Review />} />
-              <Route path="/flashcard" element={<Flashcard />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/sandbox" element={<DevSandbox />} />
-            </Route>
-          </Routes>
-        </Router>
-      </AppProvider>
-    </AuthProvider>
+    <DialogProvider>
+      <AuthProvider>
+        <AppProvider>
+          <AppGlobalListener />
+          <Router>
+            <ScrollToTop />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              
+              <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/lessons" element={<Lessons />} />
+                <Route path="/kana" element={<Kana />} />
+                <Route path="/review" element={<Review />} />
+                <Route path="/flashcard" element={<Flashcard />} />
+                <Route path="/progress" element={<Progress />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/sandbox" element={<DevSandbox />} />
+              </Route>
+            </Routes>
+          </Router>
+        </AppProvider>
+      </AuthProvider>
+    </DialogProvider>
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import Button3D from './Button3D';
 
 // Import local PNG bank logos
@@ -45,6 +46,7 @@ const BANKS = {
 
 const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
   const { subscribeUser } = useAuth();
+  const { showAlert } = useDialog();
   const [step, setStep] = useState(STEPS.INTRO);
   const [selectedBank, setSelectedBank] = useState(null);
   const [username, setUsername] = useState('');
@@ -86,7 +88,7 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
       if (success) {
         setStep(STEPS.SUCCESS);
       } else {
-        alert("Transaction failed on the server. Please try again.");
+        await showAlert("Transaction failed on the server. Please try again.", "Payment Error");
         handleClose();
       }
     }, 1200);
