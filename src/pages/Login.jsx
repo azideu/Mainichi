@@ -12,9 +12,23 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
-  const { login, register } = useAuth();
+  const { login, register, continueAsGuest } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
+
+  const handleGuestLogin = async () => {
+    setError('');
+    try {
+      const success = await continueAsGuest();
+      if (success) {
+        navigate('/');
+      } else {
+        setError("Failed to start guest session.");
+      }
+    } catch (err) {
+      setError("An error occurred during guest login.");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -138,6 +152,23 @@ const Login = () => {
             {isLogin ? 'Sign up' : 'Log in'}
           </span>
         </p>
+
+        <div className="relative flex py-4 items-center">
+          <div className="flex-grow border-t border-outline/10"></div>
+          <span className="flex-shrink mx-4 text-outline text-xs font-label-caps tracking-widest">or</span>
+          <div className="flex-grow border-t border-outline/10"></div>
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            className="font-body-md text-outline hover:text-primary font-medium cursor-pointer hover:underline underline-offset-4 decoration-primary/50 transition-all text-sm flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[18px]">person_outline</span>
+            Try as Guest
+          </button>
+        </div>
       </motion.div>
     </div>
   );

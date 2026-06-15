@@ -197,6 +197,10 @@ const Community = () => {
   // Submit a review for a deck
   const handleSubmitReview = async (e) => {
     e.preventDefault();
+    if (user?.isGuest) {
+      alert("Guest users cannot write reviews. Please create an account to share your thoughts!");
+      return;
+    }
     if (!selectedDeck) return;
     if (newReviewRating < 1 || newReviewRating > 5) {
       alert("Please select a rating between 1 and 5 stars.");
@@ -722,6 +726,16 @@ const Community = () => {
                   <div className="space-y-4">
                     {/* Write Review Form */}
                     {selectedDeck.downloaded === 1 && (() => {
+                      if (user?.isGuest) {
+                        return (
+                          <div className="bg-surface rounded-2xl p-6 border border-outline/10 shadow-sm relative overflow-hidden mb-6 text-center">
+                            <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+                            <span className="material-symbols-outlined text-[32px] text-outline mb-2">lock</span>
+                            <p className="font-body-md text-sm text-outline font-semibold mb-1">Scholar Reviews Locked</p>
+                            <p className="font-body-md text-xs text-outline/80">Please create an account to share your thoughts and rate custom paths!</p>
+                          </div>
+                        );
+                      }
                       const hasExistingReview = reviews.some(r => r.author === user?.name);
                       return (
                         <form onSubmit={handleSubmitReview} className="bg-surface rounded-2xl p-4 border border-outline/10 shadow-sm relative overflow-hidden mb-6">

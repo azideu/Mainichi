@@ -284,7 +284,7 @@ const Flashcard = () => {
     });
     setResults(correctedResults);
     
-    const data = await recordReviewOverride(currentCard.id);
+    const data = await recordReviewOverride(currentCard.id, currentCard.deck_id);
     if (data && data.next_review_date) {
       const next = new Date(data.next_review_date);
       const now = new Date();
@@ -334,7 +334,7 @@ const Flashcard = () => {
       if (currentActiveSteps.includes(STEPS.KUNYOMI) && results.kunyomi !== true) allCorrect = false;
 
       const performRecord = async () => {
-        const data = await recordReview(currentCard.id, allCorrect ? 'good' : 'hard');
+        const data = await recordReview(currentCard.id, allCorrect ? 'good' : 'hard', currentCard.deck_id);
         if (data && data.next_review_date) {
           const next = new Date(data.next_review_date);
           const now = new Date();

@@ -264,9 +264,29 @@ function getTimezoneOffsetString(req) {
 // AUTHENTICATION ROUTES
 // ==========================================
 
+app.post('/api/auth/guest', async (req, res) => {
+  try {
+    const token = jsonwebtoken.sign({ id: -1, email: 'guest@mainichi.app', isGuest: true }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({
+      token,
+      user: {
+        id: -1,
+        name: 'Guest Traveler',
+        email: 'guest@mainichi.app',
+        profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi',
+        is_premium: 0,
+        isGuest: true
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, guestProgress } = req.body;
     
     // Check if user exists
     const [existing] = await pool.query('SELECT * FROM mainichi_users WHERE email = ?', [email]);
@@ -280,11 +300,80 @@ app.post('/api/auth/register', async (req, res) => {
       [name, email, hashedPassword]
     );
 
-    // Create initial stats record
-    await pool.query('INSERT INTO mainichi_user_stats (user_id) VALUES (?)', [result.insertId]);
+    const userId = result.insertId;
 
-    const token = jsonwebtoken.sign({ id: result.insertId, email }, JWT_SECRET, { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: result.insertId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi', is_premium: 0 } });
+    // Create initial stats record
+    const stats = (guestProgress && guestProgress.stats) || {};
+    await pool.query(
+      `INSERT INTO mainichi_user_stats (user_id, current_streak, longest_streak, last_study_date, words_mastered, mastery_requirement, daily_goal)
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE 
+         current_streak = VALUES(current_streak),
+         longest_streak = VALUES(longest_streak),
+         last_study_date = VALUES(last_study_date),
+         words_mastered = VALUES(words_mastered),
+         mastery_requirement = VALUES(mastery_requirement),
+         daily_goal = VALUES(daily_goal)`,
+      [
+        userId,
+        stats.current_streak || 0,
+        stats.longest_streak || 0,
+        stats.last_study_date || null,
+        stats.words_mastered || 0,
+        stats.mastery_requirement || 10,
+        stats.daily_goal || 20
+      ]
+    );
+
+    // Transfer completed lessons
+    if (guestProgress && Array.isArray(guestProgress.completedLessons)) {
+      for (const lessonId of guestProgress.completedLessons) {
+        if (lessonId) {
+          await pool.query(
+            'INSERT IGNORE INTO mainichi_user_lessons (user_id, lesson_id) VALUES (?, ?)',
+            [userId, lessonId]
+          );
+        }
+      }
+    }
+
+    // Transfer downloaded decks
+    if (guestProgress && Array.isArray(guestProgress.unlockedDecks)) {
+      for (const deckId of guestProgress.unlockedDecks) {
+        if (deckId) {
+          await pool.query(
+            'INSERT IGNORE INTO mainichi_user_decks (user_id, deck_id) VALUES (?, ?)',
+            [userId, deckId]
+          );
+        }
+      }
+    }
+
+    // Transfer reviews
+    if (guestProgress && guestProgress.reviews && typeof guestProgress.reviews === 'object') {
+      for (const vocabId of Object.keys(guestProgress.reviews)) {
+        const p = guestProgress.reviews[vocabId];
+        if (p) {
+          let nextReviewDate = p.next_review_date ? new Date(p.next_review_date) : new Date();
+          if (isNaN(nextReviewDate.getTime())) {
+            nextReviewDate = new Date();
+          }
+          await pool.query(
+            `INSERT INTO mainichi_user_progress (user_id, vocab_id, easiness_factor, interval_days, repetitions, next_review_date)
+             VALUES (?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE 
+               easiness_factor = VALUES(easiness_factor),
+               interval_days = VALUES(interval_days),
+               repetitions = VALUES(repetitions),
+               next_review_date = VALUES(next_review_date)`,
+            [userId, parseInt(vocabId, 10), p.easiness_factor || 2.5, p.interval_days || 0, p.repetitions || 0, nextReviewDate]
+          );
+        }
+      }
+    }
+
+    const token = jsonwebtoken.sign({ id: userId, email }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: userId, name, email, profile_picture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mainichi', is_premium: 0 } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error: ' + err.message });

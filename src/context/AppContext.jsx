@@ -20,7 +20,9 @@ export const AppProvider = ({ children }) => {
     switch (payload.action) {
       case 'TINYDB_RESPONSE':
         console.log('Received cached progress from TinyDB:', payload.data);
-        // Process offline sync data here
+        if (payload.data && payload.data.tag === 'mainichi_guest_data') {
+          window.dispatchEvent(new CustomEvent('mainichi-tinydb-guest-sync', { detail: payload.data.value }));
+        }
         break;
       case 'SENSOR_DATA':
         console.log('Received sensor data (e.g. shake to shuffle):', payload.data);
@@ -41,12 +43,12 @@ export const AppProvider = ({ children }) => {
     try {
       setIsFetchingStats(true);
       
-      if (isMobileApp) {
+      if (isMobileApp && user && !user.isGuest) {
         console.log('Checking TinyDB for cached stats before fetching from server...');
         getFromTinyDB('user_stats');
       }
 
-      const token = localStorage.getItem('mainichi_token');
+      const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
       if (!token) {
         setIsFetchingStats(false);
         return;
@@ -115,7 +117,7 @@ export const AppProvider = ({ children }) => {
 
   const updateSettings = async (newMasteryReq, newDailyGoal) => {
     try {
-      const token = localStorage.getItem('mainichi_token');
+      const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
       const res = await fetch('/api/progress/settings', {
         method: 'PUT',
         headers: {
@@ -142,9 +144,9 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const recordReview = async (wordId, rating) => {
+  const recordReview = async (wordId, rating, deckId) => {
     try {
-      const token = localStorage.getItem('mainichi_token');
+      const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
       const tzOffset = new Date().getTimezoneOffset().toString();
       const res = await fetch(`/api/progress/review?tzOffset=${tzOffset}`, {
         method: 'POST',
@@ -153,7 +155,7 @@ export const AppProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`,
           'X-Timezone-Offset': tzOffset
         },
-        body: JSON.stringify({ vocab_id: wordId, rating, tzOffset })
+        body: JSON.stringify({ vocab_id: wordId, rating, tzOffset, deck_id: deckId })
       });
       
       if (res.status === 401 || res.status === 403) {
@@ -175,16 +177,16 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const recordReviewOverride = async (wordId) => {
+  const recordReviewOverride = async (wordId, deckId) => {
     try {
-      const token = localStorage.getItem('mainichi_token');
+      const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
       const res = await fetch(`/api/progress/review/override`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ vocab_id: wordId })
+        body: JSON.stringify({ vocab_id: wordId, deck_id: deckId })
       });
       
       if (res.status === 401 || res.status === 403) {
