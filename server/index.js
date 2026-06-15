@@ -23,19 +23,39 @@ if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'mainichi_super_secr
   console.error("🚨 CRITICAL SECURITY WARNING: Running in production with default JWT_SECRET. Please configure process.env.JWT_SECRET immediately!");
 }
 
-// Configured CORS to restrict origins in production, allow credentials, and compatibility with null/empty origins (MIT App Inventor WebView)
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:5173', 'http://localhost:5005'];
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, or standard same-origin requests)
-    if (!origin || origin === 'null') return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
+// Configured CORS dynamically to allow same-origin, local development, and App Inventor (null/empty origins) without crashing on invalid origins
+app.use(cors((req, callback) => {
+  const origin = req.header('Origin');
+  const corsOptions = { credentials: true };
+  
+  if (!origin || origin === 'null') {
+    corsOptions.origin = true;
+  } else {
+    let isAllowed = false;
+    
+    // 1. Allow local development origins
+    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      isAllowed = true;
     }
-    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-    return callback(new Error(msg), false);
-  },
-  credentials: true
+    
+    // 2. Allow same-host origins (production deployments)
+    try {
+      const originUrl = new URL(origin);
+      if (originUrl.host === req.headers.host) {
+        isAllowed = true;
+      }
+    } catch (e) {}
+    
+    // 3. Allow explicitly configured origins from env
+    const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      isAllowed = true;
+    }
+    
+    corsOptions.origin = isAllowed;
+  }
+  
+  callback(null, corsOptions);
 }));
 
 app.use(cookieParser());
