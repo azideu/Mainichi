@@ -4,30 +4,75 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.svg';
 
-// ─── Static washi-paper grid: precise horizontal lines as decoration ──────────
-const WashiLines = () => (
+// ─── Premium background: dot grid + static color pools + arc ─────────────────
+const PremiumBackground = () => (
   <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-    {/* Three ultra-thin horizontal rules, progressively lower opacity */}
-    {[28, 52, 76].map((pct, i) => (
+
+    {/* Layer 1 — Fine dot grid (genkouyoushi manuscript texture) */}
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage: 'radial-gradient(circle, rgba(86,125,70,0.09) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }}
+    />
+
+    {/* Layer 2 — Two large static atmospheric color pools */}
+    {/* Warm green: upper-left, asymmetric */}
+    <div
+      className="absolute"
+      style={{
+        top: '-10%',
+        left: '-8%',
+        width: '55vw',
+        height: '55vw',
+        maxWidth: '680px',
+        maxHeight: '680px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(86,125,70,0.07) 0%, transparent 70%)',
+        filter: 'blur(40px)',
+      }}
+    />
+    {/* Warm sand-gold: lower-right, offset */}
+    <div
+      className="absolute"
+      style={{
+        bottom: '-12%',
+        right: '-6%',
+        width: '50vw',
+        height: '50vw',
+        maxWidth: '600px',
+        maxHeight: '600px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(175,155,100,0.055) 0%, transparent 70%)',
+        filter: 'blur(40px)',
+      }}
+    />
+
+    {/* Layer 3 — Single large partial arc: compositional anchor at bottom-right */}
+    <svg
+      className="absolute"
+      style={{ bottom: '-30%', right: '-15%', width: '70vw', maxWidth: '820px', opacity: 0.045 }}
+      viewBox="0 0 820 820"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="410" cy="410" r="400" stroke="#567d46" strokeWidth="1" />
+      <circle cx="410" cy="410" r="340" stroke="#567d46" strokeWidth="0.5" />
+    </svg>
+
+    {/* Layer 4 — Three ultra-thin horizontal rules for editorial grid rhythm */}
+    {[28, 54, 78].map((pct, i) => (
       <div
         key={i}
         className="absolute left-0 right-0"
         style={{
           top: `${pct}%`,
           height: '1px',
-          background: `rgba(86, 125, 70, ${0.055 - i * 0.012})`,
+          background: `rgba(86, 125, 70, ${0.05 - i * 0.01})`,
         }}
       />
     ))}
-    {/* One vertical accent line, left-side */}
-    <div
-      className="absolute top-0 bottom-0 hidden lg:block"
-      style={{
-        left: '50%',
-        width: '1px',
-        background: 'rgba(86, 125, 70, 0.04)',
-      }}
-    />
   </div>
 );
 
@@ -83,8 +128,8 @@ const Landing = () => {
   return (
     <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background text-on-background relative flex flex-col select-none justify-between">
       
-      {/* Background: subtle washi paper noise (from global body::before) + horizontal rules */}
-      <WashiLines />
+      {/* Background: dot grid + atmospheric color pools + arc */}
+      <PremiumBackground />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="relative z-30 max-w-7xl mx-auto w-full px-6 lg:px-10 py-5 lg:py-4 flex justify-center items-center shrink-0">
