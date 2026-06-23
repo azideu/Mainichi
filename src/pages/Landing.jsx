@@ -1,182 +1,117 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import Button3D from '../components/Button3D';
 import logo from '../assets/logo.svg';
 
-// Custom Canvas Component for Japanese Zen Ink Waves (Seigaiha style)
-const ZenWaves = () => {
-  const canvasRef = useRef(null);
+// ─── Static washi-paper grid: precise horizontal lines as decoration ──────────
+const WashiLines = () => (
+  <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    {/* Three ultra-thin horizontal rules, progressively lower opacity */}
+    {[28, 52, 76].map((pct, i) => (
+      <div
+        key={i}
+        className="absolute left-0 right-0"
+        style={{
+          top: `${pct}%`,
+          height: '1px',
+          background: `rgba(86, 125, 70, ${0.055 - i * 0.012})`,
+        }}
+      />
+    ))}
+    {/* One vertical accent line, left-side */}
+    <div
+      className="absolute top-0 bottom-0 hidden lg:block"
+      style={{
+        left: '50%',
+        width: '1px',
+        background: 'rgba(86, 125, 70, 0.04)',
+      }}
+    />
+  </div>
+);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = 600);
+// ─── Feature data ─────────────────────────────────────────────────────────────
+const FEATURES = [
+  {
+    num: '01',
+    kanji: '学',
+    label: 'Serene Daily Lessons',
+    sub: 'Kanji, vocabulary, and grammar — without scoreboards or timers.',
+  },
+  {
+    num: '02',
+    kanji: 'あ',
+    label: 'Kana Mastery Sheets',
+    sub: 'Interactive grids and stroke animations for Hiragana & Katakana.',
+  },
+  {
+    num: '03',
+    kanji: '復',
+    label: 'Spaced Repetition',
+    sub: 'Flashcards timed to the exact moment before forgetting.',
+  },
+  {
+    num: '04',
+    kanji: '和',
+    label: 'Quiet Community',
+    sub: 'Share progress and ask questions — no social media noise.',
+  },
+];
 
-    const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = 600;
-    };
-    window.addEventListener('resize', handleResize);
-
-    // Wave parameters (relative to 600px height decoration)
-    const waves = [
-      { y: 340, length: 0.002, amplitude: 25, speed: 0.004, phase: 0 },
-      { y: 400, length: 0.0015, amplitude: 30, speed: -0.003, phase: 2 },
-      { y: 460, length: 0.001, amplitude: 35, speed: 0.002, phase: 4 }
-    ];
-
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // Draw elegant background gradient matching surface color
-      const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, 'rgba(251, 252, 248, 0)');
-      gradient.addColorStop(1, 'rgba(251, 252, 248, 1)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
-
-      // Draw waves
-      waves.forEach((wave, index) => {
-        ctx.beginPath();
-        ctx.moveTo(0, height);
-
-        for (let x = 0; x < width; x++) {
-          const y = wave.y + Math.sin(x * wave.length + wave.phase) * wave.amplitude;
-          ctx.lineTo(x, y);
-        }
-
-        ctx.lineTo(width, height);
-        ctx.closePath();
-
-        // Zen Green Palette with low opacities
-        const colorIndex = index === 0 ? 'rgba(86, 125, 70, 0.04)' : index === 1 ? 'rgba(86, 125, 70, 0.06)' : 'rgba(86, 125, 70, 0.08)';
-        ctx.fillStyle = colorIndex;
-        ctx.fill();
-
-        // Stroke line to represent hand-drawn ink line
-        ctx.strokeStyle = `rgba(86, 125, 70, ${0.12 - index * 0.02})`;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        wave.phase += wave.speed;
-      });
-
-      animationFrameId = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="absolute bottom-0 left-0 right-0 w-full h-[600px] pointer-events-none z-0" />;
-};
-
+// ─── Landing page ─────────────────────────────────────────────────────────────
 const Landing = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Remove body bottom padding to prevent white segment gap on landing
     const originalClassName = document.body.className;
     document.body.classList.remove('pb-[100px]');
-    return () => {
-      document.body.className = originalClassName;
-    };
+    return () => { document.body.className = originalClassName; };
   }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border border-primary/20 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  // Floating Kana details
-  const floatingKana = [
-    { char: 'あ', size: 'text-5xl', top: '20%', left: '10%', delay: 0, duration: 25 },
-    { char: 'の', size: 'text-4xl', top: '15%', left: '80%', delay: 2, duration: 30 },
-    { char: '和', size: 'text-6xl', top: '55%', left: '5%', delay: 4, duration: 28 },
-    { char: '日', size: 'text-5xl', top: '70%', left: '85%', delay: 1, duration: 32 },
-    { char: 'み', size: 'text-3xl', top: '40%', left: '90%', delay: 5, duration: 22 },
-    { char: '学習', size: 'text-2xl', top: '75%', left: '15%', delay: 3, duration: 35 },
-  ];
+  if (user) return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background text-on-background relative flex flex-col font-body-md select-none justify-between">
-      {/* Serene Atmospheric Background */}
-      <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply pointer-events-none z-0"></div>
-      <ZenWaves />
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background text-on-background relative flex flex-col select-none justify-between">
+      
+      {/* Background: subtle washi paper noise (from global body::before) + horizontal rules */}
+      <WashiLines />
 
-      {/* Floating Kana Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-        {floatingKana.map((item, idx) => (
-          <motion.div
-            key={idx}
-            className={`absolute font-sans font-light text-primary/10 ${item.size} select-none`}
-            style={{
-              top: item.top,
-              left: item.left,
-              fontFamily: "'Zen Kaku Gothic New', sans-serif"
-            }}
-            animate={{
-              y: [0, -25, 0],
-              rotate: [0, 5, -5, 0],
-            }}
-            transition={{
-              duration: item.duration,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: item.delay,
-            }}
-          >
-            {item.char}
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Elegant Centered Header */}
-      <header className="relative z-30 max-w-7xl mx-auto w-full px-6 py-6 lg:py-4 flex justify-center items-center shrink-0">
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <header className="relative z-30 max-w-7xl mx-auto w-full px-6 lg:px-10 py-5 lg:py-4 flex justify-center items-center shrink-0">
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center"
+          transition={{ duration: 0.5 }}
         >
-          <img src={logo} alt="Mainichi Logo" className="h-16 lg:h-20 w-auto opacity-95 hover:opacity-100 transition-opacity" />
+          <img src={logo} alt="Mainichi" className="h-16 lg:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity" />
         </motion.div>
       </header>
 
-      {/* Main Section */}
-      <main className="flex-1 flex flex-col justify-center items-center lg:grid lg:grid-cols-12 lg:gap-12 lg:items-center lg:content-center relative z-20 max-w-7xl mx-auto px-6 py-8 sm:py-16 lg:py-4 w-full">
+      {/* ── Main ───────────────────────────────────────────────────────────── */}
+      <main className="flex-1 flex flex-col justify-center items-center lg:grid lg:grid-cols-12 lg:gap-16 lg:items-center relative z-20 max-w-7xl mx-auto px-6 lg:px-10 py-8 lg:py-4 w-full">
 
-        {/* LEFT COLUMN: HERO SECTION — Ryokan Editorial */}
+        {/* ── LEFT: Hero ─────────────────────────────────────────────────── */}
         <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left relative z-10 w-full overflow-hidden">
 
-          {/* Architectural ghost character — structural, anchored, not floating */}
+          {/* Anchored ghost kanji — structural, not decorative */}
           <div
-            className="absolute -right-8 lg:-right-12 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
+            className="absolute -right-4 lg:-right-10 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
             style={{
               fontFamily: "'Zen Kaku Gothic New', sans-serif",
-              fontSize: 'clamp(200px, 26vw, 340px)',
+              fontSize: 'clamp(180px, 24vw, 320px)',
               fontWeight: 700,
-              color: 'rgba(86, 125, 70, 0.045)',
+              color: 'rgba(86, 125, 70, 0.04)',
               lineHeight: 1,
-              letterSpacing: '-0.05em',
             }}
             aria-hidden="true"
           >
@@ -186,52 +121,56 @@ const Landing = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
+            transition={{ duration: 0.8 }}
             className="relative z-10 w-full flex flex-col items-center lg:items-start gap-6 lg:gap-7"
           >
-            {/* Editorial label with dash rule */}
+            {/* Editorial eyebrow: dash + label */}
             <motion.div
-              initial={{ opacity: 0, x: -12 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
               className="flex items-center gap-3"
             >
-              <span className="block w-8 h-px bg-primary/40 shrink-0"></span>
+              <span className="block w-7 h-px bg-primary/40 shrink-0" />
               <span
-                className="text-primary/60 tracking-[0.25em] uppercase"
+                className="text-primary/55 tracking-[0.22em] uppercase"
                 style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontSize: '10px', fontWeight: 400 }}
               >
                 毎日の学習
               </span>
             </motion.div>
 
-            {/* Main heading — Cormorant Garamond for editorial weight contrast */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
+            {/* Heading */}
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.25 }}
-              className="space-y-2"
+              transition={{ duration: 0.65, delay: 0.2 }}
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.05 }}
+              className="text-[2.6rem] sm:text-[3.2rem] lg:text-[3.5rem] text-on-background"
             >
-              <h1
-                style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.05 }}
-                className="text-[2.6rem] sm:text-[3.2rem] lg:text-[3.4rem] text-on-background"
-              >
-                A quiet space<br />
-                for <em style={{ fontStyle: 'italic', fontWeight: 500, color: '#3e5430' }}>daily Japanese.</em>
-              </h1>
-            </motion.div>
+              A quiet space<br />
+              for{' '}
+              <em style={{ fontStyle: 'italic', fontWeight: 500, color: '#3e5430' }}>daily Japanese.</em>
+            </motion.h1>
 
-            {/* Japanese sub-label — architectural, not decorative */}
+            {/* Japanese sub-label */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex items-baseline gap-4"
+              transition={{ duration: 0.5, delay: 0.35 }}
+              className="flex items-center gap-3"
             >
               <span
-                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '13px', letterSpacing: '0.2em', color: '#74796e' }}
+                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '12px', letterSpacing: '0.18em', color: '#8a9185' }}
               >
                 毎日、一歩ずつ
+              </span>
+              <span className="block w-5 h-px bg-outline/25 shrink-0" />
+              <span
+                style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8a9185', fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300 }}
+                className="uppercase"
+              >
+                Everyday, one step at a time
               </span>
             </motion.div>
 
@@ -239,33 +178,34 @@ const Landing = () => {
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: '17px', lineHeight: 1.75, letterSpacing: '0.01em' }}
-              className="text-on-surface-variant max-w-sm"
+              transition={{ duration: 0.5, delay: 0.45 }}
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: '17px', lineHeight: 1.8, letterSpacing: '0.01em' }}
+              className="text-on-surface-variant max-w-xs lg:max-w-sm"
             >
               Step away from the noise. Learn Hiragana, Katakana, and Kanji through a calm, spaced-repetition sanctuary built around a peaceful daily ritual.
             </motion.p>
 
-            {/* CTA — minimal, ink-stroke style */}
+            {/* CTA — ink-stroke underline style */}
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.65 }}
+              transition={{ duration: 0.45, delay: 0.6 }}
               className="flex justify-center lg:justify-start"
             >
               <button
+                id="cta-begin-journey"
                 onClick={() => navigate('/login')}
-                className="group flex items-center gap-3 pl-0 pr-4 py-3 border-b border-primary/30 hover:border-primary transition-colors duration-300"
+                className="group flex items-center gap-3 py-2.5 border-b border-primary/25 hover:border-primary/70 transition-colors duration-300"
               >
                 <span
-                  style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '15px', letterSpacing: '0.08em' }}
-                  className="text-on-background group-hover:text-primary transition-colors duration-300 tracking-widest uppercase"
+                  style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '14px', letterSpacing: '0.12em' }}
+                  className="text-on-background group-hover:text-primary transition-colors duration-300 uppercase"
                 >
                   Begin your journey
                 </span>
                 <span
-                  className="text-primary group-hover:translate-x-1 transition-transform duration-300"
-                  style={{ fontSize: '18px' }}
+                  className="text-primary/60 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300"
+                  style={{ fontSize: '16px' }}
                 >
                   →
                 </span>
@@ -274,83 +214,91 @@ const Landing = () => {
           </motion.div>
         </div>
 
-        {/* RIGHT COLUMN: FEATURE GRID */}
-        <div className="lg:col-span-7 w-full relative z-10 mt-12 lg:mt-0 flex flex-col justify-center">
+        {/* ── RIGHT: Editorial Feature Index ─────────────────────────────── */}
+        <div className="lg:col-span-7 w-full relative z-10 mt-14 lg:mt-0 flex flex-col justify-center">
           <motion.section
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full text-left"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="w-full"
+            aria-label="Features"
           >
-            <div className="text-center lg:text-left mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-on-background font-h2">The Path of Sanctuary</h2>
-              <p className="text-xs text-outline mt-1 tracking-wide font-sans">Designed for steady, mindful acquisition.</p>
+            {/* Section eyebrow */}
+            <div className="flex items-center gap-3 mb-8 justify-center lg:justify-start">
+              <span className="block w-5 h-px bg-outline/40 shrink-0" />
+              <span
+                className="text-outline/70 tracking-[0.22em] uppercase"
+                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontSize: '10px', fontWeight: 400 }}
+              >
+                What's inside
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
-              {/* Feature 1 */}
-              <div className="bg-surface-container-lowest/80 backdrop-blur-md p-6 lg:p-5 rounded-2xl border border-outline/10 hover:border-primary/20 hover:shadow-ambient hover:scale-[1.01] transition-all duration-300 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
-                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 border border-primary/20">
-                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'wght' 300" }}>menu_book</span>
-                </div>
-                <h3 className="text-base font-bold text-on-surface mb-1 font-h3">Serene Daily Lessons</h3>
-                <p className="text-on-surface-variant text-xs font-light leading-relaxed">
-                  Study essential Kanji, vocabulary, and grammar with distraction-free interfaces that value your cognitive focus. No scoreboards or timer pressure.
-                </p>
-              </div>
+            {/* Numbered editorial list */}
+            <div className="flex flex-col divide-y divide-outline/10">
+              {FEATURES.map((f, i) => (
+                <motion.div
+                  key={f.num}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45, delay: 0.25 + i * 0.08 }}
+                  className="group flex items-start gap-5 lg:gap-6 py-4 lg:py-5 cursor-default"
+                >
+                  {/* Large numeral */}
+                  <span
+                    style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: '12px', letterSpacing: '0.1em', color: '#a3a99e', minWidth: '22px' }}
+                    className="pt-0.5 shrink-0 select-none"
+                  >
+                    {f.num}
+                  </span>
 
-              {/* Feature 2 */}
-              <div className="bg-surface-container-lowest/80 backdrop-blur-md p-6 lg:p-5 rounded-2xl border border-outline/10 hover:border-primary/20 hover:shadow-ambient hover:scale-[1.01] transition-all duration-300 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
-                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 border border-primary/20">
-                  <span className="text-[15px] font-sans font-medium" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>あ</span>
-                </div>
-                <h3 className="text-base font-bold text-on-surface mb-1 font-h3">Hiragana & Katakana Sheets</h3>
-                <p className="text-on-surface-variant text-xs font-light leading-relaxed">
-                  Interact with beautiful Kana grids, stroke animations, and trace exercises to master the fundamentals of reading and writing early on.
-                </p>
-              </div>
+                  {/* Kanji glyph */}
+                  <span
+                    style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 700, fontSize: '28px', color: 'rgba(86,125,70,0.18)', lineHeight: 1, minWidth: '34px' }}
+                    className="shrink-0 group-hover:text-primary/25 transition-colors duration-300 select-none"
+                    aria-hidden="true"
+                  >
+                    {f.kanji}
+                  </span>
 
-              {/* Feature 3 */}
-              <div className="bg-surface-container-lowest/80 backdrop-blur-md p-6 lg:p-5 rounded-2xl border border-outline/10 hover:border-primary/20 hover:shadow-ambient hover:scale-[1.01] transition-all duration-300 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
-                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 border border-primary/20">
-                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'wght' 300" }}>style</span>
-                </div>
-                <h3 className="text-base font-bold text-on-surface mb-1 font-h3">Spaced Repetition (SRS)</h3>
-                <p className="text-on-surface-variant text-xs font-light leading-relaxed">
-                  Maintain reviews in our flashcard sanctuary. The spaced repetition algorithm targets items right as you're about to forget them, optimizing long-term retention.
-                </p>
-              </div>
-
-              {/* Feature 4 */}
-              <div className="bg-surface-container-lowest/80 backdrop-blur-md p-6 lg:p-5 rounded-2xl border border-outline/10 hover:border-primary/20 hover:shadow-ambient hover:scale-[1.01] transition-all duration-300 relative group overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-colors pointer-events-none"></div>
-                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 border border-primary/20">
-                  <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'wght' 300" }}>groups</span>
-                </div>
-                <h3 className="text-base font-bold text-on-surface mb-1 font-h3">Calm Learning Community</h3>
-                <p className="text-on-surface-variant text-xs font-light leading-relaxed">
-                  Connect and share updates with fellow language travelers in a serene space. Post questions, show progress, and learn together without the noise of typical social networks.
-                </p>
-              </div>
+                  {/* Text */}
+                  <div className="flex flex-col gap-0.5">
+                    <span
+                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '18px', letterSpacing: '-0.01em', color: 'inherit', lineHeight: 1.2 }}
+                      className="text-on-background group-hover:text-primary transition-colors duration-300"
+                    >
+                      {f.label}
+                    </span>
+                    <span
+                      style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '12px', letterSpacing: '0.01em', lineHeight: 1.6 }}
+                      className="text-on-surface-variant"
+                    >
+                      {f.sub}
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.section>
         </div>
       </main>
 
-      {/* Zen Footer */}
-      <footer className="relative z-30 mt-auto border-t border-outline/10 bg-surface-container-low/30 py-6 lg:py-4 px-6 text-center shrink-0">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] text-outline tracking-wider font-label-caps">
-            &copy; {new Date().getFullYear()} MAINICHI. ALL RIGHTS RESERVED.
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer className="relative z-30 mt-auto border-t border-outline/10 py-5 lg:py-4 px-6 lg:px-10 shrink-0">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+          <p
+            style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '10px', letterSpacing: '0.16em', color: '#a3a99e' }}
+            className="uppercase"
+          >
+            © {new Date().getFullYear()} Mainichi. All rights reserved.
           </p>
-
-          <div className="text-[13px] text-primary/70 font-light italic font-sans flex items-center gap-2" style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}>
+          <div
+            className="flex items-center gap-2.5"
+            style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '12px', color: '#8a9185', letterSpacing: '0.08em' }}
+          >
             <span>継続は力なり</span>
-            <span className="text-outline/40">•</span>
-            <span className="not-italic text-outline text-xs">Continuity is power.</span>
+            <span style={{ color: '#c5c9c0' }}>—</span>
+            <span style={{ fontSize: '10px', letterSpacing: '0.12em', color: '#a3a99e' }} className="uppercase">Continuity is power</span>
           </div>
         </div>
       </footer>
