@@ -21,7 +21,7 @@ const Login = () => {
     try {
       const success = await continueAsGuest();
       if (success) {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         setError("Failed to start guest session.");
       }
@@ -48,7 +48,7 @@ const Login = () => {
       }
       
       if (success) {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         setError("Invalid credentials. Please try again.");
       }

@@ -10,6 +10,7 @@ import Progress from './pages/Progress';
 import Community from './pages/Community';
 import Flashcard from './pages/Flashcard';
 import Login from './pages/Login';
+import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import DevSandbox from './pages/DevSandbox';
@@ -124,10 +125,11 @@ function App() {
           <Router>
             <ScrollToTop />
             <Routes>
+              <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               
               <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/lessons" element={<Lessons />} />
                 <Route path="/kana" element={<Kana />} />
                 <Route path="/review" element={<Review />} />

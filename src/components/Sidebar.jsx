@@ -16,7 +16,7 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { name: 'Home', icon: 'home', path: '/' },
+    { name: 'Home', icon: 'home', path: '/dashboard' },
     { name: 'Lessons', icon: 'menu_book', path: '/lessons' },
     { name: 'Kana', icon: 'あ', path: '/kana' },
     { name: 'Review', icon: 'style', path: '/review' },
@@ -38,7 +38,7 @@ const Sidebar = () => {
         {/* Header: Editorial & Minimal */}
         <div className="flex items-center justify-between mb-8">
           <div 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="flex items-center gap-2 group cursor-pointer"
           >
             <img src={logoNoText} alt="Mainichi" className="h-8 w-auto opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:scale-[1.02]" />

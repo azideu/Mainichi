@@ -406,7 +406,7 @@ const Flashcard = () => {
         <span className="material-symbols-outlined text-[64px] text-primary/30 mb-6" style={{ fontVariationSettings: "'wght' 200" }}>auto_awesome</span>
         <h2 className="font-h2 text-on-surface mb-2">Queue Clear</h2>
         <p className="font-body-md text-outline mb-8">All your kanji are currently at rest.</p>
-        <Button3D onClick={() => navigate('/')} variant="primary">Return Home</Button3D>
+        <Button3D onClick={() => navigate('/dashboard')} variant="primary">Return Home</Button3D>
       </div>
     );
   }
@@ -421,7 +421,7 @@ const Flashcard = () => {
         <p className="font-body-lg text-on-surface-variant mb-10 leading-relaxed">
           You've successfully reviewed all due kanji. Your path to mastery continues.
         </p>
-        <Button3D onClick={() => navigate('/')} variant="primary" className="w-full">
+        <Button3D onClick={() => navigate('/dashboard')} variant="primary" className="w-full">
           Return to Sanctuary
         </Button3D>
       </div>
@@ -434,7 +434,7 @@ const Flashcard = () => {
       <div className="flex flex-col flex-1 justify-between pb-2 w-full">
         {/* Top Bar */}
         <div className="flex justify-between items-center mb-4">
-          <button onClick={() => navigate('/')} className="text-outline hover:text-primary transition-colors">
+          <button onClick={() => navigate('/dashboard')} className="text-outline hover:text-primary transition-colors">
             <span className="material-symbols-outlined">close</span>
           </button>
           <div className="flex-1 px-8">

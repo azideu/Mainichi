@@ -12,7 +12,7 @@ import {
 const NAV_ITEMS = [
   { id: 'lessons', path: '/lessons', icon: 'menu_book', label: '授業' },
   { id: 'kana', path: '/kana', icon: 'あ', label: '仮名' },
-  { id: 'home', path: '/', icon: 'home', label: 'ホーム' },
+  { id: 'home', path: '/dashboard', icon: 'home', label: 'ホーム' },
   { id: 'review', path: '/review', icon: 'style', label: '復習' },
   { id: 'community', path: '/community', icon: 'groups', label: '交流' },
 ];
