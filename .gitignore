@@ -3,10 +3,10 @@ node_modules/
 dist/
 .DS_Store
 
-# User requested to ignore:
 /context/
 /.vscode/
 /mockups/
 .env
 /scratch/
 /presentation/
+/graphify-out
