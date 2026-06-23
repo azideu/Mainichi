@@ -39,7 +39,7 @@ const HankoStamp = ({ text = "認定", size = 80, className = "" }) => {
         <span 
           className="font-bold relative z-10 leading-none text-center select-none"
           style={{
-            fontFamily: "'Noto Serif JP', 'Georgia', serif",
+            fontFamily: "'Zen Kaku Gothic New', sans-serif",
             color: '#C23A2B',
             fontSize: size * 0.28,
             letterSpacing: '0.05em',

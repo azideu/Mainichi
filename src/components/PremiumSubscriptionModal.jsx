@@ -100,41 +100,56 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
         return (
           <motion.div
             key="intro"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             className="space-y-6"
           >
-            <div className="text-center relative z-10 space-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto shadow-sm">
-                <span className="material-symbols-outlined text-[36px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+            <div className="text-center relative z-10 space-y-2 pt-2">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <span className="block w-4 h-px bg-primary/45 shrink-0" />
+                <span
+                  className="text-primary/75 tracking-[0.2em] uppercase text-[9px] font-bold"
+                >
+                  Matcha Edition
+                </span>
               </div>
-              <h2 className="font-h2 text-on-surface tracking-tight">Mainichi Premium</h2>
-              <p className="font-body-lg text-outline">Unlock your absolute learning potential.</p>
-              <div className="inline-block px-4 py-2 bg-primary/10 border border-primary/20 rounded-full font-h3 text-primary text-lg mt-2">
-                RM 10.00 <span className="font-body-md text-sm text-primary/70">/ month</span>
+              <h2 className="font-h2 text-2xl text-on-surface tracking-tight">
+                Mainichi Premium
+              </h2>
+              <p className="font-body-lg text-outline/80 text-xs">Unlock your absolute learning potential.</p>
+              <div className="inline-block border-b border-primary/20 pb-1 font-h3 text-primary text-lg mt-2">
+                RM 10.00 <span className="text-xs text-primary/70 italic">/ month</span>
               </div>
             </div>
 
-            <div className="bg-surface rounded-2xl p-6 border border-outline/10 space-y-4 shadow-sm relative overflow-hidden">
-              <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-              <h4 className="font-label-caps text-outline tracking-wider text-xs relative z-10">PREMIUM PERKS</h4>
-              <ul className="space-y-3 relative z-10">
-                <li className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant"><strong>Premium Collections</strong>: Access all premium community decks.</span>
+            <div className="bg-surface rounded-xl p-5 border border-outline/15 shadow-sm relative overflow-hidden text-left">
+              <div className="absolute inset-0 bg-washi opacity-20 pointer-events-none rounded-xl" />
+              <h4 className="font-label-caps text-outline/80 tracking-wider text-[9px] font-bold mb-3 relative z-10">PREMIUM PERKS</h4>
+              <ul className="space-y-3.5 relative z-10">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-primary text-xs font-bold pt-0.5">✓</span>
+                  <span className="text-[11px] text-on-surface-variant/90 leading-relaxed font-light">
+                    <strong className="font-medium text-on-surface">Premium Collections</strong>: Access all premium community decks.
+                  </span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant"><strong>Unlimited Decks</strong>: Create as many custom flashcard decks as you want.</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-primary text-xs font-bold pt-0.5">✓</span>
+                  <span className="text-[11px] text-on-surface-variant/90 leading-relaxed font-light">
+                    <strong className="font-medium text-on-surface">Unlimited Decks</strong>: Create as many custom flashcard decks as you want.
+                  </span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant"><strong>Capped-Free Study</strong>: Review custom paths without daily limits.</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-primary text-xs font-bold pt-0.5">✓</span>
+                  <span className="text-[11px] text-on-surface-variant/90 leading-relaxed font-light">
+                    <strong className="font-medium text-on-surface">Capped-Free Study</strong>: Review custom paths without daily limits.
+                  </span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-primary text-[20px] font-bold">check</span>
-                  <span className="font-body-md text-on-surface-variant"><strong>Advanced Progress Metrics</strong>: Full study logs & review calendars.</span>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-primary text-xs font-bold pt-0.5">✓</span>
+                  <span className="text-[11px] text-on-surface-variant/90 leading-relaxed font-light">
+                    <strong className="font-medium text-on-surface">Advanced Progress</strong>: Full study logs & review calendars.
+                  </span>
                 </li>
               </ul>
             </div>
@@ -143,14 +158,14 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-1/3 py-4 bg-surface border border-outline/10 text-outline font-label-caps tracking-widest text-xs rounded-xl hover:bg-surface-bright active:scale-95 transition-all"
+                className="w-1/3 py-3 bg-surface border border-outline/15 text-outline font-label-caps tracking-widest text-[9px] font-bold rounded-xl hover:bg-surface-bright active:scale-95 transition-all"
               >
                 Back
               </button>
               <Button3D
                 variant="primary"
                 onClick={() => setStep(STEPS.BANK_SELECT)}
-                className="flex-1 font-label-caps tracking-widest text-xs"
+                className="flex-1 font-label-caps tracking-widest text-[9px] font-bold py-3"
               >
                 Get Premium
               </Button3D>
@@ -438,27 +453,27 @@ const PremiumSubscriptionModal = ({ isOpen, onClose }) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={handleClose}
-          className="absolute inset-0 bg-black/45 backdrop-blur-md"
+          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         />
 
         {/* Modal Sheet */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 50 }}
-          transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-          className="relative z-10 w-full max-w-md bg-surface-bright rounded-3xl p-8 border border-outline/10 shadow-ambient overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 15 }}
+          transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
+          className="relative z-10 w-full max-w-sm bg-surface-bright rounded-2xl p-6 border border-outline/15 shadow-sm overflow-hidden"
         >
           {/* Subtle texture overlay */}
-          <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none rounded-inherit"></div>
+          <div className="absolute inset-0 bg-washi opacity-25 mix-blend-multiply pointer-events-none rounded-inherit"></div>
 
           {/* Close trigger button */}
           {step !== STEPS.SUCCESS && (
             <button
               onClick={handleClose}
-              className="absolute top-6 right-6 text-outline hover:text-on-surface transition-colors p-2"
+              className="absolute top-4 right-4 text-outline/60 hover:text-on-surface transition-colors p-1"
             >
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
           )}
 

@@ -46,24 +46,68 @@ html, body {
   
   /* Global Typography Standardisation */
   .font-h1 {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-h1;
   }
   .font-h2 {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-h2;
   }
   .font-h3 {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-h3;
   }
   .font-body-lg {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-body-lg;
   }
   .font-body-md {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-body-md;
   }
   .font-label-sm {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-label-sm;
   }
   .font-label-caps {
+    font-family: "Lexend", "Zen Kaku Gothic New", sans-serif;
     @apply text-label-caps;
   }
+
+  /* Premium Card Standardisation */
+  .card-premium {
+    @apply border border-outline/15 bg-surface rounded-2xl p-5 shadow-paper-layer relative overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)];
+  }
+  .card-premium-interactive {
+    @apply card-premium cursor-pointer hover:border-primary/20 hover:bg-surface-bright hover:shadow-ambient hover:scale-[1.015] hover:-translate-y-1 active:scale-[0.985] active:translate-y-0;
+  }
+  
+  /* Standard card nested interactions */
+  .card-premium-interactive .card-title {
+    @apply transition-colors duration-300 ease-out;
+  }
+  .card-premium-interactive:hover .card-title {
+    @apply text-primary;
+  }
+  .card-premium-interactive .card-arrow {
+    @apply inline-block transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)];
+  }
+  .card-premium-interactive:hover .card-arrow {
+    @apply translate-x-1;
+  }
+  .card-premium-interactive .card-icon {
+    @apply transition-transform duration-300 ease-out;
+  }
+  .card-premium-interactive:hover .card-icon {
+    @apply scale-110 rotate-3;
+  }
+  
+  /* Premium Divider Line */
+  .divider-h {
+    @apply h-[1px] bg-outline/15 w-full;
+  }
+  .divider-v {
+    @apply w-[1px] bg-outline/15 h-full;
+  }
 }
+

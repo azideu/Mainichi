@@ -168,7 +168,7 @@ const Review = () => {
                   transition={{ duration: 0.35, ease: "easeInOut" }}
                   className="absolute flex items-center justify-center w-full h-full p-4"
                 >
-                  <span className={`${getQueueKanjiFontSize(dueCards[activeQueueIndex].kanji)} font-bold text-primary leading-none`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+                  <span className={`${getQueueKanjiFontSize(dueCards[activeQueueIndex].kanji)} font-bold text-primary leading-none`}>
                     {dueCards[activeQueueIndex].kanji}
                   </span>
                 </motion.div>
@@ -238,7 +238,7 @@ const Review = () => {
 
       <motion.h2 variants={itemVariants} className="font-h3 text-on-surface mb-4 md:mb-6 flex items-center gap-4">
         Custom Decks
-        <div className="h-[1px] flex-1 bg-outline/20"></div>
+        <div className="divider-h flex-1"></div>
       </motion.h2>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -246,55 +246,68 @@ const Review = () => {
           <motion.div
             key={deck.id}
             variants={itemVariants}
-            className="bg-surface rounded-xl p-4 md:p-6 border border-outline/10 shadow-paper-layer relative overflow-hidden group flex flex-col justify-between"
+            onClick={() => {
+              if (deck.dueCount > 0) {
+                if (isMobileApp) {
+                  sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
+                }
+                navigate(`/flashcard?deckId=${deck.id}`);
+              }
+            }}
+            className="card-premium-interactive flex flex-col group min-h-[220px]"
           >
-            <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-            <div className="relative z-10 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-2 gap-2">
-                  <h3 className="font-h3 text-on-surface tracking-tight line-clamp-1">{deck.title}</h3>
-                  <span className="font-label-caps text-[9px] text-outline px-2 py-0.5 bg-surface-variant/30 rounded-full border border-outline/5 whitespace-nowrap">
-                    By {deck.author}
-                  </span>
-                </div>
-                <p className="font-body-sm text-outline mb-4 md:mb-6 line-clamp-2">{deck.description || "No description provided."}</p>
-              </div>
+            <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none rounded-xl"></div>
 
-              <div className="mt-auto">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="font-body-md text-on-surface-variant font-medium">
-                    {deck.dueCount} {deck.dueCount === 1 ? 'card' : 'cards'} due
-                  </span>
-                  {deck.word_count !== undefined && (
-                    <span className="font-label-caps text-[10px] text-outline">
-                      {deck.word_count} total cards
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex gap-2">
-                  <Button3D
-                    onClick={() => {
-                      if (isMobileApp) {
-                        sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
-                      }
-                      navigate(`/flashcard?deckId=${deck.id}`);
-                    }}
-                    variant="primary"
-                    className="flex-1"
-                    disabled={deck.dueCount === 0}
-                  >
-                    {deck.dueCount > 0 ? 'Review' : 'Nothing Due'}
-                  </Button3D>
-                  <button
-                    onClick={() => handleRemoveDeck(deck.id)}
-                    className="p-3 rounded-xl bg-surface border border-error/20 hover:bg-error/5 hover:border-error/40 text-error/70 hover:text-error transition-all shadow-sm flex items-center justify-center active:scale-[0.98]"
-                    title="Remove Deck"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">delete</span>
-                  </button>
-                </div>
+            {/* Top Row: Eyebrow + Pill */}
+            <div className="flex justify-between items-center mb-4 relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="block w-4 h-px bg-primary/45 shrink-0" />
+                <span className="text-primary/75 tracking-[0.2em] uppercase text-[9px] font-sans">
+                  Custom Deck
+                </span>
               </div>
+              <span className="text-xs px-2.5 py-0.5 border border-outline/10 rounded-full bg-surface-variant/30 text-outline/70 font-serif italic font-medium whitespace-nowrap">
+                By {deck.author}
+              </span>
+            </div>
+
+            {/* Content Section */}
+            <div className="flex-grow relative z-10 text-left mb-4">
+              <h4 className="font-h2 text-on-surface mb-0.5 font-normal card-title">{deck.title}</h4>
+              <p className="text-[10px] text-primary/70 font-semibold mb-2 font-sans">
+                {deck.dueCount} {deck.dueCount === 1 ? 'card' : 'cards'} due • {deck.word_count} total cards
+              </p>
+              <p className="font-body-lg text-on-surface-variant/80 text-[11px] leading-relaxed line-clamp-2">
+                {deck.description || "No description provided."}
+              </p>
+            </div>
+
+            {/* Bottom Row: Actions */}
+            <div className="mt-auto border-t border-outline/5 pt-4 flex gap-2 relative z-10 w-full">
+              <Button3D
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isMobileApp) {
+                    sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
+                  }
+                  navigate(`/flashcard?deckId=${deck.id}`);
+                }}
+                variant="primary"
+                className="flex-1 !py-3 text-[11px]"
+                disabled={deck.dueCount === 0}
+              >
+                {deck.dueCount > 0 ? 'Review' : 'Nothing Due'}
+              </Button3D>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveDeck(deck.id);
+                }}
+                className="p-3 rounded-xl bg-surface border border-error/20 hover:bg-error/5 hover:border-error/40 text-error/70 hover:text-error transition-all shadow-sm flex items-center justify-center active:scale-[0.98]"
+                title="Remove Deck"
+              >
+                <span className="material-symbols-outlined text-[20px]">delete</span>
+              </button>
             </div>
           </motion.div>
         ))}

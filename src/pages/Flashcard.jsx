@@ -462,7 +462,7 @@ const Flashcard = () => {
             <div className="absolute inset-0 -m-8 md:-m-12 border-4 border-dashed border-outline/10 rounded-full animate-[spin_30s_linear_infinite]"></div>
             <div className="w-48 h-48 md:w-64 md:h-64 bg-surface rounded-full flex items-center justify-center shadow-paper-layer border border-outline/5 relative z-10 overflow-hidden">
               <div className="absolute inset-0 bg-washi opacity-40 mix-blend-multiply"></div>
-              <span className={`${getDynamicFontSize(currentCard.kanji)} font-bold text-on-surface relative z-10`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+              <span className={`${getDynamicFontSize(currentCard.kanji)} font-bold text-on-surface relative z-10`}>
                 {currentCard.kanji}
               </span>
             </div>
@@ -596,13 +596,13 @@ const Flashcard = () => {
                       <>
                         <div className="flex flex-col">
                           <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">PHRASE / SENTENCE</span>
-                          <span className="font-h3 text-on-surface font-semibold" style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+                          <span className="font-h3 text-on-surface font-semibold">
                             {currentCard.kanji}
                           </span>
                         </div>
                         <div className="flex flex-col">
                           <span className="font-label-caps text-outline text-[10px] tracking-widest mb-1">FURIGANA / READING</span>
-                          <span className={`font-h2 ${results.furigana ? 'text-primary' : 'text-error'}`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+                          <span className={`font-h2 ${results.furigana ? 'text-primary' : 'text-error'}`}>
                             {currentCard.furigana} {results.furigana === false && '✗'}
                           </span>
                         </div>

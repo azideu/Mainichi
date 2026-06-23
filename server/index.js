@@ -94,7 +94,7 @@ async function ensureTablesExist() {
       await pool.query('ALTER TABLE mainichi_users ADD COLUMN is_premium BOOLEAN DEFAULT FALSE');
       console.log("✅ Verified is_premium column in mainichi_users table.");
     } catch (err) {
-      if (err.code !== 'ER_DUP_COLUMN_NAME') {
+      if (err.code !== 'ER_DUP_COLUMN_NAME' && err.errno !== 1060 && !err.message.includes('Duplicate column')) {
         console.log("ℹ️ is_premium column already exists or failed to verify:", err.message);
       }
     }
@@ -103,7 +103,7 @@ async function ensureTablesExist() {
       await pool.query('ALTER TABLE mainichi_users ADD COLUMN is_creator BOOLEAN DEFAULT FALSE');
       console.log("✅ Verified is_creator column in mainichi_users table.");
     } catch (err) {
-      if (err.code !== 'ER_DUP_COLUMN_NAME') {
+      if (err.code !== 'ER_DUP_COLUMN_NAME' && err.errno !== 1060 && !err.message.includes('Duplicate column')) {
         console.log("ℹ️ is_creator column already exists or failed to verify:", err.message);
       }
     }
@@ -112,7 +112,7 @@ async function ensureTablesExist() {
       await pool.query("ALTER TABLE mainichi_decks ADD COLUMN deck_type VARCHAR(50) DEFAULT 'kanji'");
       console.log("✅ Verified deck_type column in mainichi_decks table.");
     } catch (err) {
-      if (err.code !== 'ER_DUP_COLUMN_NAME') {
+      if (err.code !== 'ER_DUP_COLUMN_NAME' && err.errno !== 1060 && !err.message.includes('Duplicate column')) {
         console.log("ℹ️ deck_type column already exists or failed to verify:", err.message);
       }
     }

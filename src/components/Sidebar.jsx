@@ -72,7 +72,6 @@ const Sidebar = () => {
                     className={`text-[17px] z-10 leading-none tracking-normal font-sans shrink-0 w-[24px] text-center flex items-center justify-center transition-all duration-500 ${
                       isActive ? 'font-normal text-primary' : 'font-light text-on-surface-variant group-hover:text-primary group-hover:-translate-y-0.5'
                     }`} 
-                    style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif" }}
                   >
                     あ
                   </span>

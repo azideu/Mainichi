@@ -26,6 +26,7 @@ export default {
         base: "8px", xs: "4px", sm: "12px", md: "24px", lg: "48px", xl: "80px", gutter: "24px", margin: "32px"
       },
       fontFamily: {
+        sans: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
         h1: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
         h2: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],
         h3: ["Lexend", "Zen Kaku Gothic New", "sans-serif"],

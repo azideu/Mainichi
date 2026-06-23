@@ -175,7 +175,7 @@ const Profile = () => {
               <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>auto_graph</span>
             </div>
             <div>
-              <h4 className="font-body-lg font-bold text-on-surface">Study Progress & Stickers</h4>
+              <h4 className="font-h3 text-on-surface">Study Progress & Stickers</h4>
               <p className="font-label-caps text-outline tracking-widest text-[9px] mt-0.5">VIEW YOUR FOREST PATH & MILESTONES</p>
             </div>
           </div>

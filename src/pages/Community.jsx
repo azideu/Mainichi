@@ -472,8 +472,8 @@ const Community = () => {
     show: { 
       opacity: 1, 
       transition: { 
-        staggerChildren: 0.08,
-        delayChildren: 0.15
+        duration: 0.2,
+        ease: "easeOut"
       } 
     }
   };
@@ -505,18 +505,18 @@ const Community = () => {
       </motion.div>
 
       {/* Main Tabs */}
-      <motion.div variants={itemVariants} className="flex bg-surface-variant/30 rounded-xl p-1 mb-4 md:mb-8 backdrop-blur-sm border border-outline/10">
+      <motion.div variants={itemVariants} className="flex border-b border-outline/15 mb-4 md:mb-8 w-full justify-start gap-8">
         <button 
           onClick={() => setActiveTab('discover')}
-          className={`flex-1 py-3 font-label-caps tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'discover' ? 'bg-surface shadow-paper-layer text-primary border border-outline/10' : 'text-outline hover:text-on-surface'}`}
+          className={`pb-3 font-label-caps tracking-widest text-[10px] font-bold transition-all border-b-2 -mb-px ${activeTab === 'discover' ? 'border-primary text-primary' : 'border-transparent text-outline hover:text-on-surface'}`}
         >
           DISCOVER
         </button>
         <button 
           onClick={() => setActiveTab('workshop')}
-          className={`flex-1 py-3 font-label-caps tracking-widest rounded-xl transition-all duration-300 flex justify-center items-center gap-2 ${activeTab === 'workshop' ? 'bg-surface shadow-paper-layer text-secondary border border-outline/10' : 'text-outline hover:text-on-surface'}`}
+          className={`pb-3 font-label-caps tracking-widest text-[10px] font-bold transition-all border-b-2 -mb-px flex items-center gap-1.5 ${activeTab === 'workshop' ? 'border-secondary text-secondary' : 'border-transparent text-outline hover:text-on-surface'}`}
         >
-          <span className="material-symbols-outlined text-[16px]">hardware</span> WORKSHOP
+          WORKSHOP
         </button>
       </motion.div>
 
@@ -534,7 +534,7 @@ const Community = () => {
             {/* Search & Sort Filter Bar */}
             <motion.div 
               variants={itemVariants}
-              className="flex flex-col sm:flex-row gap-3 md:gap-4 bg-surface rounded-2xl p-3 md:p-4 shadow-paper-layer border border-outline/10 relative overflow-hidden"
+              className="card-premium flex flex-col sm:flex-row gap-3 md:gap-4 !p-3 md:!p-4 z-10"
             >
               <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
               
@@ -572,48 +572,56 @@ const Community = () => {
                 <p className="font-body-md text-outline">No matching decks found. Try a different query.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {filteredDecks.map(deck => (
                   <motion.div 
                     variants={itemVariants} 
                     key={deck.id} 
                     onClick={() => handleOpenPreview(deck)}
-                    className="bg-surface rounded-2xl p-4 md:p-md border border-outline/10 shadow-paper-layer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 md:gap-6 group relative overflow-hidden transition-colors hover:border-primary/20 cursor-pointer"
+                    className="card-premium-interactive flex flex-col group min-h-[220px]"
                   >
                     {/* Washi Texture */}
-                    <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-                    {/* Ink wash hover */}
-                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                    <div className="relative z-10 flex-1">
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <h3 className="font-h3 text-on-surface tracking-tight group-hover:text-primary transition-colors">{deck.title}</h3>
+                    <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none rounded-xl"></div>
+                    
+                    {/* Top Row: Eyebrow + Status Pill */}
+                    <div className="flex justify-between items-center mb-4 relative z-10">
+                      <div className="flex items-center gap-2">
+                        <span className="block w-4 h-px bg-primary/45 shrink-0" />
+                        <span className="text-primary/75 tracking-[0.2em] uppercase text-[9px] font-sans">
+                          {deck.downloaded === 1 ? 'Active Deck' : 'Public Deck'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
                         {deck.is_premium === 1 && (
-                          <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
-                            PREMIUM
+                          <span className="bg-tertiary/5 border border-tertiary/10 text-tertiary text-[9px] font-serif italic px-2 py-0.5 rounded-full shrink-0 font-medium">
+                            Premium
                           </span>
                         )}
                         {deck.downloaded === 1 && (
-                          <span className="bg-primary/10 text-primary border border-primary/20 text-[9px] font-label-caps px-2 py-0.5 rounded-full tracking-widest flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[10px]">check</span> ACTIVE
+                          <span className="bg-primary/5 border border-primary/10 text-primary text-[9px] font-serif italic px-2 py-0.5 rounded-full shrink-0 font-medium">
+                            Active
                           </span>
                         )}
                       </div>
-                      <p className="font-body-md text-on-surface-variant text-sm mb-2 md:mb-4 leading-relaxed line-clamp-2">{deck.description || 'No description provided.'}</p>
-                      <div className="flex items-center gap-6 text-xs font-label-caps text-outline tracking-widest">
-                        <span className="flex items-center gap-1.5">
-                          Crafted by <span className="text-on-surface font-semibold">{deck.author}</span>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[15px]">menu_book</span> {deck.word_count} cards
-                        </span>
-                      </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="flex-grow relative z-10 text-left mb-4">
+                      <h3 className="font-h2 text-on-surface mb-0.5 font-normal card-title">{deck.title}</h3>
+                      <p className="text-[10px] text-primary/70 font-semibold mb-2 font-sans">
+                        Crafted by {deck.author} • {deck.word_count} cards
+                      </p>
+                      <p className="font-body-lg text-on-surface-variant/80 text-[11px] leading-relaxed line-clamp-2">
+                        {deck.description || 'No description provided.'}
+                      </p>
                     </div>
                     
-                    <div className="w-full sm:w-auto relative z-10 flex gap-2">
+                    {/* Bottom Row: Action Button */}
+                    <div className="mt-auto border-t border-outline/5 pt-4 flex relative z-10 w-full">
                       {deck.downloaded === 1 ? (
                         <Button3D 
                           variant="primary" 
+                          className="w-full !py-3 text-[11px]"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/flashcard?deckId=${deck.id}`);
@@ -624,6 +632,7 @@ const Community = () => {
                       ) : (
                         <Button3D 
                           variant={deck.is_premium === 1 ? 'primary' : 'secondary'}
+                          className="w-full !py-3 text-[11px]"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDownload(deck.id, deck.is_premium === 1);
@@ -680,26 +689,40 @@ const Community = () => {
                     <motion.div 
                       variants={itemVariants}
                       key={deck.id} 
-                      onClick={() => handleOpenPreview(deck)} 
-                      className="bg-surface rounded-2xl p-4 md:p-md border border-outline/10 shadow-paper-layer flex flex-col justify-between cursor-pointer hover:border-secondary/30 transition-colors relative overflow-hidden group"
+                      onClick={() => handleOpenPreview(deck)}
+                      className="card-premium-interactive flex flex-col group min-h-[220px]"
                     >
-                      <div className="absolute inset-0 bg-washi opacity-30 mix-blend-multiply pointer-events-none"></div>
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-h3 text-on-surface group-hover:text-secondary transition-colors">{deck.title}</h4>
-                          {deck.is_premium === 1 && (
-                            <span className="bg-tertiary/10 text-tertiary border border-tertiary/20 text-[8px] font-label-caps px-2 py-0.5 rounded-full tracking-widest whitespace-nowrap shrink-0">
-                              PREMIUM
-                            </span>
-                          )}
+                      <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none rounded-xl"></div>
+                      
+                      {/* Top Row: Eyebrow + Pill */}
+                      <div className="flex justify-between items-center mb-4 relative z-10">
+                        <div className="flex items-center gap-2">
+                          <span className="block w-4 h-px bg-primary/45 shrink-0" />
+                          <span className="text-primary/75 tracking-[0.2em] uppercase text-[9px] font-sans">
+                            My Deck
+                          </span>
                         </div>
-                        <p className="font-body-md text-on-surface-variant text-sm mb-6 line-clamp-2">{deck.description || 'No description.'}</p>
+                        <span className="text-xs px-2.5 py-0.5 border border-outline/10 rounded-full bg-surface-variant/30 text-outline/70 font-serif italic font-medium">
+                          By Me
+                        </span>
+                      </div>
+
+                      {/* Content Section */}
+                      <div className="flex-grow relative z-10 text-left mb-4">
+                        <h4 className="font-h2 text-on-surface mb-0.5 font-normal card-title">{deck.title}</h4>
+                        <p className="text-[10px] text-primary/70 font-semibold mb-2 font-sans">
+                          Crafted by You • {deck.word_count} cards
+                        </p>
+                        <p className="font-body-lg text-on-surface-variant/80 text-[11px] leading-relaxed line-clamp-2">
+                          {deck.description || 'No description provided.'}
+                        </p>
                       </div>
                       
-                      <div className="flex justify-between items-center text-xs font-label-caps text-outline tracking-widest border-t border-outline/5 pt-3 mt-2">
+                      {/* Bottom Row: Actions */}
+                      <div className="mt-auto border-t border-outline/5 pt-4 flex justify-between items-center relative z-10 w-full text-xs font-label-caps text-outline tracking-widest">
                         <span>{deck.word_count} CARDS</span>
-                        <span className="text-secondary flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px]">visibility</span> PREVIEW
+                        <span className="text-secondary flex items-center gap-1.5 font-serif italic font-medium transition-colors group-hover:text-primary-dark">
+                          Preview <span className="material-symbols-outlined text-[14px] card-icon">visibility</span>
                         </span>
                       </div>
                     </motion.div>
@@ -808,7 +831,7 @@ const Community = () => {
                               className={`aspect-square bg-surface border rounded-xl flex items-center justify-center font-h2 text-on-surface shadow-paper-layer transition-all hover:scale-105 cursor-pointer relative overflow-hidden group select-none ${hoveredWord?.id === word.id ? 'border-primary bg-primary/5' : 'border-outline/10'}`}
                             >
                               <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
-                              <span className={`${getPreviewFontSize(word.kanji)} font-bold text-on-surface`} style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>{word.kanji}</span>
+                              <span className={`${getPreviewFontSize(word.kanji)} font-bold text-on-surface`}>{word.kanji}</span>
                             </div>
                           ))}
                         </div>
@@ -977,8 +1000,7 @@ const Community = () => {
                               ))}
                             </div>
                             <p 
-                              className="text-on-surface-variant leading-relaxed text-sm relative z-10"
-                              style={{ fontFamily: "'Georgia', 'Noto Serif JP', serif", fontStyle: "italic" }}
+                              className="text-on-surface-variant leading-relaxed text-sm relative z-10 italic"
                             >
                               "{rev.comment}"
                             </p>

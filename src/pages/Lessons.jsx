@@ -261,7 +261,7 @@ const Lessons = () => {
           <div className="mb-6 md:mb-12">
             <motion.div variants={itemVariants} className="flex items-center gap-4 mb-4 md:mb-6">
               <h3 className="font-h3 text-on-surface tracking-tight">Active Lessons</h3>
-              <div className="h-[1px] flex-1 bg-outline/20"></div>
+              <div className="divider-h flex-1"></div>
             </motion.div>
 
             <motion.div 
@@ -283,33 +283,43 @@ const Lessons = () => {
                   <motion.div
                     key={lesson.id}
                     variants={itemVariants}
-                      onClick={() => handleLessonStart(lesson)}
-                      className="bg-surface rounded-2xl p-4 md:p-6 shadow-paper-layer border border-outline/10 flex flex-col hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer group relative overflow-hidden"
-                    >
-                      <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none"></div>
+                    onClick={() => handleLessonStart(lesson)}
+                    className="card-premium-interactive flex flex-col group min-h-[220px]"
+                  >
+                    <div className="absolute inset-0 bg-washi opacity-20 mix-blend-multiply pointer-events-none rounded-xl"></div>
 
-                      <div className="flex justify-between items-start mb-4 md:mb-6 relative z-10">
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
-                          <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'wght' 300" }}>{lesson.icon}</span>
-                        </div>
-                        <span className={`font-label-caps tracking-widest text-[9px] border px-2.5 py-1 rounded-full ${isCompleted ? 'bg-primary/10 border-primary text-primary font-bold' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
-                          {isCompleted ? 'MASTERED' : 'ACTIVE'}
+                    {/* Top Row: Eyebrow + Pill */}
+                    <div className="flex justify-between items-center mb-4 relative z-10">
+                      <div className="flex items-center gap-2">
+                        <span className="block w-4 h-px bg-primary/45 shrink-0" />
+                        <span className="text-primary/75 tracking-[0.2em] uppercase text-[9px] font-sans">
+                          {isCompleted ? 'Mastered' : 'Active Module'}
                         </span>
                       </div>
+                      <span className={`text-xs px-2.5 py-0.5 border rounded-full font-serif italic font-medium ${isCompleted ? 'bg-primary/5 border-primary/20 text-primary' : 'bg-secondary/5 border-secondary/20 text-secondary'}`}>
+                        {lesson.unit}
+                      </span>
+                    </div>
 
-                      <div className="flex-grow relative z-10">
-                        <span className="text-[18px] md:text-[20px] font-bold text-primary tracking-wide block mb-1">{lesson.phrase}</span>
-                        <h4 className="font-h3 text-on-surface tracking-tight">{lesson.title}</h4>
-                        <p className="font-body-md text-outline tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
-                      </div>
+                    {/* Content Section */}
+                    <div className="flex-grow relative z-10 text-left mb-4">
+                      <h4 className="font-h2 text-on-surface mb-0.5 font-normal card-title">{lesson.title}</h4>
+                      <p className="text-[10px] text-primary/70 font-semibold mb-2 font-sans">
+                        {lesson.phrase} ({lesson.meaning})
+                      </p>
+                      <p className="font-body-lg text-on-surface-variant/80 text-[11px] leading-relaxed line-clamp-2">
+                        {lesson.description}
+                      </p>
+                    </div>
 
-                      <div className="mt-6 md:mt-8 border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
-                        <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
-                        <span className="font-label-caps text-primary text-[9px] tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1 font-bold">
-                          {isCompleted ? 'REVIEW' : 'STUDY'} <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
-                        </span>
-                      </div>
-                    </motion.div>
+                    {/* Bottom Row */}
+                    <div className="mt-auto border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
+                      <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
+                      <span className="text-[11px] tracking-widest text-primary hover:text-primary-dark transition-colors flex items-center gap-1.5 font-serif italic font-medium">
+                        {isCompleted ? 'Review' : 'Study'} <span className="text-[12px] font-sans card-arrow">→</span>
+                      </span>
+                    </div>
+                  </motion.div>
                   );
                 })}
             </motion.div>
@@ -321,7 +331,7 @@ const Lessons = () => {
           <div>
             <motion.div variants={itemVariants} className="flex items-center gap-4 mb-4 md:mb-6">
               <h3 className="font-h3 text-outline tracking-tight">Locked Foundations</h3>
-              <div className="h-[1px] flex-1 bg-outline/20"></div>
+              <div className="divider-h flex-1"></div>
             </motion.div>
 
             <motion.div 
@@ -335,28 +345,42 @@ const Lessons = () => {
                 <motion.div
                   key={lesson.id}
                   variants={itemVariants}
-                    className="bg-surface-bright rounded-2xl p-4 md:p-6 border border-outline/10 flex flex-col relative overflow-hidden"
-                  >
-                    <div className="flex justify-between items-start mb-4 md:mb-6">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-surface border border-outline/20 flex items-center justify-center text-outline">
-                        <span className="material-symbols-outlined text-[20px] md:text-[24px]" style={{ fontVariationSettings: "'wght' 200" }}>{lesson.icon}</span>
-                      </div>
-                      <span className="font-label-caps tracking-widest text-[9px] border border-outline/20 bg-surface/50 text-outline px-2.5 py-1 rounded-full flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[11px]">lock</span> LOCKED
+                  className="card-premium bg-surface-bright flex flex-col min-h-[220px]"
+                >
+                  <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none rounded-xl"></div>
+
+                  {/* Top Row: Eyebrow + Pill */}
+                  <div className="flex justify-between items-center mb-4 relative z-10">
+                    <div className="flex items-center gap-2">
+                      <span className="block w-4 h-px bg-outline/25 shrink-0" />
+                      <span className="text-outline/70 tracking-[0.2em] uppercase text-[9px] font-sans">
+                        Locked Module
                       </span>
                     </div>
+                    <span className="text-xs px-2.5 py-0.5 border border-outline/10 rounded-full bg-surface-variant/30 text-outline/70 font-serif italic font-medium">
+                      {lesson.unit}
+                    </span>
+                  </div>
 
-                    <div className="flex-grow">
-                      <span className="text-[18px] md:text-[20px] font-bold text-outline/65 tracking-wide block mb-1">{lesson.phrase}</span>
-                      <h4 className="font-h3 text-outline tracking-tight">{lesson.title}</h4>
-                      <p className="font-body-md text-outline/60 tracking-wider font-label-caps text-[9px] mt-0.5">{lesson.romaji} • {lesson.meaning}</p>
-                    </div>
+                  {/* Content Section */}
+                  <div className="flex-grow relative z-10 text-left mb-4">
+                    <h4 className="font-h2 text-outline/70 mb-0.5 font-normal">{lesson.title}</h4>
+                    <p className="text-[10px] text-outline/50 font-semibold mb-2 font-sans">
+                      {lesson.phrase} ({lesson.meaning})
+                    </p>
+                    <p className="font-body-lg text-outline/60 text-[11px] leading-relaxed line-clamp-2">
+                      {lesson.description}
+                    </p>
+                  </div>
 
-                    <div className="mt-6 md:mt-8 border-t border-outline/5 pt-4 flex justify-between items-center">
-                      <span className="font-label-caps text-outline text-[9px] tracking-widest">{lesson.difficulty}</span>
-                      <span className="font-label-caps text-outline text-[9px] tracking-widest font-bold">PREMIUM LOCK</span>
-                    </div>
-                  </motion.div>
+                  {/* Bottom Row */}
+                  <div className="mt-auto border-t border-outline/5 pt-4 flex justify-between items-center relative z-10">
+                    <span className="font-label-caps text-outline/50 text-[9px] tracking-widest">{lesson.difficulty}</span>
+                    <span className="font-serif italic font-medium text-outline/50 text-[11px] tracking-wider flex items-center gap-1.5">
+                      Locked <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'wght' 300" }}>lock</span>
+                    </span>
+                  </div>
+                </motion.div>
                 ))}
             </motion.div>
           </div>
@@ -458,11 +482,11 @@ const Lessons = () => {
                 <span className="material-symbols-outlined text-secondary text-[20px] md:text-[24px]">quiz</span>
                 <div>
                   <h4 className="font-label-caps text-secondary tracking-widest text-[9px] font-bold">COMPREHENSION CHECK</h4>
-                  <h3 className="font-body-md font-bold text-on-surface">Test Your Knowledge</h3>
+                  <h3 className="font-h3 text-on-surface">Test Your Knowledge</h3>
                 </div>
               </div>
 
-              <h3 className="font-body-lg font-bold text-on-surface leading-relaxed mb-4 md:mb-6">
+              <h3 className="font-h3 text-on-surface leading-relaxed mb-4 md:mb-6">
                 {activeLesson.quiz.question}
               </h3>
 

@@ -152,7 +152,6 @@ const Landing = () => {
           <div
             className="absolute -right-4 lg:-right-10 top-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
             style={{
-              fontFamily: "'Zen Kaku Gothic New', sans-serif",
               fontSize: 'clamp(180px, 24vw, 320px)',
               fontWeight: 700,
               color: 'rgba(86, 125, 70, 0.04)',
@@ -179,7 +178,7 @@ const Landing = () => {
               <span className="block w-7 h-px bg-primary/40 shrink-0" />
               <span
                 className="text-primary/55 tracking-[0.22em] uppercase"
-                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontSize: '10px', fontWeight: 400 }}
+                style={{ fontSize: '10px', fontWeight: 400 }}
               >
                 毎日の学習
               </span>
@@ -190,8 +189,8 @@ const Landing = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.2 }}
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.05 }}
-              className="text-[2.6rem] sm:text-[3.2rem] lg:text-[3.5rem] text-on-background"
+              style={{ fontWeight: 300, letterSpacing: '-0.02em', lineHeight: 1.05 }}
+              className="font-h1 text-[2.6rem] sm:text-[3.2rem] lg:text-[3.5rem] text-on-background"
             >
               A quiet space<br />
               for{' '}
@@ -206,13 +205,13 @@ const Landing = () => {
               className="flex items-center gap-3"
             >
               <span
-                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '12px', letterSpacing: '0.18em', color: '#8a9185' }}
+                style={{ fontWeight: 300, fontSize: '12px', letterSpacing: '0.18em', color: '#8a9185' }}
               >
                 毎日、一歩ずつ
               </span>
               <span className="block w-5 h-px bg-outline/25 shrink-0" />
               <span
-                style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8a9185', fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300 }}
+                style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8a9185', fontWeight: 300 }}
                 className="uppercase"
               >
                 Everyday, one step at a time
@@ -224,7 +223,7 @@ const Landing = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.45 }}
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: '17px', lineHeight: 1.8, letterSpacing: '0.01em' }}
+              style={{ fontWeight: 300, fontSize: '17px', lineHeight: 1.8, letterSpacing: '0.01em' }}
               className="text-on-surface-variant max-w-xs lg:max-w-sm"
             >
               Step away from the noise. Learn Hiragana, Katakana, and Kanji through a calm, spaced-repetition sanctuary built around a peaceful daily ritual.
@@ -243,7 +242,7 @@ const Landing = () => {
                 className="group flex items-center gap-3 py-2.5 border-b border-primary/25 hover:border-primary/70 transition-colors duration-300"
               >
                 <span
-                  style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '14px', letterSpacing: '0.12em' }}
+                  style={{ fontWeight: 500, fontSize: '14px', letterSpacing: '0.12em' }}
                   className="text-on-background group-hover:text-primary transition-colors duration-300 uppercase"
                 >
                   Begin your journey
@@ -273,7 +272,7 @@ const Landing = () => {
               <span className="block w-5 h-px bg-outline/40 shrink-0" />
               <span
                 className="text-outline/70 tracking-[0.22em] uppercase"
-                style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontSize: '10px', fontWeight: 400 }}
+                style={{ fontSize: '10px', fontWeight: 400 }}
               >
                 What's inside
               </span>
@@ -291,7 +290,7 @@ const Landing = () => {
                 >
                   {/* Large numeral */}
                   <span
-                    style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontSize: '12px', letterSpacing: '0.1em', color: '#a3a99e', minWidth: '22px' }}
+                    style={{ fontWeight: 300, fontSize: '12px', letterSpacing: '0.1em', color: '#a3a99e', minWidth: '22px' }}
                     className="pt-0.5 shrink-0 select-none"
                   >
                     {f.num}
@@ -299,7 +298,7 @@ const Landing = () => {
 
                   {/* Kanji glyph */}
                   <span
-                    style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 700, fontSize: '28px', color: 'rgba(86,125,70,0.18)', lineHeight: 1, minWidth: '34px' }}
+                    style={{ fontWeight: 700, fontSize: '28px', color: 'rgba(86,125,70,0.18)', lineHeight: 1, minWidth: '34px' }}
                     className="shrink-0 group-hover:text-primary/25 transition-colors duration-300 select-none"
                     aria-hidden="true"
                   >
@@ -309,13 +308,13 @@ const Landing = () => {
                   {/* Text */}
                   <div className="flex flex-col gap-0.5">
                     <span
-                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '18px', letterSpacing: '-0.01em', color: 'inherit', lineHeight: 1.2 }}
+                      style={{ fontWeight: 500, fontSize: '18px', letterSpacing: '-0.01em', color: 'inherit', lineHeight: 1.2 }}
                       className="text-on-background group-hover:text-primary transition-colors duration-300"
                     >
                       {f.label}
                     </span>
                     <span
-                      style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '12px', letterSpacing: '0.01em', lineHeight: 1.6 }}
+                      style={{ fontWeight: 300, fontSize: '12px', letterSpacing: '0.01em', lineHeight: 1.6 }}
                       className="text-on-surface-variant"
                     >
                       {f.sub}
@@ -332,14 +331,14 @@ const Landing = () => {
       <footer className="relative z-30 mt-auto border-t border-outline/10 py-5 lg:py-4 px-6 lg:px-10 shrink-0">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
           <p
-            style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '10px', letterSpacing: '0.16em', color: '#a3a99e' }}
+            style={{ fontWeight: 300, fontSize: '10px', letterSpacing: '0.16em', color: '#a3a99e' }}
             className="uppercase"
           >
             © {new Date().getFullYear()} Mainichi. All rights reserved.
           </p>
           <div
             className="flex items-center gap-2.5"
-            style={{ fontFamily: "'Zen Kaku Gothic New', sans-serif", fontWeight: 300, fontSize: '12px', color: '#8a9185', letterSpacing: '0.08em' }}
+            style={{ fontWeight: 300, fontSize: '12px', color: '#8a9185', letterSpacing: '0.08em' }}
           >
             <span>継続は力なり</span>
             <span style={{ color: '#c5c9c0' }}>—</span>
