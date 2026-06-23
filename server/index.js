@@ -20,7 +20,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'mainichi_super_secret_key_2024';
 
 // Safety warning for default JWT secret in production
 if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'mainichi_super_secret_key_2024') {
-  console.error("🚨 CRITICAL SECURITY WARNING: Running in production with default JWT_SECRET. Please configure process.env.JWT_SECRET immediately!");
+  throw new Error("🚨 CRITICAL SECURITY ERROR: Running in production with default JWT_SECRET is prohibited. Please set process.env.JWT_SECRET.");
 }
 
 // Configured CORS dynamically to allow same-origin, local development, and App Inventor (null/empty origins) without crashing on invalid origins
@@ -28,8 +28,12 @@ app.use(cors((req, callback) => {
   const origin = req.header('Origin');
   const corsOptions = { credentials: true };
   
-  if (!origin || origin === 'null') {
-    corsOptions.origin = true;
+  if (!origin) {
+    corsOptions.origin = false;
+  } else if (origin === 'null') {
+    // App Inventor or sandboxed iframe. Allow origin but disable credentials to prevent CORS session exploitation
+    corsOptions.origin = 'null';
+    corsOptions.credentials = false;
   } else {
     let isAllowed = false;
     
@@ -276,7 +280,8 @@ ensureTablesExist();
 const rateLimitStore = {};
 function createRateLimiter({ windowMs, max, message }) {
   return (req, res, next) => {
-    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    // Trust req.ip (which respects 'trust proxy' if configured) and fall back to remoteAddress
+    const ip = req.ip || req.socket.remoteAddress;
     const now = Date.now();
     
     if (!rateLimitStore[ip]) {
@@ -448,6 +453,15 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
+
+// Middleware to block guest users (isGuest: true) from mutating DB state
+const requireRegisteredUser = (req, res, next) => {
+  if (req.user && req.user.isGuest) {
+    return res.status(403).json({ error: 'Guest users cannot perform this action. Please register.' });
+  }
+  next();
+};
+
 
 // ==========================================
 // DATE & TIMEZONE UTILITY FUNCTIONS
@@ -722,7 +736,7 @@ app.post('/api/auth/logout', (req, res) => {
 // USER PROFILE ROUTES
 // ==========================================
 
-app.put('/api/user/profile', authenticateToken, validateProfileUpdate, async (req, res) => {
+app.put('/api/user/profile', authenticateToken, requireRegisteredUser, validateProfileUpdate, async (req, res) => {
   try {
     const { name, profile_picture } = req.body;
     const userId = req.user.id;
@@ -740,7 +754,7 @@ app.put('/api/user/profile', authenticateToken, validateProfileUpdate, async (re
 });
 
 // Upgrade user to premium subscription
-app.post('/api/user/subscribe', authenticateToken, async (req, res) => {
+app.post('/api/user/subscribe', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -761,7 +775,7 @@ app.post('/api/user/subscribe', authenticateToken, async (req, res) => {
 });
 
 // Upgrade user to creator status
-app.post('/api/user/become-creator', authenticateToken, async (req, res) => {
+app.post('/api/user/become-creator', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -786,9 +800,22 @@ app.post('/api/user/become-creator', authenticateToken, async (req, res) => {
 // ==========================================
 
 // Create Vocabulary
-app.post('/api/vocab', authenticateToken, async (req, res) => {
+app.post('/api/vocab', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const { deck_id, kanji, furigana, english } = req.body;
+    if (!deck_id) {
+      return res.status(400).json({ error: 'deck_id is required.' });
+    }
+    
+    // Verify deck exists and user is the author
+    const [deckRows] = await pool.query('SELECT author_id FROM mainichi_decks WHERE id = ?', [deck_id]);
+    if (deckRows.length === 0) {
+      return res.status(404).json({ error: 'Deck not found.' });
+    }
+    if (deckRows[0].author_id !== req.user.id) {
+      return res.status(403).json({ error: 'You are not authorized to add cards to this deck.' });
+    }
+
     const [result] = await pool.query(
       'INSERT INTO mainichi_vocabulary (deck_id, kanji, furigana, english) VALUES (?, ?, ?, ?)',
       [deck_id, kanji, furigana, english]
@@ -804,6 +831,22 @@ app.post('/api/vocab', authenticateToken, async (req, res) => {
 app.get('/api/decks/:deck_id/vocab', authenticateToken, async (req, res) => {
   try {
     const { deck_id } = req.params;
+    
+    // Verify deck exists
+    const [deckRows] = await pool.query('SELECT is_premium FROM mainichi_decks WHERE id = ?', [deck_id]);
+    if (deckRows.length === 0) {
+      return res.status(404).json({ error: 'Deck not found.' });
+    }
+
+    // Check premium restriction
+    if (deckRows[0].is_premium) {
+      const [userRows] = await pool.query('SELECT is_premium FROM mainichi_users WHERE id = ?', [req.user.id]);
+      const isPremium = userRows.length > 0 && userRows[0].is_premium;
+      if (!isPremium) {
+        return res.status(403).json({ error: 'Premium subscription required to view this deck.' });
+      }
+    }
+
     const [rows] = await pool.query('SELECT * FROM mainichi_vocabulary WHERE deck_id = ?', [deck_id]);
     res.json(rows);
   } catch (err) {
@@ -813,10 +856,23 @@ app.get('/api/decks/:deck_id/vocab', authenticateToken, async (req, res) => {
 });
 
 // Update Vocabulary
-app.put('/api/vocab/:id', authenticateToken, async (req, res) => {
+app.put('/api/vocab/:id', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const { id } = req.params;
     const { kanji, furigana, english } = req.body;
+
+    // Verify vocab card exists and check ownership of the parent deck
+    const [vocabRows] = await pool.query(
+      'SELECT v.id, d.author_id FROM mainichi_vocabulary v JOIN mainichi_decks d ON v.deck_id = d.id WHERE v.id = ?',
+      [id]
+    );
+    if (vocabRows.length === 0) {
+      return res.status(404).json({ error: 'Vocabulary card not found.' });
+    }
+    if (vocabRows[0].author_id !== req.user.id) {
+      return res.status(403).json({ error: 'You are not authorized to update this card.' });
+    }
+
     await pool.query(
       'UPDATE mainichi_vocabulary SET kanji = ?, furigana = ?, english = ? WHERE id = ?',
       [kanji, furigana, english, id]
@@ -829,9 +885,22 @@ app.put('/api/vocab/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete Vocabulary
-app.delete('/api/vocab/:id', authenticateToken, async (req, res) => {
+app.delete('/api/vocab/:id', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Verify vocab card exists and check ownership of the parent deck
+    const [vocabRows] = await pool.query(
+      'SELECT v.id, d.author_id FROM mainichi_vocabulary v JOIN mainichi_decks d ON v.deck_id = d.id WHERE v.id = ?',
+      [id]
+    );
+    if (vocabRows.length === 0) {
+      return res.status(404).json({ error: 'Vocabulary card not found.' });
+    }
+    if (vocabRows[0].author_id !== req.user.id) {
+      return res.status(403).json({ error: 'You are not authorized to delete this card.' });
+    }
+
     await pool.query('DELETE FROM mainichi_vocabulary WHERE id = ?', [id]);
     res.json({ success: true });
   } catch (err) {
@@ -866,7 +935,7 @@ app.get('/api/decks', authenticateToken, async (req, res) => {
 });
 
 // Create Deck (with vocabulary list inside a transaction)
-app.post('/api/decks', authenticateToken, deckCreationLimiter, validateDeckCreation, async (req, res) => {
+app.post('/api/decks', authenticateToken, requireRegisteredUser, deckCreationLimiter, validateDeckCreation, async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -875,6 +944,15 @@ app.post('/api/decks', authenticateToken, deckCreationLimiter, validateDeckCreat
 
     if (!title || !vocabulary || !Array.isArray(vocabulary) || vocabulary.length === 0) {
       return res.status(400).json({ error: 'Title and a non-empty vocabulary list are required.' });
+    }
+
+    // Verify creator status if attempting to create a premium deck
+    if (is_premium) {
+      const [userRows] = await connection.query('SELECT is_creator FROM mainichi_users WHERE id = ?', [user_id]);
+      const isCreator = userRows.length > 0 && userRows[0].is_creator;
+      if (!isCreator) {
+        return res.status(403).json({ error: 'Only registered creators can create premium decks.' });
+      }
     }
 
     const finalDeckType = deck_type === 'phrase' ? 'phrase' : 'kanji';
@@ -919,7 +997,7 @@ app.post('/api/decks', authenticateToken, deckCreationLimiter, validateDeckCreat
 });
 
 // Update Deck
-app.put('/api/decks/:id', authenticateToken, validateDeckCreation, async (req, res) => {
+app.put('/api/decks/:id', authenticateToken, requireRegisteredUser, validateDeckCreation, async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -934,6 +1012,15 @@ app.put('/api/decks/:id', authenticateToken, validateDeckCreation, async (req, r
     }
     if (deckRows[0].author_id !== user_id) {
       return res.status(403).json({ error: 'You are not authorized to edit this deck.' });
+    }
+
+    // Verify creator status if attempting to set a deck as premium
+    if (is_premium) {
+      const [userRows] = await connection.query('SELECT is_creator FROM mainichi_users WHERE id = ?', [user_id]);
+      const isCreator = userRows.length > 0 && userRows[0].is_creator;
+      if (!isCreator) {
+        return res.status(403).json({ error: 'Only registered creators can set decks to premium.' });
+      }
     }
 
     const finalDeckType = deck_type === 'phrase' ? 'phrase' : 'kanji';
@@ -988,7 +1075,7 @@ app.put('/api/decks/:id', authenticateToken, validateDeckCreation, async (req, r
 });
 
 // Delete Deck
-app.delete('/api/decks/:id', authenticateToken, async (req, res) => {
+app.delete('/api/decks/:id', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     const deck_id = parseInt(req.params.id, 10);
@@ -1035,7 +1122,7 @@ app.get('/api/vocab/lookup', authenticateToken, async (req, res) => {
 });
 
 // Download/Unlock Deck
-app.post('/api/decks/:id/download', authenticateToken, async (req, res) => {
+app.post('/api/decks/:id/download', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     const deck_id = parseInt(req.params.id, 10);
@@ -1044,6 +1131,15 @@ app.post('/api/decks/:id/download', authenticateToken, async (req, res) => {
     const [deckRows] = await pool.query('SELECT * FROM mainichi_decks WHERE id = ?', [deck_id]);
     if (deckRows.length === 0) {
       return res.status(404).json({ error: 'Deck not found' });
+    }
+
+    // Check premium restriction
+    if (deckRows[0].is_premium) {
+      const [userRows] = await pool.query('SELECT is_premium FROM mainichi_users WHERE id = ?', [user_id]);
+      const isPremium = userRows.length > 0 && userRows[0].is_premium;
+      if (!isPremium) {
+        return res.status(403).json({ error: 'Premium subscription required to download this deck.' });
+      }
     }
 
     // Insert join table record
@@ -1060,7 +1156,7 @@ app.post('/api/decks/:id/download', authenticateToken, async (req, res) => {
 });
 
 // Remove/Deactivate Deck from User Account
-app.delete('/api/decks/:id/download', authenticateToken, async (req, res) => {
+app.delete('/api/decks/:id/download', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     const deck_id = parseInt(req.params.id, 10);
@@ -1107,7 +1203,7 @@ app.get('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
 });
 
 // Post a review for a deck
-app.post('/api/decks/:deck_id/reviews', authenticateToken, reviewLimiter, validateDeckReview, async (req, res) => {
+app.post('/api/decks/:deck_id/reviews', authenticateToken, requireRegisteredUser, reviewLimiter, validateDeckReview, async (req, res) => {
   try {
     const deck_id = parseInt(req.params.deck_id, 10);
     const { rating, comment } = req.body;
@@ -1146,7 +1242,7 @@ app.post('/api/decks/:deck_id/reviews', authenticateToken, reviewLimiter, valida
 });
 
 // Delete a review for a deck
-app.delete('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) => {
+app.delete('/api/decks/:deck_id/reviews', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const deck_id = parseInt(req.params.deck_id, 10);
     const user_id = req.user.id;
@@ -1174,7 +1270,7 @@ app.delete('/api/decks/:deck_id/reviews', authenticateToken, async (req, res) =>
 
 
 // Get user stats and settings
-app.get('/api/progress/stats', authenticateToken, async (req, res) => {
+app.get('/api/progress/stats', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     let [statsRows] = await pool.query(
@@ -1227,7 +1323,7 @@ app.get('/api/progress/stats', authenticateToken, async (req, res) => {
 });
 
 // Get progress for each downloaded deck
-app.get('/api/progress/decks', authenticateToken, async (req, res) => {
+app.get('/api/progress/decks', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     
@@ -1265,7 +1361,7 @@ app.get('/api/progress/decks', authenticateToken, async (req, res) => {
 });
 
 // Update settings
-app.put('/api/progress/settings', authenticateToken, validateSettingsUpdate, async (req, res) => {
+app.put('/api/progress/settings', authenticateToken, requireRegisteredUser, validateSettingsUpdate, async (req, res) => {
   try {
     const user_id = req.user.id;
     let { masteryRequirement, dailyGoal } = req.body;
@@ -1291,7 +1387,7 @@ app.put('/api/progress/settings', authenticateToken, validateSettingsUpdate, asy
 // ==========================================
 
 // Get completed lessons list
-app.get('/api/lessons/completed', authenticateToken, async (req, res) => {
+app.get('/api/lessons/completed', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     const [rows] = await pool.query(
@@ -1318,7 +1414,7 @@ const LESSON_VOCAB_MAPPING = {
 };
 
 // Record a completed lesson and add its vocabulary to reviews
-app.post('/api/lessons/complete', authenticateToken, async (req, res) => {
+app.post('/api/lessons/complete', authenticateToken, requireRegisteredUser, async (req, res) => {
   const connection = await pool.getConnection();
   try {
     const user_id = req.user.id;
@@ -1382,7 +1478,7 @@ app.post('/api/lessons/complete', authenticateToken, async (req, res) => {
 // ==========================================
 
 // Reset user progress (refills review queue and resets stats)
-app.post('/api/progress/demo/reset', authenticateToken, async (req, res) => {
+app.post('/api/progress/demo/reset', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     
@@ -1403,7 +1499,7 @@ app.post('/api/progress/demo/reset', authenticateToken, async (req, res) => {
 });
 
 // Simulate 5-day active streak (last study date = yesterday, so today reviews increment to 6!)
-app.post('/api/progress/demo/simulate-streak', authenticateToken, async (req, res) => {
+app.post('/api/progress/demo/simulate-streak', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     
@@ -1429,7 +1525,7 @@ app.post('/api/progress/demo/simulate-streak', authenticateToken, async (req, re
 });
 
 // Get due reviews
-app.get('/api/progress/due', authenticateToken, async (req, res) => {
+app.get('/api/progress/due', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const user_id = req.user.id;
     const deckId = req.query.deckId ? parseInt(req.query.deckId, 10) : 1;
@@ -1478,7 +1574,7 @@ app.get('/api/progress/due', authenticateToken, async (req, res) => {
 });
 
 // Record a review result (Spaced Repetition Logic)
-app.post('/api/progress/review', authenticateToken, validateSRSReview, async (req, res) => {
+app.post('/api/progress/review', authenticateToken, requireRegisteredUser, validateSRSReview, async (req, res) => {
   try {
     const { vocab_id, rating } = req.body; // rating: 'easy', 'good', 'hard'
     const user_id = req.user.id;
@@ -1595,7 +1691,7 @@ app.post('/api/progress/review', authenticateToken, validateSRSReview, async (re
 });
 
 // Override/Correct a misclicked review
-app.post('/api/progress/review/override', authenticateToken, async (req, res) => {
+app.post('/api/progress/review/override', authenticateToken, requireRegisteredUser, async (req, res) => {
   try {
     const { vocab_id } = req.body;
     const user_id = req.user.id;

@@ -39,11 +39,11 @@ const Community = () => {
   const [activeTab, setActiveTab] = useState('discover'); // discover | workshop
   const [decks, setDecks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreator, setIsCreator] = useState(user?.is_creator === 1 || localStorage.getItem('mainichi_is_creator') === 'true');
+  const [isCreator, setIsCreator] = useState(user?.isGuest ? localStorage.getItem('mainichi_is_creator') === 'true' : user?.is_creator === 1);
 
   useEffect(() => {
     if (user) {
-      setIsCreator(user.is_creator === 1 || localStorage.getItem('mainichi_is_creator') === 'true');
+      setIsCreator(user.isGuest ? localStorage.getItem('mainichi_is_creator') === 'true' : user.is_creator === 1);
     }
   }, [user]);
   
