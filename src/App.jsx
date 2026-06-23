@@ -51,22 +51,6 @@ const AppLayout = () => {
   const { isOffline } = useApp();
   const { dialogConfig, closeDialog } = useDialog();
 
-  React.useEffect(() => {
-    const detectWebView = () => {
-      const userAgent = window.navigator.userAgent || window.navigator.vendor;
-      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-      const isSafari = /Safari/.test(userAgent) && !/CriOS/.test(userAgent) && !/FxiOS/.test(userAgent);
-      const isAppInventor = !!window.AppInventor;
-      
-      if (isAppInventor || (isIOS && !isSafari)) {
-        document.documentElement.style.setProperty('--notch-gap', '44px');
-      } else {
-        document.documentElement.style.setProperty('--notch-gap', '0px');
-      }
-    };
-    detectWebView();
-  }, []);
-  
   return (
     <div className="bg-background text-on-background pb-[84px] md:pb-xl font-body-md min-h-screen relative overflow-x-hidden md:pl-[260px]">
       <Sidebar />
@@ -106,6 +90,22 @@ import { useApp } from './context/AppContext';
 const AppGlobalListener = () => {
   const { handleAppInventorData } = useApp();
   
+  React.useEffect(() => {
+    const detectWebView = () => {
+      const userAgent = window.navigator.userAgent || window.navigator.vendor;
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+      const isSafari = /Safari/.test(userAgent) && !/CriOS/.test(userAgent) && !/FxiOS/.test(userAgent);
+      const isAppInventor = !!window.AppInventor;
+      
+      if (isAppInventor || (isIOS && !isSafari)) {
+        document.documentElement.style.setProperty('--notch-gap', '44px');
+      } else {
+        document.documentElement.style.setProperty('--notch-gap', '0px');
+      }
+    };
+    detectWebView();
+  }, []);
+
   React.useEffect(() => {
     initAppInventorListener((data) => {
       console.log("Data received from App Inventor:", data);

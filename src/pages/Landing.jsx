@@ -132,7 +132,7 @@ const Landing = () => {
       <PremiumBackground />
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="relative z-30 max-w-7xl mx-auto w-full px-6 lg:px-10 py-5 lg:py-4 flex justify-center items-center shrink-0">
+      <header className="relative z-30 max-w-7xl mx-auto w-full px-6 lg:px-10 pt-[calc(20px+var(--notch-gap))] pb-5 lg:py-4 flex justify-center items-center shrink-0">
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
