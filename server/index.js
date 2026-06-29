@@ -435,7 +435,7 @@ const authenticateToken = (req, res, next) => {
   
   if (!token) return res.sendStatus(401);
 
-  jsonwebtoken.verify(token, JWT_SECRET, (err, user) => {
+  jsonwebtoken.verify(token, JWT_SECRET, { algorithms: ['HS256'] }, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
     
