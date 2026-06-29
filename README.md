@@ -107,6 +107,13 @@ The backend uses a highly structured relational MySQL schema containing the foll
 
 Mainichi includes a high-fidelity communication bridge enabling full integration when wrapped inside the **MIT App Inventor** mobile client.
 
+### Running the MIT App Inventor Wrapper
+You can run and inspect the mobile wrapper by importing the project file:
+1. Log in to [MIT App Inventor](http://ai2.appinventor.mit.edu/).
+2. Click **Projects** -> **Import project (.aia) from my computer...**
+3. Select the [mainichi.aia](mainichi.aia) file from the root directory of this repository.
+4. Connect using the **MIT AI2 Companion** app on your phone, or click **Build** -> **Android App (.apk)** to generate and install the mobile app wrapper.
+
 ### Communication Bridge (`appInventorBridge.js`)
 The bridge utilizes `window.AppInventor.setWebViewString` to send structured commands as JSON payloads. The mobile client intercepts these messages and performs native actions.
 
