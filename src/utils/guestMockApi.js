@@ -505,6 +505,13 @@ window.fetch = async function (url, options) {
       return jsonResponse({ success: true, message: 'Lesson completed and review vocabulary unlocked.' });
     }
 
+    // 6b. Reset lessons progress
+    if (pathname === '/api/lessons/reset' && method === 'POST') {
+      sessionStorage.setItem('mainichi_guest_completed_lessons', '[]');
+      syncGuestProgressToTinyDB();
+      return jsonResponse({ success: true, message: 'Lessons progress has been reset.' });
+    }
+
     // 7. Due reviews
     if (pathname === '/api/progress/due' && method === 'GET') {
       const deckId = parseInt(urlObj.searchParams.get('deckId') || '1', 10);

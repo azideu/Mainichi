@@ -74,6 +74,33 @@ const Settings = () => {
     }
   };
 
+  const handleResetLessons = async () => {
+    setIsDemoActionLoading(true);
+    setDemoMessage('');
+    try {
+      const token = localStorage.getItem('mainichi_token');
+      const tzOffset = new Date().getTimezoneOffset().toString();
+      const res = await fetch(`/api/lessons/reset`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Timezone-Offset': tzOffset
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDemoMessage(data.message);
+      } else {
+        setDemoMessage('Error resetting lessons progress.');
+      }
+    } catch (err) {
+      console.error(err);
+      setDemoMessage('Network error.');
+    } finally {
+      setIsDemoActionLoading(false);
+    }
+  };
+
   const handleSimulateStreak = async () => {
     setIsDemoActionLoading(true);
     setDemoMessage('');
@@ -261,7 +288,7 @@ const Settings = () => {
         
         <div className="space-y-3 md:space-y-4 relative z-10">
           <p className="font-body-md text-on-surface-variant leading-relaxed">
-            Ensure you have perfect material to showcase. Reload all 80 JLPT N5 cards into your due queue or simulate a live 5-day active study streak.
+            Ensure you have perfect material to showcase. Reload all 80 JLPT N5 cards into your due queue, reset completed lessons, or simulate a live 5-day active study streak.
           </p>
 
           {demoMessage && (
@@ -270,14 +297,22 @@ const Settings = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <Button3D 
               variant="secondary" 
               onClick={handleResetProgress} 
               disabled={isDemoActionLoading}
               className="w-full text-xs font-semibold py-3"
             >
-              Reset Queue (Fresh Start)
+              Reset Queue
+            </Button3D>
+            <Button3D 
+              variant="secondary" 
+              onClick={handleResetLessons} 
+              disabled={isDemoActionLoading}
+              className="w-full text-xs font-semibold py-3"
+            >
+              Reset Lessons
             </Button3D>
             <Button3D 
               variant="primary" 
@@ -285,7 +320,7 @@ const Settings = () => {
               disabled={isDemoActionLoading}
               className="w-full text-xs font-semibold py-3"
             >
-              Simulate 5-Day Active Streak
+              Simulate Streak
             </Button3D>
           </div>
         </div>

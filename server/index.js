@@ -1402,6 +1402,18 @@ app.get('/api/lessons/completed', authenticateToken, requireRegisteredUser, asyn
   }
 });
 
+// Reset completed lessons progress
+app.post('/api/lessons/reset', authenticateToken, requireRegisteredUser, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    await pool.query('DELETE FROM mainichi_user_lessons WHERE user_id = ?', [user_id]);
+    res.json({ success: true, message: 'Lessons progress has been reset.' });
+  } catch (err) {
+    console.error("Error resetting completed lessons:", err);
+    res.status(500).json({ error: 'Server error: ' + err.message });
+  }
+});
+
 // Map lesson IDs to target vocabulary words and parent deck IDs
 const LESSON_VOCAB_MAPPING = {
   greetings: { deckId: 2, words: ['こんにちは', 'はい', 'いいえ'] },
