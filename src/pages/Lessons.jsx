@@ -198,8 +198,51 @@ const Lessons = () => {
           <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h4 className="font-label-caps text-outline tracking-widest text-[10px] mb-1">YOUR TRAINING PROGRESS</h4>
-              <h3 className="font-h3 text-on-surface">
-                {completedLessons.length === LESSONS.length ? 'Foundations Completed! 🎉' : `${completedLessons.length} of ${LESSONS.length} Modules Mastered`}
+              <h3 className="font-h3 text-on-surface flex items-center">
+                {completedLessons.length === LESSONS.length ? (
+                  <span className="flex items-center gap-1.5">
+                    Foundations Completed!
+                    <motion.svg
+                      className="w-6 h-6 inline-block align-middle origin-bottom-left"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      animate={{ 
+                        rotate: [0, 15, -10, 15, 0],
+                        scale: [1, 1.15, 0.95, 1.1, 1]
+                      }}
+                      transition={{ 
+                        repeat: Infinity, 
+                        duration: 2.5, 
+                        ease: "easeInOut" 
+                      }}
+                    >
+                      <defs>
+                        <linearGradient id="popperGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#E88122" />
+                          <stop offset="100%" stopColor="#FFC425" />
+                        </linearGradient>
+                      </defs>
+                      <path 
+                        d="M2 22C2.7 20 6 15 8 14C10 13 11 14 11 14L8 17C8 17 7 18 5 20C3.5 21.5 2 22 2 22Z" 
+                        fill="url(#popperGrad)" 
+                        stroke="#E88122" 
+                        strokeWidth="1.5" 
+                        strokeLinejoin="round" 
+                      />
+                      <path d="M10 12C12 9 14 10 16 7" stroke="#3A62C4" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M12 14C15 12 16 13 18 10" stroke="#9CDD54" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M7 11C9 8 8 6 11 4" stroke="#F54291" strokeWidth="1.5" strokeLinecap="round" />
+                      <circle cx="18" cy="4" r="1.5" fill="#FFC425" />
+                      <circle cx="21" cy="7" r="1" fill="#3A62C4" />
+                      <circle cx="14" cy="3" r="2" fill="#9CDD54" />
+                      <circle cx="19" cy="11" r="1.2" fill="#F54291" />
+                      <polygon points="15,7 16,9 18,9 16.5,10 17,12 15,11 13,12 13.5,10 12,9 14,9" fill="#FFC425" />
+                    </motion.svg>
+                  </span>
+                ) : (
+                  `${completedLessons.length} of ${LESSONS.length} Modules Mastered`
+                )}
               </h3>
             </div>
             <div className="flex items-center gap-4 w-full sm:w-1/3">
