@@ -341,8 +341,8 @@ const validateProfileUpdate = (req, res, next) => {
   if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 50) {
     return res.status(400).json({ error: 'Name must be a non-empty string under 50 characters.' });
   }
-  if (profile_picture && (typeof profile_picture !== 'string' || profile_picture.length > 500)) {
-    return res.status(400).json({ error: 'Profile picture URL is too long.' });
+  if (profile_picture && (typeof profile_picture !== 'string' || profile_picture.length > 2097152)) {
+    return res.status(400).json({ error: 'Profile picture URL or data is too long.' });
   }
   next();
 };

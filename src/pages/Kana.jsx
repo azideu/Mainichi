@@ -1114,18 +1114,18 @@ const Kana = () => {
                   </div>
                   <div>
                     <h2 className="font-h1 text-on-surface mb-2 tracking-tighter">Session Completed!</h2>
-                    <p className="font-body-lg text-outline leading-relaxed">You have completed your 10-card character drill.</p>
+                    <p className="font-body-lg text-outline leading-relaxed">You have completed your {practiceDeck.length}-card character drill.</p>
                   </div>
 
                   {/* Stats Cards */}
                   <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
                     <div className="bg-surface-container-low border border-outline/5 rounded-2xl p-4">
                       <span className="font-label-caps text-outline text-[9px] tracking-wider block mb-1">SCORE</span>
-                      <span className="text-[24px] font-bold text-primary">{score} / 10</span>
+                      <span className="text-[24px] font-bold text-primary">{score} / {practiceDeck.length}</span>
                     </div>
                     <div className="bg-surface-container-low border border-outline/5 rounded-2xl p-4">
                       <span className="font-label-caps text-outline text-[9px] tracking-wider block mb-1">ACCURACY</span>
-                      <span className="text-[24px] font-bold text-primary">{Math.round((score / 10) * 100)}%</span>
+                      <span className="text-[24px] font-bold text-primary">{practiceDeck.length > 0 ? Math.round((score / practiceDeck.length) * 100) : 0}%</span>
                     </div>
                   </div>
 
