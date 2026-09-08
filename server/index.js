@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'mainichi_super_secr
   throw new Error("🚨 CRITICAL SECURITY ERROR: Running in production with default JWT_SECRET is prohibited. Please set process.env.JWT_SECRET.");
 }
 
-// Configured CORS dynamically to allow same-origin, local development, and App Inventor (null/empty origins) without crashing on invalid origins
+// Configured CORS dynamically to allow same-origin, local development, and sandboxed iframes without crashing on invalid origins
 app.use(cors((req, callback) => {
   const origin = req.header('Origin');
   const corsOptions = { credentials: true };
@@ -31,7 +31,7 @@ app.use(cors((req, callback) => {
   if (!origin) {
     corsOptions.origin = false;
   } else if (origin === 'null') {
-    // App Inventor or sandboxed iframe. Allow origin but disable credentials to prevent CORS session exploitation
+    // Sandboxed iframe or local file context. Allow origin but disable credentials to prevent CORS session exploitation
     corsOptions.origin = 'null';
     corsOptions.credentials = false;
   } else {
@@ -427,7 +427,7 @@ const authenticateToken = (req, res, next) => {
     token = req.cookies['__Host-mainichi_token'];
   }
 
-  // 2. Try to read from Authorization header (fallback for App Inventor integration)
+  // 2. Try to read from Authorization header (fallback for mobile/API clients)
   if (!token) {
     const authHeader = req.headers['authorization'];
     token = authHeader && authHeader.split(' ')[1];

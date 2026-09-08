@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
 import LoadingState from '../components/LoadingState';
-import { speakText, sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
+import { speakText } from '../utils/speech';
 
 const STEPS = {
   RECALL: 'RECALL',
@@ -52,7 +52,7 @@ const getDynamicFontSize = (text) => {
 
 const Flashcard = () => {
   const navigate = useNavigate();
-  const { recordReview, recordReviewOverride, isMobileApp } = useApp();
+  const { recordReview, recordReviewOverride } = useApp();
   const [deck, setDeck] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -61,8 +61,6 @@ const Flashcard = () => {
   const [results, setResults] = useState({ meaning: null, onyomi: null, kunyomi: null, furigana: null });
   const [options, setOptions] = useState({ meaning: [], onyomi: [], kunyomi: [], furigana: [] });
   const [fullDeckVocab, setFullDeckVocab] = useState([]);
-  const [isListening, setIsListening] = useState(false);
-  const [speechFeedback, setSpeechFeedback] = useState('');
 
   const currentCard = deck[currentIndex];
   const activeSteps = currentCard ? getActiveSteps(currentCard) : [];
@@ -159,133 +157,7 @@ const Flashcard = () => {
     
     setDeck(newDeck);
     generateOptions(currentIndex, newDeck);
-    
-    // Vibrate device to confirm haptic shuffle action
-    sendToAppInventor("VIBRATE");
   }, [deck, currentIndex, fullDeckVocab]);
-
-  useEffect(() => {
-    const handleShake = () => {
-      console.log("Device shake detected: Shuffling deck...");
-      shuffleDeck();
-    };
-
-    window.addEventListener('app-shake-event', handleShake);
-    return () => {
-      window.removeEventListener('app-shake-event', handleShake);
-    };
-  }, [shuffleDeck]);
-
-  const handleSpeechRecognitionStart = () => {
-    setIsListening(true);
-    setSpeechFeedback('');
-    sendToAppInventor("START_SPEECH_RECOGNITION");
-    
-    // Safety timeout in case speech recognizer is dismissed without returning anything
-    setTimeout(() => {
-      setIsListening(false);
-    }, 8000);
-  };
-
-  useEffect(() => {
-    const handleSpeechResult = async (event) => {
-      setIsListening(false);
-      const spokenText = event.detail;
-      if (!spokenText) return;
-      
-      console.log("Speech recognition result received:", spokenText);
-      setSpeechFeedback(`Heard: "${spokenText}"`);
-
-      // Clean the string (remove spaces, punctuation, convert to lowercase)
-      const clean = (str) => {
-        if (!str) return '';
-        return str.replace(/[\s\s、。,.?？!！]/g, '').toLowerCase();
-      };
-      
-      if (!currentCard) return;
-
-      const targetKanji = clean(currentCard.kanji);
-      const targetFurigana = clean(currentCard.furigana);
-      
-      const spokenClean = clean(spokenText);
-      
-      const JAPANESE_NUMBERS_MAP = {
-        '0': ['れい', 'ぜろ', '零', 'rei', 'zero'],
-        '1': ['いち', '一', 'ichi'],
-        '2': ['に', '二', 'ni'],
-        '3': ['さん', '三', 'san'],
-        '4': ['よん', 'し', '四', 'yon', 'shi'],
-        '5': ['ご', '五', 'go'],
-        '6': ['ろく', '六', 'roku'],
-        '7': ['なな', 'しち', '七', 'nana', 'shichi'],
-        '8': ['はち', '八', 'hachi'],
-        '9': ['きゅう', 'く', '九', 'kyuu', 'ku'],
-        '10': ['じゅう', '十', 'juu']
-      };
-
-      const spokenVariants = [spokenClean];
-      if (JAPANESE_NUMBERS_MAP[spokenClean]) {
-        spokenVariants.push(...JAPANESE_NUMBERS_MAP[spokenClean]);
-      }
-      
-      const cleanList = (raw) => {
-        if (!raw) return [];
-        return raw.split(/[,、;]/).map(r => clean(r)).filter(Boolean);
-      };
-      
-      const targetList = [
-        targetKanji,
-        targetFurigana,
-        ...cleanList(currentCard.onyomi),
-        ...cleanList(currentCard.kunyomi)
-      ].filter(Boolean);
-      
-      let isMatch = targetList.some(target => {
-        return spokenVariants.some(variant => 
-          variant === target || variant.includes(target) || target.includes(variant)
-        );
-      });
-
-      // Homophone / DB check (if direct match failed and spokenClean contains Kanji characters)
-      if (!isMatch && spokenText && !/^[\u3040-\u309F\u30A0-\u30FF]+$/.test(spokenClean)) {
-        try {
-          const token = localStorage.getItem('mainichi_token');
-          const res = await fetch(`/api/vocab/lookup?kanji=${encodeURIComponent(spokenText)}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.readings && data.readings.length > 0) {
-              const cleanReadings = data.readings.map(r => clean(r));
-              isMatch = cleanReadings.some(reading => reading === targetFurigana);
-            }
-          }
-        } catch (e) {
-          console.error("Failed to perform homophone lookup", e);
-        }
-      }
-      
-      if (isMatch) {
-        setResults({ meaning: true, onyomi: true, kunyomi: true, furigana: true });
-        setStep(STEPS.RESULT);
-        if (isMobileApp) {
-          sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
-        }
-      } else {
-        if (isMobileApp) {
-          sendToAppInventor("VIBRATE", { duration: 200 });
-        }
-        setTimeout(() => {
-          setSpeechFeedback('');
-        }, 4000);
-      }
-    };
-
-    window.addEventListener('app-speech-result', handleSpeechResult);
-    return () => {
-      window.removeEventListener('app-speech-result', handleSpeechResult);
-    };
-  }, [currentCard, isMobileApp]);
 
   const isAllCorrect = (() => {
     if (!currentCard) return false;
@@ -338,10 +210,6 @@ const Flashcard = () => {
     }
     
     setResults(prev => ({ ...prev, [type]: isCorrect }));
-    
-    if (isMobileApp && !isCorrect) {
-      sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 200 });
-    }
     
     const currentIdx = activeSteps.indexOf(step);
     if (currentIdx !== -1 && currentIdx < activeSteps.length - 1) {
@@ -511,24 +379,6 @@ const Flashcard = () => {
                 >
                   {currentCard.deck_type === 'phrase' ? "Recall reading" : "Recall readings"}
                 </Button3D>
-                {isMobileApp && (
-                  <Button3D 
-                    onClick={handleSpeechRecognitionStart} 
-                    variant="secondary" 
-                    className="w-full py-6 border-primary/20 text-[18px]"
-                    disabled={isListening}
-                  >
-                    <span className="material-symbols-outlined text-primary text-[22px] animate-pulse">
-                      {isListening ? 'graphic_eq' : 'mic'}
-                    </span>
-                    {isListening ? 'Listening...' : 'Speak Answer'}
-                  </Button3D>
-                )}
-                {speechFeedback && (
-                  <div className="text-center font-body-md text-error-container bg-error-container/10 border border-error-container/20 rounded-xl py-3 px-4 animate-in fade-in zoom-in-95">
-                    <span className="text-error font-medium">{speechFeedback}</span>
-                  </div>
-                )}
                 <button 
                   onClick={handleForgot}
                   className="w-full py-4 bg-surface-variant/30 rounded-xl text-outline font-label-caps tracking-widest hover:bg-surface-variant/50 transition-all border border-outline/5 text-[13px] font-semibold"

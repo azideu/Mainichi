@@ -1,5 +1,3 @@
-import { IS_APP_INVENTOR, saveToTinyDB } from './appInventorBridge';
-
 // Override localStorage.getItem for guest users so we don't have to modify token retrieval on every page
 const originalGetItem = localStorage.getItem;
 localStorage.getItem = function (key) {
@@ -46,7 +44,6 @@ const getGuestStats = () => {
       if (diffDays > 1) {
         parsed.current_streak = 0;
         sessionStorage.setItem('mainichi_guest_stats', JSON.stringify(parsed));
-        syncGuestProgressToTinyDB();
       }
     }
     return parsed;
@@ -57,7 +54,6 @@ const getGuestStats = () => {
 
 const saveGuestStats = (stats) => {
   sessionStorage.setItem('mainichi_guest_stats', JSON.stringify(stats));
-  syncGuestProgressToTinyDB();
 };
 
 const getGuestReviews = () => {
@@ -70,7 +66,6 @@ const getGuestReviews = () => {
 
 const saveGuestReviews = (reviews) => {
   sessionStorage.setItem('mainichi_guest_progress', JSON.stringify(reviews));
-  syncGuestProgressToTinyDB();
 };
 
 const getGuestCompletedLessons = () => {
@@ -83,7 +78,6 @@ const getGuestCompletedLessons = () => {
 
 const saveGuestCompletedLessons = (lessons) => {
   sessionStorage.setItem('mainichi_guest_completed_lessons', JSON.stringify(lessons));
-  syncGuestProgressToTinyDB();
 };
 
 const getGuestDownloadedDecks = () => {
@@ -102,7 +96,6 @@ const getGuestDownloadedDecks = () => {
 
 const saveGuestDownloadedDecks = (decks) => {
   sessionStorage.setItem('mainichi_guest_downloaded_decks', JSON.stringify(decks));
-  syncGuestProgressToTinyDB();
 };
 
 const getLocalDateString = () => {
@@ -394,7 +387,6 @@ const resetGuestProgress = () => {
   sessionStorage.setItem('mainichi_guest_stats', JSON.stringify(defaultStats));
   sessionStorage.setItem('mainichi_guest_completed_lessons', '[]');
   sessionStorage.setItem('mainichi_guest_downloaded_decks', '[1]');
-  syncGuestProgressToTinyDB();
 };
 
 const simulateGuestStreak = () => {
@@ -402,41 +394,6 @@ const simulateGuestStreak = () => {
   stats.current_streak = 5;
   stats.longest_streak = 5;
   saveGuestStats(stats);
-};
-
-// Global exports for saving/clearing to/from TinyDB
-export const syncGuestProgressToTinyDB = () => {
-  if (!IS_APP_INVENTOR) return;
-  try {
-    const isGuest = sessionStorage.getItem('mainichi_guest') === 'true';
-    if (!isGuest) return;
-    
-    const user = JSON.parse(sessionStorage.getItem('mainichi_user') || 'null');
-    const token = sessionStorage.getItem('mainichi_token');
-    const stats = JSON.parse(sessionStorage.getItem('mainichi_guest_stats') || 'null');
-    const reviews = JSON.parse(sessionStorage.getItem('mainichi_guest_progress') || 'null');
-    const completedLessons = JSON.parse(sessionStorage.getItem('mainichi_guest_completed_lessons') || 'null');
-    const unlockedDecks = JSON.parse(sessionStorage.getItem('mainichi_guest_downloaded_decks') || 'null');
-    
-    const payload = {
-      user,
-      token,
-      stats,
-      reviews,
-      completedLessons,
-      unlockedDecks
-    };
-    
-    saveToTinyDB('mainichi_guest_data', payload);
-  } catch (e) {
-    console.error("Failed to sync guest progress to TinyDB", e);
-  }
-};
-
-export const clearGuestProgressInTinyDB = () => {
-  if (IS_APP_INVENTOR) {
-    saveToTinyDB('mainichi_guest_data', null);
-  }
 };
 
 // Intercept window.fetch
@@ -508,7 +465,6 @@ window.fetch = async function (url, options) {
     // 6b. Reset lessons progress
     if (pathname === '/api/lessons/reset' && method === 'POST') {
       sessionStorage.setItem('mainichi_guest_completed_lessons', '[]');
-      syncGuestProgressToTinyDB();
       return jsonResponse({ success: true, message: 'Lessons progress has been reset.' });
     }
 
@@ -579,7 +535,6 @@ window.fetch = async function (url, options) {
       user.name = name;
       user.profile_picture = profile_picture;
       sessionStorage.setItem('mainichi_user', JSON.stringify(user));
-      syncGuestProgressToTinyDB();
       return jsonResponse({ success: true, user });
     }
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button3D from '../components/Button3D';
 import { LESSONS, FUTURE_LESSONS } from '../constants/lessons';
-import { sendToAppInventor, APP_INVENTOR_ACTIONS, IS_APP_INVENTOR } from '../utils/appInventorBridge';
 import LoadingState from '../components/LoadingState';
 
 const CATEGORIES = [
@@ -157,14 +156,6 @@ const Lessons = () => {
         syncLessonCompletion(activeLesson.id);
       }
       setCelebrate(true);
-      if (IS_APP_INVENTOR) {
-        sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
-      }
-    } else {
-      // Vibrate only on incorrect choices
-      if (IS_APP_INVENTOR) {
-        sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 200 });
-      }
     }
   };
 

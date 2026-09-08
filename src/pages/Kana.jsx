@@ -183,7 +183,7 @@ const getGridPosition = (char) => {
 };
 
 
-import { speakText as speakTextBridge, IS_APP_INVENTOR, sendToAppInventor } from '../utils/appInventorBridge';
+import { speakText } from '../utils/speech';
 
 // Safe localStorage helper functions to prevent exceptions in private mode or custom webviews
 const getSafeLocalStorage = (key, fallback = '') => {
@@ -200,36 +200,6 @@ const setSafeLocalStorage = (key, value) => {
     localStorage.setItem(key, value);
   } catch (e) {
     console.warn('localStorage is not writable:', e);
-  }
-};
-
-// Helper to pronounce Japanese words using native SpeechSynthesis or MIT App Inventor Bridge
-const speakText = (text, rate = 0.8, voiceURI = null) => {
-  if (IS_APP_INVENTOR) {
-    speakTextBridge(text);
-    return;
-  }
-
-  // Standard Web Speech API
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ja-JP';
-      utterance.rate = rate;
-
-      if (voiceURI && typeof window.speechSynthesis.getVoices === 'function') {
-        const allVoices = window.speechSynthesis.getVoices() || [];
-        const targetVoice = allVoices.find(v => v && v.voiceURI === voiceURI);
-        if (targetVoice) {
-          utterance.voice = targetVoice;
-        }
-      }
-
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn('SpeechSynthesis failed:', e);
-    }
   }
 };
 // Dynamic Japanese Kana Stroke Order Animator Component using KanjiVG dataset
@@ -577,14 +547,8 @@ const Kana = () => {
     if (isCorrect) {
       setStreak(prev => prev + 1);
       setScore(prev => prev + 1);
-      if (IS_APP_INVENTOR) {
-        sendToAppInventor("PLAY_MEDIA", { file: "correct.mp3" });
-      }
     } else {
       setStreak(0);
-      if (IS_APP_INVENTOR) {
-        sendToAppInventor("VIBRATE", { duration: 200 });
-      }
     }
   };
 
@@ -736,7 +700,7 @@ const Kana = () => {
         </div>
 
         {/* Desktop Voice Selector (shown only on md and larger viewports) */}
-        {!IS_APP_INVENTOR && voices.length > 0 && (
+        {voices.length > 0 && (
           <div className="hidden md:flex flex-col gap-1 min-w-[240px]">
             <label className="font-label-caps text-[8px] text-outline tracking-wider flex items-center gap-1.5 font-bold">
               <span className="material-symbols-outlined text-[12px] text-primary">voice_over_off</span>
@@ -941,7 +905,7 @@ const Kana = () => {
             </p>
 
             {/* Mobile Voice Selector (shown only on mobile, placed at the bottom below the grids) */}
-            {!IS_APP_INVENTOR && voices.length > 0 && (
+            {voices.length > 0 && (
               <div className="block md:hidden mt-6 bg-surface p-4 rounded-2xl border border-outline/10 shadow-sm relative overflow-hidden">
                 <div className="absolute inset-0 bg-washi opacity-10 pointer-events-none"></div>
                 <label className="font-label-caps text-[9px] text-outline tracking-wider flex items-center gap-1.5 font-bold mb-1.5 block">

@@ -1,13 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  sendToAppInventor, 
-  speakText, 
-  saveToTinyDB, 
-  getFromTinyDB, 
-  playMedia 
-} from '../utils/appInventorBridge';
 
 const NAV_ITEMS = [
   { id: 'lessons', path: '/lessons', icon: 'menu_book', label: '授業' },
@@ -21,24 +14,9 @@ const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [touchStart, setTouchStart] = React.useState({ x: 0, y: 0, time: 0 });
-  const [clickPattern, setClickPattern] = React.useState([]);
 
   const handleItemClick = (itemId, path) => {
     navigate(path);
-    setClickPattern(prev => {
-      const nextPattern = [...prev, itemId].slice(-4);
-      if (
-        nextPattern.length === 4 &&
-        nextPattern[0] === 'home' &&
-        nextPattern[1] === 'kana' &&
-        nextPattern[2] === 'home' &&
-        nextPattern[3] === 'kana'
-      ) {
-        navigate('/sandbox');
-        return [];
-      }
-      return nextPattern;
-    });
   };
 
   const activeIndex = NAV_ITEMS.findIndex((item) => 

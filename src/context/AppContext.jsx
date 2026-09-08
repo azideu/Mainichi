@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { IS_APP_INVENTOR, getFromTinyDB, sendToAppInventor } from '../utils/appInventorBridge';
-
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
@@ -13,40 +11,11 @@ export const AppProvider = ({ children }) => {
   const [dailyGoal, setDailyGoal] = useState({ current: 0, total: 20 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFetchingStats, setIsFetchingStats] = useState(true);
-  const [isMobileApp] = useState(IS_APP_INVENTOR);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
-  const handleAppInventorData = React.useCallback((payload) => {
-    switch (payload.action) {
-      case 'TINYDB_RESPONSE':
-        console.log('Received cached progress from TinyDB:', payload.data);
-        if (payload.data && payload.data.tag === 'mainichi_guest_data') {
-          window.dispatchEvent(new CustomEvent('mainichi-tinydb-guest-sync', { detail: payload.data.value }));
-        }
-        break;
-      case 'SENSOR_DATA':
-        console.log('Received sensor data (e.g. shake to shuffle):', payload.data);
-        if (payload.data === 'SHAKE') {
-          window.dispatchEvent(new CustomEvent('app-shake-event'));
-        }
-        break;
-      case 'SPEECH_RESULT':
-        console.log('Received speech recognition result:', payload.data);
-        window.dispatchEvent(new CustomEvent('app-speech-result', { detail: payload.data }));
-        break;
-      default:
-        console.log('Unhandled App Inventor action:', payload.action);
-    }
-  }, []);
-  
   const fetchStats = async () => {
     try {
       setIsFetchingStats(true);
-      
-      if (isMobileApp && user && !user.isGuest) {
-        console.log('Checking TinyDB for cached stats before fetching from server...');
-        getFromTinyDB('user_stats');
-      }
 
       const token = localStorage.getItem('mainichi_token') || sessionStorage.getItem('mainichi_token');
       if (!token) {
@@ -89,31 +58,17 @@ export const AppProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOffline(false);
-      if (isMobileApp) {
-        sendToAppInventor("CONNECTION_STATUS", { online: true });
-      }
-    };
-    const handleOffline = () => {
-      setIsOffline(true);
-      if (isMobileApp) {
-        sendToAppInventor("CONNECTION_STATUS", { online: false });
-      }
-    };
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
-    if (isMobileApp && !navigator.onLine) {
-      sendToAppInventor("CONNECTION_STATUS", { online: false });
-    }
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [isMobileApp]);
+  }, []);
 
   const updateSettings = async (newMasteryReq, newDailyGoal) => {
     try {
@@ -214,9 +169,7 @@ export const AppProvider = ({ children }) => {
       dailyGoal, setDailyGoal,
       isSidebarOpen, setIsSidebarOpen,
       isFetchingStats,
-      isMobileApp,
       isOffline,
-      handleAppInventorData,
       recordReview,
       recordReviewOverride,
       updateSettings,

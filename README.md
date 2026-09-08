@@ -57,7 +57,7 @@ Mainichi is a joyful, tactile Japanese language learning platform designed for m
 - **Database**: MySQL (using `mysql2` client connection pooling)
 - **Authentication**: JSON Web Tokens (JWT) & bcrypt password hashing
 - **UI Elements**: Google Material Symbols, Lucide React Icons
-- **Speech Integration**: HTML5 Web Speech Synthesis (with browser preview fallback) & App Inventor Speech Recognition
+- **Speech Integration**: HTML5 Web Speech Synthesis API for Japanese pronunciation
 
 ---
 
@@ -77,7 +77,7 @@ Mainichi/
 │   ├── constants/                 # Centralized curriculum database (lessons.js)
 │   ├── context/                   # Global React contexts (AppContext, AuthContext, DialogContext)
 │   ├── pages/                     # Main routing view components (Dashboard, Review, etc.)
-│   ├── utils/                     # Client-side utility functions (appInventorBridge.js)
+│   ├── utils/                     # Client-side utility functions (speech.js, guestMockApi.js)
 │   ├── App.jsx                    # Routing table, AppLayout, and app shell
 │   ├── index.css                  # Typography, design system tokens, and global styling
 │   └── main.jsx                   # React bootstrapper
@@ -100,39 +100,6 @@ The backend uses a highly structured relational MySQL schema containing the foll
 *   **`mainichi_user_stats`**: Tracks user study streaks (current and longest), last-active dates, and custom daily targets.
 *   **`mainichi_deck_reviews`**: Stores user-submitted star ratings (1 to 5) and feedback comments for custom decks.
 *   **`mainichi_user_lessons`**: Tracks user progress through the structured foundational curriculum.
-
----
-
-## MIT App Inventor Integration
-
-Mainichi includes a high-fidelity communication bridge enabling full integration when wrapped inside the **MIT App Inventor** mobile client.
-
-### Running the MIT App Inventor Wrapper
-You can run and inspect the mobile wrapper by importing the project file:
-1. Log in to [MIT App Inventor](http://ai2.appinventor.mit.edu/).
-2. Click **Projects** -> **Import project (.aia) from my computer...**
-3. Select the [mainichi.aia](mainichi.aia) file from the root directory of this repository.
-4. Connect using the **MIT AI2 Companion** app on your phone, or click **Build** -> **Android App (.apk)** to generate and install the mobile app wrapper.
-
-### Communication Bridge (`appInventorBridge.js`)
-The bridge utilizes `window.AppInventor.setWebViewString` to send structured commands as JSON payloads. The mobile client intercepts these messages and performs native actions.
-
-#### Actions Sent to App Inventor
-- **`SPEAK`**: Commands the app to read text out loud using the phone's native Text-to-Speech (TTS) module.
-- **`SAVE_TINYDB`**: Caches progress state or credentials locally on the device via native storage (`TinyDB`).
-- **`GET_TINYDB`**: Requests cached data from the device's persistent storage.
-- **`PLAY_MEDIA`**: Plays sound effects or audio assets loaded inside App Inventor.
-- **`CONNECTION_STATUS`**: Updates the application when the phone moves online or offline to manage local syncing.
-
-#### Actions Received from App Inventor
-- **`TINYDB_RESPONSE`**: Dispatches cached progress data back to the webview (e.g. `mainichi_guest_data` for seamless guest sessions).
-- **`SENSOR_DATA`**: Listens for device movement (e.g. `SHAKE` accelerometer events to shuffle active cards).
-- **`SPEECH_RESULT`**: Inputs text returned from the device's native Speech Recognizer (allowing users to speak their answers).
-
-### Responsive Layout Notch Fitting
-To accommodate modern devices with screen camera cutouts, a dynamic notch adjustment is integrated:
-- The app detects if it is running inside the iOS WebKit container or the App Inventor mobile webview.
-- Adjusts the `--notch-gap` CSS custom property (typically `44px` on mobile wrappers and `0px` in standard browsers) to push headers and notification bars safely below the device status notch.
 
 ---
 

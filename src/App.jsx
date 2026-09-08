@@ -13,7 +13,6 @@ import Login from './pages/Login';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import DevSandbox from './pages/DevSandbox';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import { DialogProvider, useDialog } from './context/DialogContext';
@@ -84,20 +83,14 @@ const AppLayout = () => {
 };
 
 
-import { initAppInventorListener } from './utils/appInventorBridge';
-import { useApp } from './context/AppContext';
-
 const AppGlobalListener = () => {
-  const { handleAppInventorData } = useApp();
-  
   React.useEffect(() => {
     const detectWebView = () => {
       const userAgent = window.navigator.userAgent || window.navigator.vendor;
       const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
       const isSafari = /Safari/.test(userAgent) && !/CriOS/.test(userAgent) && !/FxiOS/.test(userAgent);
-      const isAppInventor = !!window.AppInventor;
       
-      if (isAppInventor || (isIOS && !isSafari)) {
+      if (isIOS && !isSafari) {
         document.documentElement.style.setProperty('--notch-gap', '44px');
       } else {
         document.documentElement.style.setProperty('--notch-gap', '0px');
@@ -105,13 +98,6 @@ const AppGlobalListener = () => {
     };
     detectWebView();
   }, []);
-
-  React.useEffect(() => {
-    initAppInventorListener((data) => {
-      console.log("Data received from App Inventor:", data);
-      handleAppInventorData(data);
-    });
-  }, [handleAppInventorData]);
 
   return null;
 };
@@ -138,7 +124,6 @@ function App() {
                 <Route path="/community" element={<Community />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/sandbox" element={<DevSandbox />} />
               </Route>
             </Routes>
           </Router>

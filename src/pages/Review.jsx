@@ -5,7 +5,6 @@ import Button3D from '../components/Button3D';
 import { useApp } from '../context/AppContext';
 import { useDialog } from '../context/DialogContext';
 import LoadingState from '../components/LoadingState';
-import { sendToAppInventor, APP_INVENTOR_ACTIONS } from '../utils/appInventorBridge';
 
 const getFirstReading = (readingStr) => {
   if (!readingStr) return '';
@@ -23,7 +22,6 @@ const getQueueKanjiFontSize = (text) => {
 
 const Review = () => {
   const navigate = useNavigate();
-  const { isMobileApp } = useApp();
   const { showAlert, showConfirm } = useDialog();
   const [loading, setLoading] = useState(true);
   const [dueCount, setDueCount] = useState(0);
@@ -218,9 +216,6 @@ const Review = () => {
           </p>
 
           <Button3D onClick={() => {
-            if (isMobileApp) {
-              sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
-            }
             navigate('/flashcard?deckId=1');
           }} variant="primary" disabled={dueCount === 0} className="w-full sm:w-auto px-10">
             {dueCount > 0 ? 'Review' : 'Nothing Due'}
@@ -248,9 +243,6 @@ const Review = () => {
             variants={itemVariants}
             onClick={() => {
               if (deck.dueCount > 0) {
-                if (isMobileApp) {
-                  sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
-                }
                 navigate(`/flashcard?deckId=${deck.id}`);
               }
             }}
@@ -287,9 +279,6 @@ const Review = () => {
               <Button3D
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (isMobileApp) {
-                    sendToAppInventor(APP_INVENTOR_ACTIONS.VIBRATE, { duration: 100 });
-                  }
                   navigate(`/flashcard?deckId=${deck.id}`);
                 }}
                 variant="primary"

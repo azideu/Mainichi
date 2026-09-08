@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { IS_APP_INVENTOR, getFromTinyDB } from '../utils/appInventorBridge';
-import { clearGuestProgressInTinyDB, syncGuestProgressToTinyDB } from '../utils/guestMockApi';
 import { useDialog } from './DialogContext';
 
 const AuthContext = createContext();
@@ -27,46 +25,6 @@ export const AuthProvider = ({ children }) => {
           sessionStorage.removeItem('mainichi_token');
           sessionStorage.removeItem('mainichi_user');
         }
-      }
-
-      // If in App Inventor, try to load guest session from TinyDB
-      if (IS_APP_INVENTOR && !initialUser) {
-        const handleTinyDBSync = async (e) => {
-          const data = e.detail;
-          if (data && data.user) {
-            try {
-              sessionStorage.setItem('mainichi_token', data.token);
-              sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
-              sessionStorage.setItem('mainichi_guest', 'true');
-              if (data.stats) sessionStorage.setItem('mainichi_guest_stats', JSON.stringify(data.stats));
-              if (data.reviews) sessionStorage.setItem('mainichi_guest_progress', JSON.stringify(data.reviews));
-              if (data.completedLessons) sessionStorage.setItem('mainichi_guest_completed_lessons', JSON.stringify(data.completedLessons));
-              if (data.unlockedDecks) sessionStorage.setItem('mainichi_guest_downloaded_decks', JSON.stringify(data.unlockedDecks));
-              
-              setUser(data.user);
-              await verifySessionWithBackend(data.token);
-            } catch (err) {
-              console.error("Error setting guest data from TinyDB:", err);
-              setLoading(false);
-            }
-          } else {
-            setLoading(false);
-          }
-          window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-        };
-
-        window.addEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-        getFromTinyDB('mainichi_guest_data');
-
-        const timer = setTimeout(() => {
-          setLoading(false);
-          window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-        }, 1500);
-
-        return () => {
-          clearTimeout(timer);
-          window.removeEventListener('mainichi-tinydb-guest-sync', handleTinyDBSync);
-        };
       }
 
       // 2. Perform backend silent validation
@@ -117,8 +75,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Guest login failed');
 
-      // For standard web, store 'cookie_session' as placeholder. For App Inventor, store the actual JWT.
-      const storedToken = IS_APP_INVENTOR ? data.token : 'cookie_session';
+      const storedToken = data.token || 'cookie_session';
       sessionStorage.setItem('mainichi_token', storedToken);
       sessionStorage.setItem('mainichi_user', JSON.stringify(data.user));
       sessionStorage.setItem('mainichi_guest', 'true');
@@ -138,10 +95,6 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.setItem('mainichi_guest_downloaded_decks', '[1]');
       
       setUser(data.user);
-      
-      if (IS_APP_INVENTOR) {
-        syncGuestProgressToTinyDB();
-      }
       return true;
     } catch (error) {
       console.error("Guest login failed", error);
@@ -169,9 +122,8 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem('mainichi_guest_progress');
       sessionStorage.removeItem('mainichi_guest_completed_lessons');
       sessionStorage.removeItem('mainichi_guest_downloaded_decks');
-      clearGuestProgressInTinyDB();
 
-      const storedToken = IS_APP_INVENTOR ? data.token : 'cookie_session';
+      const storedToken = data.token || 'cookie_session';
       localStorage.setItem('mainichi_token', storedToken);
       localStorage.setItem('mainichi_user', JSON.stringify(data.user));
       setUser(data.user);
@@ -216,9 +168,8 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem('mainichi_guest_progress');
       sessionStorage.removeItem('mainichi_guest_completed_lessons');
       sessionStorage.removeItem('mainichi_guest_downloaded_decks');
-      clearGuestProgressInTinyDB();
 
-      const storedToken = IS_APP_INVENTOR ? data.token : 'cookie_session';
+      const storedToken = data.token || 'cookie_session';
       localStorage.setItem('mainichi_token', storedToken);
       localStorage.setItem('mainichi_user', JSON.stringify(data.user));
       setUser(data.user);
@@ -343,7 +294,6 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem('mainichi_guest_progress');
     sessionStorage.removeItem('mainichi_guest_completed_lessons');
     sessionStorage.removeItem('mainichi_guest_downloaded_decks');
-    clearGuestProgressInTinyDB();
     setUser(null);
   };
 
